@@ -15,5 +15,5 @@ public enum Categories
     Pets,
     PersonalCare,
     Travel,
-    Miscellaneous
+    Miscellaneous,
 }

@@ -8,11 +8,12 @@ public class Tests
     {
         var currentAmount = new DataLogic();
 
-        double result = currentAmount.AddMoneyToAccount(200);
+        var result = currentAmount.AddMoneyToAccount(200);
 
         Assert.That(result, Is.EqualTo(200));
     }
     
-    
+    [Test]
+    public void 
 }
 
