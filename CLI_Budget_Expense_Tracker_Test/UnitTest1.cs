@@ -1,16 +1,18 @@
 ﻿namespace CLI_Budget_Expense_Tracker_Test;
+using CLI_Budget_Expense_Tracker;
 
 public class Tests
 {
-    [SetUp]
-    public void Setup()
-    {
-    }
-
     [Test]
-    public void Test1()
+    public void AddMoneyTest()
     {
-        Assert.Pass();
+        var currentAmount = new DataLogic();
+
+        double result = currentAmount.AddMoneyToAccount(200);
+
+        Assert.That(result, Is.EqualTo(200));
     }
+    
+    
 }
 

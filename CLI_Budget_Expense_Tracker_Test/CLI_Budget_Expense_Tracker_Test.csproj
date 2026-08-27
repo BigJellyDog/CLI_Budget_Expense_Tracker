@@ -20,4 +20,8 @@
         <Using Include="NUnit.Framework"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\CLI_Budget_Expense_Tracker\CLI_Budget_Expense_Tracker.csproj" />
+    </ItemGroup>
+
 </Project>
