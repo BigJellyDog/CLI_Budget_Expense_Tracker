@@ -3,16 +3,20 @@
 
 public class DataLogic
 {
-    private decimal AccountSum = 0;
-    private decimal CurrentMoney = 0;
-    private decimal WholeIncome = 0;
-    private decimal WholeExpenses = 0;
-    private Categories TheCategory;
+    private decimal _accountSum = 0;
+    public Categories Category;
+    public DateTime Date;
 
 
-    public decimal AddMoneyToAccount(decimal amount)
+    public decimal MoneyAdded(decimal amount)
     {
-        AccountSum += amount;
-        return AccountSum;
+        _accountSum += amount;
+        return _accountSum;
+    }
+
+    public decimal MoneySpend(decimal amount)
+    {
+        _accountSum -= amount;
+        return _accountSum;
     }
 }
