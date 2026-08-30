@@ -1,12 +1,20 @@
-﻿namespace CLI_Budget_Expense_Tracker;
+﻿using System.Reflection;
+
+namespace CLI_Budget_Expense_Tracker;
 
 
-public class DataLogic(decimal accountBalance, Categories category, DateTime date)
+public class DataObject(decimal accountBalance, Categories category, DateTime date)
 {
     private decimal AccountBalance { get; set; } = accountBalance;
     public Categories Category { get; set; } = category;
     public DateTime Date { get; set; } = date;
-    
+
+    //Test list
+    // public override string ToString()
+    // {
+    //     return $"{AccountBalance}, {Category}, {Date}";
+    // }
+
 
     public decimal MoneyAdded(decimal amount)
     {
