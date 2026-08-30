@@ -9,12 +9,13 @@ public class Tests
     // Test for adding money
     public void AddMoneyTest()
     {
-        var addedAmount = new DataLogic();
+        var addedAmount = new DataLogic(0, Categories.Test, new DateTime());
         var result = addedAmount.MoneyAdded(200);
         Assert.Multiple(() =>
             {
                 Assert.That(result, Is.EqualTo(200));
                 Assert.That(result, Is.GreaterThan(0));
+                Console.WriteLine(addedAmount);
             }
         );
     }
@@ -23,21 +24,20 @@ public class Tests
     // Test for removing money
     public void SpendMoneyTest()
     {
-        var removedAmount = new DataLogic();
+        var removedAmount = new DataLogic(0, Categories.Test, new DateTime());
         var result = removedAmount.MoneySpend(200);
         Assert.That(result, Is.EqualTo(-200));
     }
-
     
-    //TODO need to fix Enum check it's not working
+    
     [Test]
     public void CheckIfDateAndCategoryArePresent()
     {
-        var newAmount = new DataLogic();
+        var newAmount = new DataLogic(0, Categories.Test, new DateTime());
         using (Assert.EnterMultipleScope())
         {
             Assert.That(newAmount.Date, Is.TypeOf<DateTime>());
-            Assert.That(newAmount, Has.Property(Categories));
+            Assert.That(newAmount.Category, Is.EqualTo(Categories.Test));
         }
     }
 }
