@@ -5,7 +5,7 @@ namespace CLI_Budget_Expense_Tracker;
 
 public class DataObject(decimal accountBalance, Categories category, DateTime date)
 {
-    private decimal AccountBalance { get; set; } = accountBalance;
+    public decimal AccountBalance { get; set; } = accountBalance;
     public Categories Category { get; set; } = category;
     public DateTime Date { get; set; } = date;
 

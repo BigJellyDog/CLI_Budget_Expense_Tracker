@@ -6,17 +6,23 @@ class Program
 {
     static void Main(string[] args)
     {
-        var program = new Program();
-        program.CreateExpense();
+        CreateExpense();
     }
 
-
-
-
-    public void CreateExpense()
+    
+    public static void CreateExpense()
     {
-        Console.WriteLine("Type the amount you want to add.");
+        // Amount
+        Console.WriteLine("Type the amount you want to add: ");
         var amount = Convert.ToDecimal(Console.ReadLine());
-        var userobject = new DataObject(amount, Categories.Test, DateTime.Now);
+        
+        // Category
+        Console.WriteLine("Type the category you want to add: ");
+        var category = Enum.Parse<Categories>(Console.ReadLine());
+        var userObject = new DataObject(amount, category, DateTime.Now);
+        Console.WriteLine(userObject.AccountBalance);
+        Console.WriteLine(userObject.Category);
+        Console.WriteLine(userObject.Date);
+        
     }
 }
