@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Net.WebSockets;
+using System.Reflection;
 
 namespace CLI_Budget_Expense_Tracker;
 
@@ -36,8 +37,32 @@ class Program
         var description = Console.ReadLine() ?? "";
         
         // Category
-        Console.WriteLine("Type the category you want to add: ");
-        var category = Enum.Parse<Categories>(Console.ReadLine());
+        Console.WriteLine("Available categories:");
+
+        // Enum.GetValues<Name og the Enum Class> to get all values from the Enum class
+        foreach (var availableCategory in Enum.GetValues<Categories>())
+        {
+            Console.WriteLine(availableCategory);
+        }
+
+        // Make an Enum object
+        Categories category;
+
+        while (true)
+        {
+            Console.WriteLine("Type the category you want to add:");
+
+            if (Enum.TryParse(Console.ReadLine(), true, out category)
+                && Enum.IsDefined(category))
+            {
+                break;
+            }
+
+            Console.WriteLine("Invalid category. Choose a category from the list.");
+            
+        }
+        
+        
         var expense = new Expense(
             amount,
             category,
