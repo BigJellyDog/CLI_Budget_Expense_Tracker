@@ -1,17 +1,20 @@
-﻿using System.Net.WebSockets;
-using System.Reflection;
-
+﻿using CLI_Budget_Expense_Tracker.Services;
 namespace CLI_Budget_Expense_Tracker;
 
 class Program
 {
-    static void Main(string[] args)
+    private static void Main(string[] args)
     {
-        CreateExpense();
+        var expenseService = new ExpenseService();
+        
+        CreateExpense(expenseService);
+        CreateExpense(expenseService);
+
+        Console.WriteLine($"Added expenses {expenseService.GetAllExpenses().Count}");
     }
 
     
-    public static void CreateExpense()
+    public static void CreateExpense(ExpenseService expenseService)
     {
         
         // Amount
@@ -67,6 +70,8 @@ class Program
             amount,
             category,
             description);
+        
+        expenseService.AddExpense(expense);
         
         Console.WriteLine($"Id: {expense.Id}");
         Console.WriteLine($"Amount: {expense.Amount}");
