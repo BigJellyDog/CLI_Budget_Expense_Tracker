@@ -14,8 +14,22 @@ class Program
     {
         
         // Amount
-        Console.WriteLine("Type the amount you want to add: ");
-        var amount = Convert.ToDecimal(Console.ReadLine());
+        decimal amount;
+        
+        while (true)
+        {
+            Console.WriteLine("Type the amount you want to add:");
+
+            // if ReadLine == true to decimal AND amount > 0 then it gives out amount back
+            // else the loop goes again
+            if (decimal.TryParse(Console.ReadLine(), out amount) && amount > 0)
+            {
+                break;
+            }
+
+            Console.WriteLine("Invalid amount. Enter a number greater than 0.");
+        }
+        
         
         //Description
         Console.WriteLine("Type a description or press Enter to skip:");
