@@ -8,7 +8,7 @@ public class Tests
     // Test for adding money
     public void AddMoneyTest()
     {
-        var addedAmount = new DataObject(0, Categories.Test, new DateTime());
+        var addedAmount = new DataObjects(0, Categories.Test, new DateTime());
         var result = addedAmount.MoneyAdded(200);
         Assert.Multiple(() =>
             {
@@ -22,7 +22,7 @@ public class Tests
     // Test for removing money
     public void SpendMoneyTest()
     {
-        var removedAmount = new DataObject(0, Categories.Test, new DateTime());
+        var removedAmount = new DataObjects(0, Categories.Test, new DateTime());
         var result = removedAmount.MoneySpend(200);
         Assert.That(result, Is.EqualTo(-200));
     }
@@ -31,7 +31,7 @@ public class Tests
     [Test]
     public void CheckIfDateAndCategoryArePresent()
     {
-        var newAmount = new DataObject(0, Categories.Test, new DateTime());
+        var newAmount = new DataObjects(0, Categories.Test, new DateTime());
         using (Assert.EnterMultipleScope())
         {
             Assert.That(newAmount.Date, Is.TypeOf<DateTime>());

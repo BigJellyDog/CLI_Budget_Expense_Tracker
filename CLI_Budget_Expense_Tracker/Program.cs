@@ -18,11 +18,11 @@ class Program
         
         // Category
         Console.WriteLine("Type the category you want to add: ");
+        
         var category = Enum.Parse<Categories>(Console.ReadLine());
-        var userObject = new DataObject(amount, category, DateTime.Now);
+        var userObject = new DataObjects(amount, category, DateTime.Now);
         Console.WriteLine(userObject.AccountBalance);
         Console.WriteLine(userObject.Category);
         Console.WriteLine(userObject.Date);
-        
     }
 }

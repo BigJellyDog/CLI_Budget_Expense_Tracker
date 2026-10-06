@@ -3,7 +3,7 @@
 namespace CLI_Budget_Expense_Tracker;
 
 
-public class DataObject(decimal accountBalance, Categories category, DateTime date)
+public class DataObjects(decimal accountBalance, Categories category, DateTime date)
 {
     public decimal AccountBalance { get; set; } = accountBalance;
     public Categories Category { get; set; } = category;
