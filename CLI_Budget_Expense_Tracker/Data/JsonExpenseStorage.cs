@@ -3,11 +3,9 @@ using System.Text.Json;
 
 public class JsonExpenseStorage(string filePath)
 {
-    private readonly string _filePath = filePath;
-
     public void Save(IReadOnlyList<Expense> expenses)
     {
-        var directory = Path.GetDirectoryName(_filePath);
+        var directory = Path.GetDirectoryName(filePath);
         if (!string.IsNullOrEmpty(directory))
         {
             Directory.CreateDirectory(directory);
@@ -17,8 +15,8 @@ public class JsonExpenseStorage(string filePath)
             WriteIndented = true
         };
 
-        var json = JsonSerializer.Serialize((expenses, options));
+        var json = JsonSerializer.Serialize(expenses, options);
         
-        File.WriteAllText(_filePath, json);
+        File.WriteAllText(filePath, json);
     }
 }
