@@ -3,12 +3,19 @@ using System.Runtime.InteropServices.JavaScript;
 using System.Globalization;
 using CLI_Budget_Expense_Tracker.Services;
 namespace CLI_Budget_Expense_Tracker;
+using CLI_Budget_Expense_Tracker.Data;
 
 class Program
 {
     private static void Main(string[] args)
     {
         var expenseService = new ExpenseService();
+
+        var storageDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Storage");
+
+        var filePath = Path.Combine(storageDirectory,"expenses.json");
+
+        var storage = new JsonExpenseStorage(filePath);
 
         while (true)
         {
@@ -19,6 +26,7 @@ class Program
             Console.WriteLine("4. Filter by category");
             Console.WriteLine("5. Show today's expenses");
             Console.WriteLine("6. Filter by date range");
+            Console.WriteLine("7. Save expenses");
             Console.WriteLine("0. Exit");
             Console.WriteLine("Chose an option ");
 
@@ -51,6 +59,21 @@ class Program
                     break;
                 case "6":
                     ShowExpensesByPeriod(expenseService);
+                    break;
+                case "7":
+                    try
+                    {
+                        storage.Save(expenseService.GetAllExpenses());
+                        Console.WriteLine($"Expenses saved to: {filePath}");
+                    }
+                    catch (IOException exception)
+                    {
+                        Console.WriteLine($"File error: {exception.Message}");
+                    }
+                    catch (UnauthorizedAccessException exception)
+                    {
+                        Console.WriteLine($"Access denied {exception.Message}");
+                    }
                     break;
                 case "0":
                     return;
