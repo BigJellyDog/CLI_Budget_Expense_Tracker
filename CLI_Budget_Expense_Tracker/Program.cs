@@ -1,4 +1,6 @@
-﻿using CLI_Budget_Expense_Tracker.Services;
+﻿using System.Globalization;
+using System.Runtime.InteropServices.JavaScript;
+using CLI_Budget_Expense_Tracker.Services;
 namespace CLI_Budget_Expense_Tracker;
 
 class Program
@@ -13,6 +15,8 @@ class Program
             Console.WriteLine("1. Add expense");
             Console.WriteLine("2. Show expenses");
             Console.WriteLine("3. Show total amount");
+            Console.WriteLine("4. Filter by category");
+            Console.WriteLine("5. Show today's expenses");
             Console.WriteLine("0. Exit");
             Console.WriteLine("Chose an option ");
 
@@ -24,11 +28,24 @@ class Program
                     CreateExpense(expenseService);
                     break;
                 case "2":
-                    ShowExpenses(expenseService);
+                    ShowExpenses(expenseService.GetAllExpenses());
                     break;
                 case "3":
                     var total = expenseService.GetTotalAmount();
                     Console.WriteLine($"Total expenses: {total:F2}");
+                    break;
+                case "4":
+                    var category = ReadCategory();
+
+                    var filteredExpenses = expenseService.GetExpensesByCategory(category);
+                    ShowExpenses(filteredExpenses);
+                    break;
+                case "5":
+                    var today = DateTime.Today;
+
+                    var todaysExpenses = expenseService.GetExpensesByPeriod(today, today);
+                    
+                    ShowExpenses(todaysExpenses);
                     break;
                 case "0":
                     return;
@@ -39,17 +56,40 @@ class Program
         }
     }
 
-    public static void ShowExpenses(ExpenseService expenseService)
+    public static Categories ReadCategory()
     {
-        var expenses = expenseService.GetAllExpenses();
+        Console.WriteLine("Available categories:");
 
+        foreach (var availableCategory in Enum.GetValues<Categories>())
+        {
+            Console.WriteLine(availableCategory);
+        }
+
+        Categories category;
+
+        while (true)
+        {
+            Console.WriteLine("Choose a category: ");
+
+            if (Enum.TryParse(Console.ReadLine(), true, out category) && Enum.IsDefined(category))
+            {
+                return category;
+            }
+
+            Console.WriteLine("Invalid category. Choose a category from the list.");
+        }
+    }
+    
+    
+    public static void ShowExpenses(IReadOnlyList<Expense> expenses)
+    {
         if (expenses.Count == 0)
         {
             Console.WriteLine("No expenses yet.");
             return;
         }
         
-        Console.WriteLine($"Added expenses: {expenses.Count}");
+        Console.WriteLine($"Expenses found: {expenses.Count}");
 
         foreach (var expense in expenses)
         {
@@ -81,6 +121,8 @@ class Program
             Console.WriteLine("Invalid amount. Enter a number greater than 0.");
         }
         
+        // Make an Enum object
+        var category = ReadCategory();
         
         //Description
         Console.WriteLine("Type a description or press Enter to skip:");
@@ -94,24 +136,6 @@ class Program
         {
             Console.WriteLine(availableCategory);
         }
-
-        // Make an Enum object
-        Categories category;
-
-        while (true)
-        {
-            Console.WriteLine("Type the category you want to add:");
-
-            if (Enum.TryParse(Console.ReadLine(), true, out category)
-                && Enum.IsDefined(category))
-            {
-                break;
-            }
-
-            Console.WriteLine("Invalid category. Choose a category from the list.");
-            
-        }
-        
         
         var expense = new Expense(
             amount,
@@ -119,7 +143,8 @@ class Program
             description);
         
         expenseService.AddExpense(expense);
-        
+
+        Console.WriteLine("");
         Console.WriteLine($"Id: {expense.Id}");
         Console.WriteLine($"Amount: {expense.Amount}");
         Console.WriteLine($"Category: {expense.Category}");

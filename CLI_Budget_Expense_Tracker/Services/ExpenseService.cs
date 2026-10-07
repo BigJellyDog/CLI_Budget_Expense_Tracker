@@ -10,7 +10,7 @@ public class ExpenseService
     {
         _expenses.Add(expense);
     }
-    
+
     public IReadOnlyList<Expense> GetAllExpenses()
     {
         return _expenses.AsReadOnly();
@@ -20,4 +20,21 @@ public class ExpenseService
     {
         return _expenses.Sum(expense => expense.Amount);
     }
+
+    public IReadOnlyList<Expense> GetExpensesByCategory(Categories category)
+    {
+        return [.. _expenses.Where(expense => expense.Category == category)];
+    }
+
+    public IReadOnlyList<Expense> GetExpensesByPeriod(
+        DateTime startDate,
+        DateTime endDate)
+    {
+        return
+        [
+            .. _expenses.Where(expense =>
+                expense.Date.Date >= startDate.Date &&
+                expense.Date.Date <= endDate.Date)];
+    }
+
 }
