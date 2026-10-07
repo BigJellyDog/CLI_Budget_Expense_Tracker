@@ -41,7 +41,18 @@ public class ExpenseService
     {
         return GetExpensesByPeriod(startDate, endDate).Sum(expense => expense.Amount);
     }
-    
-    
+
+    public IReadOnlyDictionary<Categories, decimal> GetTotalsByCategory(
+        DateTime startDate,
+        DateTime endDate)
+    {
+        var expenses = GetExpensesByPeriod(startDate, endDate);
+
+        var groups = expenses.GroupBy(expense => expense.Category);
+
+        return groups.ToDictionary(
+            group => group.Key,
+            group => group.Sum(expense => expense.Amount));
+    }
 
 }

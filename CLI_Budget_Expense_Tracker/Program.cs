@@ -81,6 +81,16 @@ class Program
         var total = expenseService.GetTotalAmount(startDate, endDate);
 
         Console.WriteLine($"Total for period: {total:F2}");
+
+        var totalsByCategory = expenseService.GetTotalsByCategory(startDate, endDate);
+
+        if (totalsByCategory.Count <= 0) return;
+        Console.WriteLine("Totals by category:");
+
+        foreach (var categoryTotal in totalsByCategory)
+        {
+            Console.WriteLine($"{categoryTotal.Key}: {categoryTotal.Value:F2}");
+        }
     }
     
     public static DateTime ReadDate(string prompt)
