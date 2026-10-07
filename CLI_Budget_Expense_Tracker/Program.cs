@@ -6,13 +6,60 @@ class Program
     private static void Main(string[] args)
     {
         var expenseService = new ExpenseService();
-        
-        CreateExpense(expenseService);
-        CreateExpense(expenseService);
 
-        Console.WriteLine($"Added expenses {expenseService.GetAllExpenses().Count}");
+        while (true)
+        {
+            Console.WriteLine();
+            Console.WriteLine("1. Add expense");
+            Console.WriteLine("2. Show expenses");
+            Console.WriteLine("3. Show total amount");
+            Console.WriteLine("0. Exit");
+            Console.WriteLine("Chose an option ");
+
+            var choice = Console.ReadLine();
+
+            switch (choice)
+            {
+                case "1":
+                    CreateExpense(expenseService);
+                    break;
+                case "2":
+                    ShowExpenses(expenseService);
+                    break;
+                case "3":
+                    var total = expenseService.GetTotalAmount();
+                    Console.WriteLine($"Total expenses: {total:F2}");
+                    break;
+                case "0":
+                    return;
+                default:
+                    Console.WriteLine("Invalid option. Try again.");
+                    break;
+            }
+        }
     }
 
+    public static void ShowExpenses(ExpenseService expenseService)
+    {
+        var expenses = expenseService.GetAllExpenses();
+
+        if (expenses.Count == 0)
+        {
+            Console.WriteLine("No expenses yet.");
+            return;
+        }
+        
+        Console.WriteLine($"Added expenses: {expenses.Count}");
+
+        foreach (var expense in expenses)
+        {
+            Console.WriteLine(
+                $"{expense.Date:dd.MM.yyyy HH:mm} | " +
+                $"{expense.Category} | " +
+                $"{expense.Amount} | " +
+                $"{expense.Description}");
+        }
+    }
     
     public static void CreateExpense(ExpenseService expenseService)
     {

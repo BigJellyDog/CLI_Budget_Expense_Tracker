@@ -15,4 +15,9 @@ public class ExpenseService
     {
         return _expenses.AsReadOnly();
     }
+
+    public decimal GetTotalAmount()
+    {
+        return _expenses.Sum(expense => expense.Amount);
+    }
 }
