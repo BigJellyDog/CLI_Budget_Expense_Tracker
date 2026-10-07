@@ -55,4 +55,22 @@ public class ExpenseService
             group => group.Sum(expense => expense.Amount));
     }
 
+    public IReadOnlyList<Categories> GetTopCategories(
+        DateTime startDate,
+        DateTime endDate)
+    {
+        var totalsByCategory = GetTotalsByCategory(startDate, endDate);
+
+        if (totalsByCategory.Count == 0) return [];
+
+        var maxAmount = totalsByCategory.Values.Max();
+
+        return
+        [
+            .. totalsByCategory
+                .Where(categoryTotal => categoryTotal.Value == maxAmount)
+                .Select(categoryTotal => categoryTotal.Key)
+        ];
+    }
+
 }

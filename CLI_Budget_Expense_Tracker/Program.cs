@@ -91,6 +91,10 @@ class Program
         {
             Console.WriteLine($"{categoryTotal.Key}: {categoryTotal.Value:F2}");
         }
+
+        var topCategories = expenseService.GetTopCategories(startDate, endDate);
+
+        Console.WriteLine($"Top spending categories: {string.Join(", ", topCategories)}");
     }
     
     public static DateTime ReadDate(string prompt)
