@@ -37,4 +37,11 @@ public class ExpenseService
                 expense.Date.Date <= endDate.Date)];
     }
 
+    public decimal GetTotalAmount(DateTime startDate, DateTime endDate)
+    {
+        return GetExpensesByPeriod(startDate, endDate).Sum(expense => expense.Amount);
+    }
+    
+    
+
 }

@@ -77,6 +77,10 @@ class Program
         var expenses = expenseService.GetExpensesByPeriod(startDate, endDate);
         
         ShowExpenses(expenses);
+
+        var total = expenseService.GetTotalAmount(startDate, endDate);
+
+        Console.WriteLine($"Total for period: {total:F2}");
     }
     
     public static DateTime ReadDate(string prompt)
