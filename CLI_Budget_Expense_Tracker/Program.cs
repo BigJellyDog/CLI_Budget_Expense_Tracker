@@ -11,7 +11,7 @@ class Program
     {
         var expenseService = new ExpenseService();
 
-        var storageDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Storage");
+        var storageDirectory = Path.Combine(FindProjectDirectory(), "Storage");
 
         var filePath = Path.Combine(storageDirectory,"expenses.json");
 
@@ -82,6 +82,25 @@ class Program
                     break;
             }
         }
+    }
+    
+    public static string FindProjectDirectory()
+    {
+        DirectoryInfo? directory =
+            new DirectoryInfo(AppContext.BaseDirectory);
+
+        while (directory is not null)
+        {
+            if (directory.EnumerateFiles("*.csproj").Any())
+            {
+                return directory.FullName;
+            }
+
+            directory = directory.Parent;
+        }
+
+        throw new DirectoryNotFoundException(
+            "Could not find a project directory containing a .csproj file.");
     }
 
     public static void ShowExpensesByPeriod(ExpenseService expenseService)
