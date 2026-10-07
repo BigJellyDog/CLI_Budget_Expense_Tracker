@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Runtime.InteropServices.JavaScript;
+using System.Globalization;
 using CLI_Budget_Expense_Tracker.Services;
 namespace CLI_Budget_Expense_Tracker;
 
@@ -17,6 +18,7 @@ class Program
             Console.WriteLine("3. Show total amount");
             Console.WriteLine("4. Filter by category");
             Console.WriteLine("5. Show today's expenses");
+            Console.WriteLine("6. Filter by date range");
             Console.WriteLine("0. Exit");
             Console.WriteLine("Chose an option ");
 
@@ -47,12 +49,53 @@ class Program
                     
                     ShowExpenses(todaysExpenses);
                     break;
+                case "6":
+                    ShowExpensesByPeriod(expenseService);
+                    break;
                 case "0":
                     return;
                 default:
                     Console.WriteLine("Invalid option. Try again.");
                     break;
             }
+        }
+    }
+
+    public static void ShowExpensesByPeriod(ExpenseService expenseService)
+    {
+        var startDate = ReadDate("Start date");
+        var endDate = ReadDate("End date");
+
+        while (endDate < startDate)
+        {
+            Console.WriteLine(
+                "End date cannot be earlier than start date.");
+
+            endDate = ReadDate("End date");
+        }
+
+        var expenses = expenseService.GetExpensesByPeriod(startDate, endDate);
+        
+        ShowExpenses(expenses);
+    }
+    
+    public static DateTime ReadDate(string prompt)
+    {
+        while (true)
+        {
+            Console.WriteLine($"{prompt} (dd.MM.yyyy): ");
+
+            if (DateTime.TryParseExact(
+                    Console.ReadLine(),
+                    "dd.MM.yyyy",
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.None,
+                    out var date))
+            {
+                return date;
+            }
+
+            Console.WriteLine("Invalid date. Use dd.MM.yyyy, for example 07.10.2026.");
         }
     }
 
