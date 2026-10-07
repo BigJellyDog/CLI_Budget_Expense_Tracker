@@ -4,6 +4,7 @@ using System.Globalization;
 using CLI_Budget_Expense_Tracker.Services;
 namespace CLI_Budget_Expense_Tracker;
 using CLI_Budget_Expense_Tracker.Data;
+using System.Text.Json;
 
 class Program
 {
@@ -16,6 +17,34 @@ class Program
         var filePath = Path.Combine(storageDirectory,"expenses.json");
 
         var storage = new JsonExpenseStorage(filePath);
+
+        try
+        {
+            var loadedExpenses = storage.Load();
+
+            foreach (var expense in loadedExpenses)
+            {
+                expenseService.AddExpense(expense);
+            }
+
+            Console.WriteLine($"Loaded expenses: {loadedExpenses.Count}");
+        }
+        catch (JsonException exception)
+        {
+            Console.WriteLine($"Invalid expense file: {exception.Message}");
+            return;
+        }
+        catch (IOException exception)
+        {
+            Console.WriteLine($"File error: {exception.Message}");
+            return;
+        }
+        catch (UnauthorizedAccessException exception)
+        {
+            Console.WriteLine($"Access denied: {exception.Message}");
+            return;
+        }
+        
 
         while (true)
         {
