@@ -1,11 +1,8 @@
 ﻿using System.Globalization;
-using System.Runtime.InteropServices.JavaScript;
-using System.Globalization;
 using CLI_Budget_Expense_Tracker.Services;
 namespace CLI_Budget_Expense_Tracker;
 using CLI_Budget_Expense_Tracker.Data;
 using System.Text.Json;
-
 class Program
 {
     private static void Main(string[] args)
@@ -65,6 +62,10 @@ class Program
             {
                 case "1":
                     CreateExpense(expenseService);
+                    if (!TrySaveExpenses(expenseService, storage))
+                    {
+                        Console.WriteLine("The new expense is only in memory. Select 7 to retry saving.");
+                    }
                     break;
                 case "2":
                     ShowExpenses(expenseService.GetAllExpenses());
@@ -90,27 +91,39 @@ class Program
                     ShowExpensesByPeriod(expenseService);
                     break;
                 case "7":
-                    try
-                    {
-                        storage.Save(expenseService.GetAllExpenses());
-                        Console.WriteLine($"Expenses saved to: {filePath}");
-                    }
-                    catch (IOException exception)
-                    {
-                        Console.WriteLine($"File error: {exception.Message}");
-                    }
-                    catch (UnauthorizedAccessException exception)
-                    {
-                        Console.WriteLine($"Access denied {exception.Message}");
-                    }
+                    TrySaveExpenses(expenseService, storage);
                     break;
                 case "0":
-                    return;
+                    if (TrySaveExpenses(expenseService, storage)) return;
+                    break;
                 default:
                     Console.WriteLine("Invalid option. Try again.");
                     break;
             }
         }
+    }
+
+    public static bool TrySaveExpenses(
+        ExpenseService expenseService,
+        JsonExpenseStorage storage)
+    {
+        try
+        {
+            storage.Save(expenseService.GetAllExpenses());
+
+            Console.WriteLine("Expenses saved.");
+            return true;
+        }
+        catch (IOException exception)
+        {
+            Console.WriteLine($"File error: {exception.Message}");
+        }
+        catch (UnauthorizedAccessException exception)
+        {
+            Console.WriteLine($"Access denied: {exception.Message}");
+        }
+
+        return false;
     }
     
     public static string FindProjectDirectory()
