@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using CLI_Budget_Expense_Tracker.Services;
 namespace CLI_Budget_Expense_Tracker;
-using CLI_Budget_Expense_Tracker.Data;
+using Data;
 using System.Text.Json;
 class Program
 {
