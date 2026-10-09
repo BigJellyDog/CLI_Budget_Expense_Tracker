@@ -1,6 +1,8 @@
 ﻿using CLI_Budget_Expense_Tracker;
 using CLI_Budget_Expense_Tracker.Models;
 
+namespace CLI_Budget_Expense_Tracker.Services;
+
 public class BudgetService
 {
     private readonly Dictionary<Categories, BudgetLimit> _limits = [];

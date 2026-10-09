@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using CLI_Budget_Expense_Tracker.Models;
+namespace CLI_Budget_Expense_Tracker.Data;
 
 
 /// <summary>
