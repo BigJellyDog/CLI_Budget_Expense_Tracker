@@ -46,4 +46,14 @@ public class BudgetService
         // Spending below the limit should return zero instead of a negative amount.
         return Math.Max(0m, monthlyTotal - limit.MonthlyAmount);
     }
+    
+    /// <summary>
+    /// Returns a snapshot of all configured category limits.
+    /// </summary>
+    /// <returns>A collection containing the current budget limits.</returns>
+    public IReadOnlyList<BudgetLimit> GetAllLimits()
+    {
+        // Copy the values so callers cannot modify the internal dictionary.
+        return [.. _limits.Values];
+    }
 }

@@ -16,7 +16,9 @@ class Program
         var filePath = Path.Combine(storageDirectory,"expenses.json");
 
         var storage = new JsonExpenseStorage(filePath);
-        
+        var budgetFilePath = Path.Combine(storageDirectory, "budgets.json");
+        var budgetStorage = new JsonBudgetStorage(budgetFilePath);
+
         try
         {
             var loadedExpenses = storage.Load();
@@ -26,11 +28,29 @@ class Program
                 expenseService.AddExpense(expense);
             }
 
+            var loadedLimits = budgetStorage.Load();
+
+            foreach (var limit in loadedLimits)
+            {
+                // Valid JSON arrays can still contain invalid null entries.
+                if (limit is null)
+                {
+                    throw new JsonException("Budget limits must not contain null entries.");
+                }
+
+                // Restore limits through the service to validate their values.
+
+                budgetService.SetMonthlyLimit(
+                    limit.Category,
+                    limit.MonthlyAmount);
+            }
+
             Console.WriteLine($"Loaded expenses: {loadedExpenses.Count}");
+            Console.WriteLine($"Loaded budget limits: {loadedLimits.Count}");
         }
         catch (JsonException exception)
         {
-            Console.WriteLine($"Invalid expense file: {exception.Message}");
+            Console.WriteLine($"Invalid data file: {exception.Message}");
             return;
         }
         catch (IOException exception)
@@ -43,7 +63,12 @@ class Program
             Console.WriteLine($"Access denied: {exception.Message}");
             return;
         }
-        
+        catch (ArgumentOutOfRangeException exception)
+        {
+            Console.WriteLine($"Invalid stored budget limit: {exception.Message}");
+            return;
+        }
+
 
         while (true)
         {
@@ -54,7 +79,7 @@ class Program
             Console.WriteLine("4. Filter by category");
             Console.WriteLine("5. Show today's expenses");
             Console.WriteLine("6. Filter by date range");
-            Console.WriteLine("7. Save expenses");
+            Console.WriteLine("7. Save expenses and budget limits");
             Console.WriteLine("8. Set monthly budget limit");
             Console.WriteLine("0. Exit");
             Console.WriteLine("Chose an option ");
@@ -95,12 +120,25 @@ class Program
                     break;
                 case "7":
                     TrySaveExpenses(expenseService, storage);
+                    TrySaveBudgetLimits(budgetService, budgetStorage);
                     break;
                 case "8":
                     SetBudgetLimit(budgetService);
+
+                    if (!TrySaveBudgetLimits(budgetService, budgetStorage))
+                    {
+                        Console.WriteLine(
+                            "The updated limit is only in memory. Select 7 to retry saving.");
+                    }
+
                     break;
                 case "0":
-                    if (TrySaveExpenses(expenseService, storage)) return;
+                    var expensesSaved = TrySaveExpenses(expenseService, storage);
+                    var limitsSaved = TrySaveBudgetLimits(budgetService, budgetStorage);
+
+                    // Exit only after both files have been saved successfully.
+                    if (expensesSaved && limitsSaved) return;
+
                     break;
                 default:
                     Console.WriteLine("Invalid option. Try again.");
@@ -129,6 +167,36 @@ class Program
             Console.WriteLine($"Access denied: {exception.Message}");
         }
 
+        return false;
+    }
+    
+    /// <summary>
+    /// Attempts to save all configured budget limits and reports file errors.
+    /// </summary>
+    /// <param name="budgetService">The service containing the current limits.</param>
+    /// <param name="budgetStorage">The storage used to save the limits.</param>
+    /// <returns>True if saving succeeds; otherwise, false.</returns>
+    public static bool TrySaveBudgetLimits(
+        BudgetService budgetService,
+        JsonBudgetStorage budgetStorage)
+    {
+        try
+        {
+            budgetStorage.Save(budgetService.GetAllLimits());
+
+            Console.WriteLine("Budget limits saved.");
+            return true;
+        }
+        catch (IOException exception)
+        {
+            Console.WriteLine($"Budget file error: {exception.Message}");
+        }
+        catch (UnauthorizedAccessException exception)
+        {
+            Console.WriteLine($"Access denied: {exception.Message}");
+        }
+
+        // Let the caller decide whether to retry or keep the application running.
         return false;
     }
     
