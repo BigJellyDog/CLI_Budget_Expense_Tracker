@@ -67,4 +67,44 @@ public class BudgetServiceTests
         // Assert: an absent limit means spending is unrestricted.
         Assert.That(result, Is.EqualTo(0m));
     }
+    /// <summary>
+    /// Verifies that a negative limit is rejected without replacing the existing limit.
+    /// </summary>
+    /// <param name="monthlyAmount">The invalid negative limit to test.</param>
+    [TestCase(-1)]
+    [TestCase(-100)]
+    public void SetMonthlyLimit_WithNegativeAmount_ThrowsAndPreservesExistingLimit(
+        decimal monthlyAmount)
+    {
+        // Arrange: configure a valid limit before attempting to replace it.
+        var budgetService = new BudgetService();
+        budgetService.SetMonthlyLimit(Categories.Food, 100m);
+
+        // Act and assert: the invalid replacement should throw an exception.
+        Assert.Throws<ArgumentOutOfRangeException>(
+            () => budgetService.SetMonthlyLimit(Categories.Food, monthlyAmount));
+
+        // The rejected update must not change the previously configured limit.
+        var limit = budgetService.GetMonthlyLimit(Categories.Food);
+
+        Assert.That(limit?.MonthlyAmount, Is.EqualTo(100m));
+    }
+
+    /// <summary>
+    /// Verifies that zero is accepted as a valid monthly budget limit.
+    /// </summary>
+    [Test]
+    public void SetMonthlyLimit_WithZeroAmount_StoresZeroLimit()
+    {
+        // Arrange: create a service without configured limits.
+        var budgetService = new BudgetService();
+
+        // Act: configure a zero limit.
+        budgetService.SetMonthlyLimit(Categories.Food, 0m);
+
+        // Assert: the limit should exist and contain zero.
+        var limit = budgetService.GetMonthlyLimit(Categories.Food);
+
+        Assert.That(limit?.MonthlyAmount, Is.EqualTo(0m));
+    }
 }

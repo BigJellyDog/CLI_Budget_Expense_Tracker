@@ -9,6 +9,14 @@ public class BudgetService
 
     public void SetMonthlyLimit(Categories category, decimal monthlyAmount)
     {
+        // Reject negative limits before changing the stored value.
+        if (monthlyAmount < 0m)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(monthlyAmount),
+                monthlyAmount,
+                "Monthly limit cannot be negative.");
+        }
         if (!Enum.IsDefined(category))
             throw new ArgumentOutOfRangeException(nameof(monthlyAmount));
 
