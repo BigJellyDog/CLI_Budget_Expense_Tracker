@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-
-namespace CLI_Budget_Expense_Tracker;
+﻿namespace CLI_Budget_Expense_Tracker.Core.Models;
 
 
 public class Expense(

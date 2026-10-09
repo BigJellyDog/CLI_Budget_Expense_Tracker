@@ -1,4 +1,4 @@
-﻿namespace CLI_Budget_Expense_Tracker;
+﻿namespace CLI_Budget_Expense_Tracker.Core.Models;
 
 public enum Categories
 {

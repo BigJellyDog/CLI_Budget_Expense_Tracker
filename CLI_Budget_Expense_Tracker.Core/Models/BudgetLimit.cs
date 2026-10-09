@@ -1,4 +1,4 @@
-﻿namespace CLI_Budget_Expense_Tracker.Models;
+﻿namespace CLI_Budget_Expense_Tracker.Core.Models;
 
 public class BudgetLimit(Categories category, decimal monthlyAmount)
 {

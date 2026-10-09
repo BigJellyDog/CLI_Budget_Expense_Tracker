@@ -1,4 +1,5 @@
 ﻿namespace CLI_Budget_Expense_Tracker.Services;
+using Core.Models;
 
 public class ExpenseService
 {

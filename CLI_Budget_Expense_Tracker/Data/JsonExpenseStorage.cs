@@ -1,5 +1,6 @@
 ﻿namespace CLI_Budget_Expense_Tracker.Data;
 using System.Text.Json;
+using Core.Models;
 
 public class JsonExpenseStorage(string filePath)
 {

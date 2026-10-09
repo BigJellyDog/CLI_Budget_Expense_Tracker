@@ -1,7 +1,8 @@
-﻿using System.Globalization;
+﻿namespace CLI_Budget_Expense_Tracker.Data;
+using Core.Models;
+using System.Globalization;
 using System.Text;
 
-namespace CLI_Budget_Expense_Tracker.Data;
 
 /// <summary>
 /// Exports expenses to a CSV file.
