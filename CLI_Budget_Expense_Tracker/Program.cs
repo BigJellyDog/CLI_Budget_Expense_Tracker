@@ -1,8 +1,12 @@
-﻿using System.Globalization;
-using CLI_Budget_Expense_Tracker.Services;
-namespace CLI_Budget_Expense_Tracker;
-using Data;
+﻿namespace CLI_Budget_Expense_Tracker;
 using System.Text.Json;
+using System.Globalization;
+using Services;
+using Data;
+using Models;
+
+
+
 class Program
 {
     private static void Main(string[] args)
@@ -16,8 +20,13 @@ class Program
         var filePath = Path.Combine(storageDirectory,"expenses.json");
 
         var storage = new JsonExpenseStorage(filePath);
+        
         var budgetFilePath = Path.Combine(storageDirectory, "budgets.json");
+        
         var budgetStorage = new JsonBudgetStorage(budgetFilePath);
+
+        var csvExporter = new CsvExpenseExporter();
+        var exportDirectory = Path.Combine(FindProjectDirectory(), "Exports");
 
         try
         {
@@ -81,6 +90,7 @@ class Program
             Console.WriteLine("6. Filter by date range");
             Console.WriteLine("7. Save expenses and budget limits");
             Console.WriteLine("8. Set monthly budget limit");
+            Console.WriteLine("9. Export expenses to CSV");
             Console.WriteLine("0. Exit");
             Console.WriteLine("Chose an option ");
 
@@ -131,6 +141,9 @@ class Program
                             "The updated limit is only in memory. Select 7 to retry saving.");
                     }
 
+                    break;
+                case "9":
+                    ExportExpensesByPeriod(expenseService, csvExporter, exportDirectory);
                     break;
                 case "0":
                     var expensesSaved = TrySaveExpenses(expenseService, storage);
@@ -254,6 +267,57 @@ class Program
 
         Console.WriteLine($"Top spending categories: {string.Join(", ", topCategories)}");
     }
+    
+    /// <summary>
+    /// Prompts for a date range and exports matching expenses to a CSV file.
+    /// </summary>
+    /// <param name="expenseService">The service used to select expenses.</param>
+    /// <param name="csvExporter">The exporter used to write the CSV file.</param>
+    /// <param name="exportDirectory">The directory for exported reports.</param>
+    public static void ExportExpensesByPeriod(
+        ExpenseService expenseService,
+        CsvExpenseExporter csvExporter,
+        string exportDirectory)
+    {
+        var startDate = ReadDate("Start date");
+        var endDate = ReadDate("End date");
+
+        while (endDate < startDate)
+        {
+            Console.WriteLine("End date cannot be earlier than start date.");
+            endDate = ReadDate("End date");
+        }
+
+        var expenses = expenseService.GetExpensesByPeriod(startDate, endDate);
+
+        // Skip file creation when the selected period contains no expenses.
+        if (expenses.Count == 0)
+        {
+            Console.WriteLine("No expenses found for the selected period.");
+            return;
+        }
+
+        // Exporting the same period again replaces its previous report.
+        var fileName = $"expenses_{startDate:yyyy-MM-dd}_{endDate:yyyy-MM-dd}.csv";
+        var filePath = Path.Combine(exportDirectory, fileName);
+
+        try
+        {
+            csvExporter.Export(expenses, filePath);
+
+            Console.WriteLine($"Exported expenses: {expenses.Count}");
+            Console.WriteLine($"Report saved to: {filePath}");
+        }
+        catch (IOException exception)
+        {
+            Console.WriteLine($"Export failed: {exception.Message}");
+        }
+        catch (UnauthorizedAccessException exception)
+        {
+            Console.WriteLine($"Access denied: {exception.Message}");
+        }
+    }
+    
     
     public static DateTime ReadDate(string prompt)
     {
