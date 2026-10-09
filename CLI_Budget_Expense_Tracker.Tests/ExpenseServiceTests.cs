@@ -115,4 +115,85 @@ using Services;
             result,
             Is.EquivalentTo(new[] { firstDayExpense, lastDayExpense }));
     }
+    /// <summary>
+    /// Verifies that expenses are summed separately for each category.
+    /// </summary>
+    [Test]
+    public void GetTotalsByCategory_WithDifferentCategories_ReturnsSeparateSums()
+    {
+        // Arrange: add two food expenses and one transportation expense.
+        var expenseService = new ExpenseService();
+        var date = new DateTime(2026, 10, 10);
+
+        expenseService.AddExpense(
+            new Expense(12.50m, Categories.Food) { Date = date });
+
+        expenseService.AddExpense(
+            new Expense(7.25m, Categories.Food) { Date = date });
+
+        expenseService.AddExpense(
+            new Expense(5m, Categories.Transportation) { Date = date });
+
+        // Act: calculate category totals for October.
+        var result = expenseService.GetTotalsByCategory(
+            new DateTime(2026, 10, 1),
+            new DateTime(2026, 10, 31));
+
+        // Assert: each category should contain its own total.
+        var expected = new Dictionary<Categories, decimal>
+        {
+            [Categories.Food] = 19.75m,
+            [Categories.Transportation] = 5m
+        };
+
+        Assert.That(result, Is.EqualTo(expected));
+    }
+
+    /// <summary>
+    /// Verifies that expenses from other months or years are excluded.
+    /// </summary>
+    [Test]
+    public void GetTotalsByCategory_WithExpensesOutsideSelectedMonth_ExcludesThem()
+    {
+        // Arrange: add one matching expense and expenses outside October 2026.
+        var expenseService = new ExpenseService();
+
+        expenseService.AddExpense(
+            new Expense(20m, Categories.Food)
+            {
+                Date = new DateTime(2026, 10, 10)
+            });
+
+        expenseService.AddExpense(
+            new Expense(100m, Categories.Food)
+            {
+                Date = new DateTime(2026, 9, 30)
+            });
+
+        expenseService.AddExpense(
+            new Expense(100m, Categories.Food)
+            {
+                Date = new DateTime(2026, 11, 1)
+            });
+
+        expenseService.AddExpense(
+            new Expense(100m, Categories.Transportation)
+            {
+                Date = new DateTime(2025, 10, 10)
+            });
+
+        // Act: calculate category totals for October 2026 only.
+        var result = expenseService.GetTotalsByCategory(
+            new DateTime(2026, 10, 1),
+            new DateTime(2026, 10, 31));
+
+        // Assert: only the matching food expense should contribute.
+        var expected = new Dictionary<Categories, decimal>
+        {
+            [Categories.Food] = 20m
+        };
+
+        Assert.That(result, Is.EqualTo(expected));
+    }
+    
 }
