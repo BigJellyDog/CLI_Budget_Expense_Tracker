@@ -9,12 +9,14 @@ class Program
     {
         var expenseService = new ExpenseService();
 
+        var budgetService = new BudgetService();
+
         var storageDirectory = Path.Combine(FindProjectDirectory(), "Storage");
 
         var filePath = Path.Combine(storageDirectory,"expenses.json");
 
         var storage = new JsonExpenseStorage(filePath);
-
+        
         try
         {
             var loadedExpenses = storage.Load();
@@ -53,6 +55,7 @@ class Program
             Console.WriteLine("5. Show today's expenses");
             Console.WriteLine("6. Filter by date range");
             Console.WriteLine("7. Save expenses");
+            Console.WriteLine("8. Set monthly budget limit");
             Console.WriteLine("0. Exit");
             Console.WriteLine("Chose an option ");
 
@@ -92,6 +95,9 @@ class Program
                     break;
                 case "7":
                     TrySaveExpenses(expenseService, storage);
+                    break;
+                case "8":
+                    SetBudgetLimit(budgetService);
                     break;
                 case "0":
                     if (TrySaveExpenses(expenseService, storage)) return;
@@ -223,6 +229,36 @@ class Program
 
             Console.WriteLine("Invalid category. Choose a category from the list.");
         }
+    }
+
+    public static void SetBudgetLimit(BudgetService budgetService)
+    {
+        var category = ReadCategory();
+
+        var currentLimit = budgetService.GetMonthlyLimit(category);
+
+        if (currentLimit is not null)
+        {
+            Console.WriteLine($"Current monthly limit: {currentLimit.MonthlyAmount:F2}");
+        }
+
+        decimal monthlyAmount;
+
+        while (true)
+        {
+            Console.WriteLine("Enter monthly limit (0 or greater): ");
+
+            if (decimal.TryParse(Console.ReadLine(), out monthlyAmount) && monthlyAmount >= 0)
+            {
+                break;
+            }
+
+            Console.WriteLine("Enter a valid non-negative amount.");
+        }
+
+        budgetService.SetMonthlyLimit(category, monthlyAmount);
+
+        Console.WriteLine($"Monthly limit for {category}: {monthlyAmount:F2}");
     }
     
     
