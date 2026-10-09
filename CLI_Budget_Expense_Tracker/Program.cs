@@ -64,7 +64,7 @@ class Program
             switch (choice)
             {
                 case "1":
-                    CreateExpense(expenseService);
+                    CreateExpense(expenseService, budgetService);
                     if (!TrySaveExpenses(expenseService, storage))
                     {
                         Console.WriteLine("The new expense is only in memory. Select 7 to retry saving.");
@@ -282,7 +282,7 @@ class Program
         }
     }
     
-    public static void CreateExpense(ExpenseService expenseService)
+    public static void CreateExpense(ExpenseService expenseService, BudgetService budgetService)
     {
         
         // Amount
@@ -324,6 +324,18 @@ class Program
             description);
         
         expenseService.AddExpense(expense);
+
+        var overspend =
+            budgetService.GetMonthlyOverspend(
+                expense.Category, 
+                expense.Date, 
+                expenseService.GetAllExpenses());
+
+        if (overspend > 0m)
+        {
+            Console.WriteLine($"Warning: monthly budget for {expense.Category} " +
+                              $"exceeded by {overspend:F2}.");
+        }
 
         Console.WriteLine("");
         Console.WriteLine($"Id: {expense.Id}");
