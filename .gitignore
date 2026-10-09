@@ -1,12 +1,45 @@
-bin/
-obj/
-/packages/
-riderModule.iml
-/_ReSharper.Caches/
+# Build and publish output
+[Bb]in/
+[Oo]bj/
+artifacts/
+[Pp]ublish/
+
+# IDE files and personal settings
 .idea/
-*.sln.iml
-*.nupkg
-TestResults/
-*.log
-*.md
+.vs/
 *.user
+*.suo
+*.DotSettings.user
+
+# Test results and coverage reports
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
+coverage*.xml
+coverage.json
+
+# Local application data
+**/Storage/expenses.json
+**/Storage/budgets.json
+
+# Generated reports
+**/Exports/*.csv
+**/Exports/*.md
+
+# SQLite databases and temporary database files
+*.db
+*.db-wal
+*.db-shm
+*.db-journal
+*.sqlite
+*.sqlite-*
+*.sqlite3
+*.sqlite3-*
+
+# Logs and local configuration
+*.log
+appsettings.Local.json
+.env
+.env.*
+!.env.example
