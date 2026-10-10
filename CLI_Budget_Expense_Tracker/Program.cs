@@ -1,4 +1,5 @@
 ﻿namespace CLI_Budget_Expense_Tracker;
+using Microsoft.Extensions.DependencyInjection;
 using Infrastructure.Data;
 using System.Text.Json;
 using System.Globalization;
@@ -10,22 +11,37 @@ class Program
 {
     private static void Main(string[] args)
     {
-        var expenseService = new ExpenseService();
+        // Resolve the paths used by storage and export operations.
+        var projectDirectory = FindProjectDirectory();
+        var storageDirectory = Path.Combine(projectDirectory, "Storage");
 
-        var budgetService = new BudgetService();
-
-        var storageDirectory = Path.Combine(FindProjectDirectory(), "Storage");
-
-        var filePath = Path.Combine(storageDirectory,"expenses.json");
-
-        var storage = new JsonExpenseStorage(filePath);
-        
+        var filePath = Path.Combine(storageDirectory, "expenses.json");
         var budgetFilePath = Path.Combine(storageDirectory, "budgets.json");
-        
-        var budgetStorage = new JsonBudgetStorage(budgetFilePath);
+        var exportDirectory = Path.Combine(projectDirectory, "Exports");
 
-        var csvExporter = new CsvExpenseExporter();
-        var exportDirectory = Path.Combine(FindProjectDirectory(), "Exports");
+        // Register shared services for the current application run.
+        var services = new ServiceCollection();
+
+        services.AddSingleton<ExpenseService>();
+        services.AddSingleton<BudgetService>();
+        services.AddSingleton<CsvExpenseExporter>();
+
+        // Provide the file paths required by the storage constructors.
+        services.AddSingleton<JsonExpenseStorage>(
+            _ => new JsonExpenseStorage(filePath));
+
+        services.AddSingleton<JsonBudgetStorage>(
+            _ => new JsonBudgetStorage(budgetFilePath));
+
+        // Keep the container alive until Main finishes.
+        using var serviceProvider = services.BuildServiceProvider();
+
+        var expenseService = serviceProvider.GetRequiredService<ExpenseService>();
+        var budgetService = serviceProvider.GetRequiredService<BudgetService>();
+        var csvExporter = serviceProvider.GetRequiredService<CsvExpenseExporter>();
+
+        var storage = serviceProvider.GetRequiredService<JsonExpenseStorage>();
+        var budgetStorage = serviceProvider.GetRequiredService<JsonBudgetStorage>();
 
         try
         {
