@@ -5,8 +5,6 @@ using System.Globalization;
 using System.Text;
 
 
-
-
 /// <summary>
 /// Exports expenses to a CSV file.
 /// </summary>

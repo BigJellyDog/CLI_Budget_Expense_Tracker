@@ -21,7 +21,7 @@ public class ExpenseTrackerDbContextTests
 
         await using var context = new ExpenseTrackerDbContext(options);
 
-        await context.Database.EnsureCreatedAsync();
+        await context.Database.MigrateAsync();
 
         var category = new Category("Food");
         var date = new DateOnly(2026, 10, 9);
