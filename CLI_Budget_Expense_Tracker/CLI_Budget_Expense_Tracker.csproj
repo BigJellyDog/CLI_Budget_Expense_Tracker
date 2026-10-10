@@ -2,10 +2,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\CLI_Budget_Expense_Tracker.Core\CLI_Budget_Expense_Tracker.Core.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Models\" />
+      <ProjectReference Include="..\CLI_Budget_Expense_Tracker.Infrastructure\CLI_Budget_Expense_Tracker.Infrastructure.csproj" />
     </ItemGroup>
 
     <PropertyGroup>

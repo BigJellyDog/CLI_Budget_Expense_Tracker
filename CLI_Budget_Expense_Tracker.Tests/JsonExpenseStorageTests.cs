@@ -1,5 +1,5 @@
 ﻿namespace CLI_Budget_Expense_Tracker.Test;
-using Data;
+using Infrastructure.Data;
 using Core.Models;
 
 

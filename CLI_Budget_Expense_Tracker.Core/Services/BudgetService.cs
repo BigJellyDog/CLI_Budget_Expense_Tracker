@@ -1,5 +1,6 @@
-﻿namespace CLI_Budget_Expense_Tracker.Services;
-using Core.Models;
+﻿namespace CLI_Budget_Expense_Tracker.Core.Services;
+using Models;
+
 
 
 

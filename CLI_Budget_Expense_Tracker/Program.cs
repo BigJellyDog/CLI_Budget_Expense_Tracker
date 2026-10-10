@@ -1,10 +1,9 @@
 ﻿namespace CLI_Budget_Expense_Tracker;
+using Infrastructure.Data;
 using System.Text.Json;
 using System.Globalization;
-using Services;
-using Data;
+using Core.Services;
 using Core.Models;
-
 
 
 class Program

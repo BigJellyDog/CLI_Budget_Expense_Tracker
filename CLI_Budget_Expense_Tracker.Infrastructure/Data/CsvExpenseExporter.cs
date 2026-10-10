@@ -1,7 +1,10 @@
-﻿namespace CLI_Budget_Expense_Tracker.Data;
+﻿namespace CLI_Budget_Expense_Tracker.Infrastructure.Data;
+
 using Core.Models;
 using System.Globalization;
 using System.Text;
+
+
 
 
 /// <summary>

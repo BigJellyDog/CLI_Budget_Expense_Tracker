@@ -1,6 +1,8 @@
-﻿namespace CLI_Budget_Expense_Tracker.Data;
-using System.Text.Json;
+﻿namespace CLI_Budget_Expense_Tracker.Infrastructure.Data;
+
 using Core.Models;
+using System.Text.Json;
+
 
 
 

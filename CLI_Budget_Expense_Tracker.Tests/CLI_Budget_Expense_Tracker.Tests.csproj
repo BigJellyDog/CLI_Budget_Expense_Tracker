@@ -22,8 +22,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\CLI_Budget_Expense_Tracker\CLI_Budget_Expense_Tracker.csproj" />
       <ProjectReference Include="..\CLI_Budget_Expense_Tracker.Core\CLI_Budget_Expense_Tracker.Core.csproj" />
+      <ProjectReference Include="..\CLI_Budget_Expense_Tracker.Infrastructure\CLI_Budget_Expense_Tracker.Infrastructure.csproj" />
     </ItemGroup>
 
 </Project>
