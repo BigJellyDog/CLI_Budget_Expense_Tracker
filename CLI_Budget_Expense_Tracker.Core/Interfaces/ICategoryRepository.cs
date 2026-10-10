@@ -8,14 +8,14 @@ using Models;
 public interface ICategoryRepository
 {
     /// <summary>
-    /// Returns a category by its identifier, or null if it does not exist.
+    /// Returns a legacyCategory by its identifier, or null if it does not exist.
     /// </summary>
     Task<Category?> GetByIdAsync(
         Guid id,
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Returns a category by its normalized name, or null if none exists.
+    /// Returns a legacyCategory by its normalized name, or null if none exists.
     /// </summary>
     Task<Category?> GetByNormalizedNameAsync(
         string normalizedName,
@@ -28,14 +28,14 @@ public interface ICategoryRepository
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Persists a new category.
+    /// Persists a new legacyCategory.
     /// </summary>
     Task AddAsync(
         Category category,
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Persists changes to an existing category.
+    /// Persists changes to an existing legacyCategory.
     /// </summary>
     Task UpdateAsync(
         Category category,
@@ -43,18 +43,18 @@ public interface ICategoryRepository
 
     /// <summary>
     /// Checks whether expenses, budget limits, or recurring rules
-    /// reference the category, including soft-deleted expenses.
+    /// reference the legacyCategory, including soft-deleted expenses.
     /// </summary>
     Task<bool> IsInUseAsync(
         Guid id,
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Deletes an unreferenced category.
-    /// Returns false if the category does not exist.
+    /// Deletes an unreferenced legacyCategory.
+    /// Returns false if the legacyCategory does not exist.
     /// </summary>
     /// <exception cref="InvalidOperationException">
-    /// The category is referenced by another record.
+    /// The legacyCategory is referenced by another record.
     /// </exception>
     Task<bool> DeleteAsync(
         Guid id,

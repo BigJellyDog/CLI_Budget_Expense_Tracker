@@ -26,16 +26,16 @@ public class BudgetServiceTests
         var budgetService = new BudgetService();
         var date = new DateTime(2026, 10, 10);
 
-        budgetService.SetMonthlyLimit(Categories.Food, 100m);
+        budgetService.SetMonthlyLimit(LegacyCategories.Food, 100m);
 
-        IReadOnlyList<Expense> expenses =
+        IReadOnlyList<LegacyExpense> expenses =
         [
-            new Expense(spentAmount, Categories.Food) { Date = date }
+            new LegacyExpense(spentAmount, LegacyCategories.Food) { Date = date }
         ];
 
         // Act: calculate how much spending exceeds the limit.
         var result = budgetService.GetMonthlyOverspend(
-            Categories.Food,
+            LegacyCategories.Food,
             date,
             expenses);
 
@@ -44,7 +44,7 @@ public class BudgetServiceTests
     }
 
     /// <summary>
-    /// Verifies that a category without a configured limit has no overspend.
+    /// Verifies that a legacyCategory without a configured limit has no overspend.
     /// </summary>
     [Test]
     public void GetMonthlyOverspend_WithoutConfiguredLimit_ReturnsZero()
@@ -53,14 +53,14 @@ public class BudgetServiceTests
         var budgetService = new BudgetService();
         var date = new DateTime(2026, 10, 10);
 
-        IReadOnlyList<Expense> expenses =
+        IReadOnlyList<LegacyExpense> expenses =
         [
-            new Expense(500m, Categories.Food) { Date = date }
+            new LegacyExpense(500m, LegacyCategories.Food) { Date = date }
         ];
 
-        // Act: check spending for the category without a limit.
+        // Act: check spending for the legacyCategory without a limit.
         var result = budgetService.GetMonthlyOverspend(
-            Categories.Food,
+            LegacyCategories.Food,
             date,
             expenses);
 
@@ -78,14 +78,14 @@ public class BudgetServiceTests
     {
         // Arrange: configure a valid limit before attempting to replace it.
         var budgetService = new BudgetService();
-        budgetService.SetMonthlyLimit(Categories.Food, 100m);
+        budgetService.SetMonthlyLimit(LegacyCategories.Food, 100m);
 
         // Act and assert: the invalid replacement should throw an exception.
         Assert.Throws<ArgumentOutOfRangeException>(
-            () => budgetService.SetMonthlyLimit(Categories.Food, monthlyAmount));
+            () => budgetService.SetMonthlyLimit(LegacyCategories.Food, monthlyAmount));
 
         // The rejected update must not change the previously configured limit.
-        var limit = budgetService.GetMonthlyLimit(Categories.Food);
+        var limit = budgetService.GetMonthlyLimit(LegacyCategories.Food);
 
         Assert.That(limit?.MonthlyAmount, Is.EqualTo(100m));
     }
@@ -100,10 +100,10 @@ public class BudgetServiceTests
         var budgetService = new BudgetService();
 
         // Act: configure a zero limit.
-        budgetService.SetMonthlyLimit(Categories.Food, 0m);
+        budgetService.SetMonthlyLimit(LegacyCategories.Food, 0m);
 
         // Assert: the limit should exist and contain zero.
-        var limit = budgetService.GetMonthlyLimit(Categories.Food);
+        var limit = budgetService.GetMonthlyLimit(LegacyCategories.Food);
 
         Assert.That(limit?.MonthlyAmount, Is.EqualTo(0m));
     }

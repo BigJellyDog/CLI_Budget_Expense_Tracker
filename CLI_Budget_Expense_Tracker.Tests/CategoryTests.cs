@@ -5,7 +5,7 @@ using Core.Models;
 public class CategoryTests
 {
     /// <summary>
-    /// Verifies trimming and consistent normalization of category names.
+    /// Verifies trimming and consistent normalization of legacyCategory names.
     /// </summary>
     [TestCase("  Food  ", "Food")]
     [TestCase("food", "food")]
@@ -58,7 +58,7 @@ public class CategoryTests
     }
 
     /// <summary>
-    /// Verifies that an invalid rename leaves the category unchanged.
+    /// Verifies that an invalid rename leaves the legacyCategory unchanged.
     /// </summary>
     [TestCase(null)]
     [TestCase("")]

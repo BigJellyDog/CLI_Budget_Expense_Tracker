@@ -6,7 +6,7 @@ using System.Text.Json;
 
 public class JsonExpenseStorage(string filePath)
 {
-    public void Save(IReadOnlyList<Expense> expenses)
+    public void Save(IReadOnlyList<LegacyExpense> expenses)
     {
         var directory = Path.GetDirectoryName(filePath);
         if (!string.IsNullOrEmpty(directory))
@@ -23,13 +23,13 @@ public class JsonExpenseStorage(string filePath)
         File.WriteAllText(filePath, json);
     }
 
-    public IReadOnlyList<Expense> Load()
+    public IReadOnlyList<LegacyExpense> Load()
     {
         if (!File.Exists(filePath)) return [];
 
         var json = File.ReadAllText(filePath);
 
-        var expenses = JsonSerializer.Deserialize<List<Expense>>(json);
+        var expenses = JsonSerializer.Deserialize<List<LegacyExpense>>(json);
 
         if (expenses is null)
         {

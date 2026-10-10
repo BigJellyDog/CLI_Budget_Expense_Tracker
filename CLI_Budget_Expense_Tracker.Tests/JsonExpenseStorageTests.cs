@@ -65,13 +65,13 @@ public class JsonExpenseStorageTests
         // Arrange: create expenses with different values and fixed timestamps.
         var storage = new JsonExpenseStorage(_filePath);
 
-        IReadOnlyList<Expense> expenses =
+        IReadOnlyList<LegacyExpense> expenses =
         [
-            new Expense(12.50m, Categories.Food, "Lunch")
+            new LegacyExpense(12.50m, LegacyCategories.Food, "Lunch")
             {
                 Date = new DateTime(2026, 10, 5, 14, 30, 15)
             },
-            new Expense(5.75m, Categories.Transportation, "Билет в Köln")
+            new LegacyExpense(5.75m, LegacyCategories.Transportation, "Билет в Köln")
             {
                 Date = new DateTime(2026, 10, 6, 9, 10, 20)
             }
@@ -96,7 +96,7 @@ public class JsonExpenseStorageTests
 
                 Assert.That(actual.Id, Is.EqualTo(expected.Id));
                 Assert.That(actual.Amount, Is.EqualTo(expected.Amount));
-                Assert.That(actual.Category, Is.EqualTo(expected.Category));
+                Assert.That(actual.LegacyCategory, Is.EqualTo(expected.LegacyCategory));
                 Assert.That(actual.Date, Is.EqualTo(expected.Date));
                 Assert.That(actual.Description, Is.EqualTo(expected.Description));
             }

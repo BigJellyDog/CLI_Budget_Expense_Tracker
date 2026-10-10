@@ -5,14 +5,14 @@ public class ExpenseService
 {
     // Create a list with objects inside called with <>
     // _expenses ist the name of the list 
-    private readonly List<Expense> _expenses = [];
+    private readonly List<LegacyExpense> _expenses = [];
 
-    public void AddExpense(Expense expense)
+    public void AddExpense(LegacyExpense legacyExpense)
     {
-        _expenses.Add(expense);
+        _expenses.Add(legacyExpense);
     }
 
-    public IReadOnlyList<Expense> GetAllExpenses()
+    public IReadOnlyList<LegacyExpense> GetAllExpenses()
     {
         return _expenses.AsReadOnly();
     }
@@ -22,12 +22,12 @@ public class ExpenseService
         return _expenses.Sum(expense => expense.Amount);
     }
 
-    public IReadOnlyList<Expense> GetExpensesByCategory(Categories category)
+    public IReadOnlyList<LegacyExpense> GetExpensesByCategory(LegacyCategories legacyCategory)
     {
-        return [.. _expenses.Where(expense => expense.Category == category)];
+        return [.. _expenses.Where(expense => expense.LegacyCategory == legacyCategory)];
     }
 
-    public IReadOnlyList<Expense> GetExpensesByPeriod(
+    public IReadOnlyList<LegacyExpense> GetExpensesByPeriod(
         DateTime startDate,
         DateTime endDate)
     {
@@ -43,20 +43,20 @@ public class ExpenseService
         return GetExpensesByPeriod(startDate, endDate).Sum(expense => expense.Amount);
     }
 
-    public IReadOnlyDictionary<Categories, decimal> GetTotalsByCategory(
+    public IReadOnlyDictionary<LegacyCategories, decimal> GetTotalsByCategory(
         DateTime startDate,
         DateTime endDate)
     {
         var expenses = GetExpensesByPeriod(startDate, endDate);
 
-        var groups = expenses.GroupBy(expense => expense.Category);
+        var groups = expenses.GroupBy(expense => expense.LegacyCategory);
 
         return groups.ToDictionary(
             group => group.Key,
             group => group.Sum(expense => expense.Amount));
     }
 
-    public IReadOnlyList<Categories> GetTopCategories(
+    public IReadOnlyList<LegacyCategories> GetTopCategories(
         DateTime startDate,
         DateTime endDate)
     {

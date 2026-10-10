@@ -65,7 +65,7 @@ class Program
                 // Restore limits through the service to validate their values.
 
                 budgetService.SetMonthlyLimit(
-                    limit.Category,
+                    limit.LegacyCategory,
                     limit.MonthlyAmount);
             }
 
@@ -100,7 +100,7 @@ class Program
             Console.WriteLine("1. Add expense");
             Console.WriteLine("2. Show expenses");
             Console.WriteLine("3. Show total amount");
-            Console.WriteLine("4. Filter by category");
+            Console.WriteLine("4. Filter by legacyCategory");
             Console.WriteLine("5. Show today's expenses");
             Console.WriteLine("6. Filter by date range");
             Console.WriteLine("7. Save expenses and budget limits");
@@ -271,7 +271,7 @@ class Program
         var totalsByCategory = expenseService.GetTotalsByCategory(startDate, endDate);
 
         if (totalsByCategory.Count <= 0) return;
-        Console.WriteLine("Totals by category:");
+        Console.WriteLine("Totals by legacyCategory:");
 
         foreach (var categoryTotal in totalsByCategory)
         {
@@ -354,27 +354,27 @@ class Program
         }
     }
 
-    public static Categories ReadCategory()
+    public static LegacyCategories ReadCategory()
     {
         Console.WriteLine("Available categories:");
 
-        foreach (var availableCategory in Enum.GetValues<Categories>())
+        foreach (var availableCategory in Enum.GetValues<LegacyCategories>())
         {
             Console.WriteLine(availableCategory);
         }
 
-        Categories category;
+        LegacyCategories legacyCategory;
 
         while (true)
         {
-            Console.WriteLine("Choose a category: ");
+            Console.WriteLine("Choose a legacyCategory: ");
 
-            if (Enum.TryParse(Console.ReadLine(), true, out category) && Enum.IsDefined(category))
+            if (Enum.TryParse(Console.ReadLine(), true, out legacyCategory) && Enum.IsDefined(legacyCategory))
             {
-                return category;
+                return legacyCategory;
             }
 
-            Console.WriteLine("Invalid category. Choose a category from the list.");
+            Console.WriteLine("Invalid legacyCategory. Choose a legacyCategory from the list.");
         }
     }
 
@@ -409,7 +409,7 @@ class Program
     }
     
     
-    public static void ShowExpenses(IReadOnlyList<Expense> expenses)
+    public static void ShowExpenses(IReadOnlyList<LegacyExpense> expenses)
     {
         if (expenses.Count == 0)
         {
@@ -423,7 +423,7 @@ class Program
         {
             Console.WriteLine(
                 $"{expense.Date:dd.MM.yyyy HH:mm} | " +
-                $"{expense.Category} | " +
+                $"{expense.LegacyCategory} | " +
                 $"{expense.Amount} | " +
                 $"{expense.Description}");
         }
@@ -456,16 +456,16 @@ class Program
         Console.WriteLine("Type a description or press Enter to skip:");
         var description = Console.ReadLine() ?? "";
         
-        // Category
+        // LegacyCategory
         Console.WriteLine("Available categories:");
 
         // Enum.GetValues<Name og the Enum Class> to get all values from the Enum class
-        foreach (var availableCategory in Enum.GetValues<Categories>())
+        foreach (var availableCategory in Enum.GetValues<LegacyCategories>())
         {
             Console.WriteLine(availableCategory);
         }
         
-        var expense = new Expense(
+        var expense = new LegacyExpense(
             amount,
             category,
             description);
@@ -474,20 +474,20 @@ class Program
 
         var overspend =
             budgetService.GetMonthlyOverspend(
-                expense.Category, 
+                expense.LegacyCategory, 
                 expense.Date, 
                 expenseService.GetAllExpenses());
 
         if (overspend > 0m)
         {
-            Console.WriteLine($"Warning: monthly budget for {expense.Category} " +
+            Console.WriteLine($"Warning: monthly budget for {expense.LegacyCategory} " +
                               $"exceeded by {overspend:F2}.");
         }
 
         Console.WriteLine("");
         Console.WriteLine($"Id: {expense.Id}");
         Console.WriteLine($"Amount: {expense.Amount}");
-        Console.WriteLine($"Category: {expense.Category}");
+        Console.WriteLine($"LegacyCategory: {expense.LegacyCategory}");
         Console.WriteLine($"Date: {expense.Date}");
         Console.WriteLine($"Description: {expense.Description}");
     }

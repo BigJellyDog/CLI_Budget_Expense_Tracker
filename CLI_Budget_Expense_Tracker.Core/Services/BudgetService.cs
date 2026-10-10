@@ -7,9 +7,9 @@ using Models;
 
 public class BudgetService
 {
-    private readonly Dictionary<Categories, BudgetLimit> _limits = [];
+    private readonly Dictionary<LegacyCategories, LegacyBudgetLimit> _limits = [];
 
-    public void SetMonthlyLimit(Categories category, decimal monthlyAmount)
+    public void SetMonthlyLimit(LegacyCategories legacyCategory, decimal monthlyAmount)
     {
         // Reject negative limits before changing the stored value.
         if (monthlyAmount < 0m)
@@ -19,21 +19,21 @@ public class BudgetService
                 monthlyAmount,
                 "Monthly limit cannot be negative.");
         }
-        if (!Enum.IsDefined(category))
+        if (!Enum.IsDefined(legacyCategory))
             throw new ArgumentOutOfRangeException(nameof(monthlyAmount));
 
-        _limits[category] = new BudgetLimit(category, monthlyAmount);
+        _limits[legacyCategory] = new LegacyBudgetLimit(legacyCategory, monthlyAmount);
     }
 
-    public BudgetLimit? GetMonthlyLimit(Categories category)
+    public LegacyBudgetLimit? GetMonthlyLimit(LegacyCategories legacyCategory)
     {
-        return _limits.GetValueOrDefault(category);
+        return _limits.GetValueOrDefault(legacyCategory);
     }
 
     /// <summary>
-    /// Calculates how much spending exceeds the monthly category limit.
+    /// Calculates how much spending exceeds the monthly legacyCategory limit.
     /// </summary>
-    /// <param name="category">The category to check.</param>
+    /// <param name="legacyCategory">The legacyCategory to check.</param>
     /// <param name="date">The date that determines the month and year to check.</param>
     /// <param name="expenses">The expenses included in the calculation.</param>
     /// <returns>
@@ -41,18 +41,18 @@ public class BudgetService
     /// or spending does not exceed it.
     /// </returns>
     public decimal GetMonthlyOverspend(
-        Categories category,
+        LegacyCategories legacyCategory,
         DateTime date,
-        IReadOnlyList<Expense> expenses)
+        IReadOnlyList<LegacyExpense> expenses)
     {
-        var limit = GetMonthlyLimit(category);
+        var limit = GetMonthlyLimit(legacyCategory);
 
-        // A category without a configured limit has no budget restriction.
+        // A legacyCategory without a configured limit has no budget restriction.
         if (limit is null) return 0m;
 
         // Match both month and year to avoid combining expenses from different years.
         var monthlyTotal = expenses.Where(expense =>
-            expense.Category == category && expense.Date.Year == date.Year &&
+            expense.LegacyCategory == legacyCategory && expense.Date.Year == date.Year &&
             expense.Date.Month == date.Month).Sum(expense => expense.Amount);
 
         // Spending below the limit should return zero instead of a negative amount.
@@ -60,10 +60,10 @@ public class BudgetService
     }
     
     /// <summary>
-    /// Returns a snapshot of all configured category limits.
+    /// Returns a snapshot of all configured legacyCategory limits.
     /// </summary>
     /// <returns>A collection containing the current budget limits.</returns>
-    public IReadOnlyList<BudgetLimit> GetAllLimits()
+    public IReadOnlyList<LegacyBudgetLimit> GetAllLimits()
     {
         // Copy the values so callers cannot modify the internal dictionary.
         return [.. _limits.Values];

@@ -1,17 +1,17 @@
 ﻿namespace CLI_Budget_Expense_Tracker.Core.Models;
 
 /// <summary>
-/// Represents an expense category with a stable identifier.
+/// Represents an expense legacyCategory with a stable identifier.
 /// </summary>
 public sealed class Category
 {
     /// <summary>
-    /// Gets the unique category identifier.
+    /// Gets the unique legacyCategory identifier.
     /// </summary>
     public Guid Id { get; private set; } = Guid.NewGuid();
 
     /// <summary>
-    /// Gets the category name displayed to the user.
+    /// Gets the legacyCategory name displayed to the user.
     /// </summary>
     public string Name { get; private set; }
 
@@ -21,7 +21,7 @@ public sealed class Category
     public string NormalizedName { get; private set; }
 
     /// <summary>
-    /// Creates a category with a valid, trimmed name.
+    /// Creates a legacyCategory with a valid, trimmed name.
     /// </summary>
     public Category(string name)
     {
@@ -30,11 +30,11 @@ public sealed class Category
     }
 
     /// <summary>
-    /// Renames the category while preserving its identifier.
+    /// Renames the legacyCategory while preserving its identifier.
     /// </summary>
     public void Rename(string name)
     {
-        // Validate before changing the existing category.
+        // Validate before changing the existing legacyCategory.
         var validatedName = ValidateName(name);
 
         Name = validatedName;

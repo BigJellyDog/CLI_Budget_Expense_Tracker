@@ -8,7 +8,7 @@ using System.Text.Json;
 
 
 /// <summary>
-/// Saves and loads category budget limits using a JSON file.
+/// Saves and loads legacyCategory budget limits using a JSON file.
 /// </summary>
 /// <param name="filePath">The path to the budget limits file.</param>
 public class JsonBudgetStorage(string filePath)
@@ -18,7 +18,7 @@ public class JsonBudgetStorage(string filePath)
     /// Replaces the existing file contents.
     /// </summary>
     /// <param name="limits">The budget limits to save.</param>
-    public void Save(IReadOnlyList<BudgetLimit> limits)
+    public void Save(IReadOnlyList<LegacyBudgetLimit> limits)
     {
         var directory = Path.GetDirectoryName(filePath);
 
@@ -47,14 +47,14 @@ public class JsonBudgetStorage(string filePath)
     /// <exception cref="JsonException">
     /// The file contains invalid JSON, incompatible data, or a null root value.
     /// </exception>
-    public IReadOnlyList<BudgetLimit> Load()
+    public IReadOnlyList<LegacyBudgetLimit> Load()
     {
         // A missing file is expected on the first run.
         if (!File.Exists(filePath)) return [];
 
         var json = File.ReadAllText(filePath);
 
-        var limits = JsonSerializer.Deserialize<List<BudgetLimit>>(json);
+        var limits = JsonSerializer.Deserialize<List<LegacyBudgetLimit>>(json);
 
         // A JSON null value is not a valid collection of budget limits.
         if (limits is null)

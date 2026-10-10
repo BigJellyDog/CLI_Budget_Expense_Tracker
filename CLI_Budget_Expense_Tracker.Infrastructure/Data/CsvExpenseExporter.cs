@@ -17,7 +17,7 @@ public class CsvExpenseExporter
     /// </summary>
     /// <param name="expenses">The expenses selected for export.</param>
     /// <param name="filePath">The destination file path.</param>
-    public void Export(IReadOnlyList<Expense> expenses, string filePath)
+    public void Export(IReadOnlyList<LegacyExpense> expenses, string filePath)
     {
         var directory = Path.GetDirectoryName(filePath);
 
@@ -33,14 +33,14 @@ public class CsvExpenseExporter
             encoding: new UTF8Encoding(encoderShouldEmitUTF8Identifier: true));
 
         writer.NewLine = "\r\n";
-        writer.WriteLine("Id,Amount,Category,Date,Description");
+        writer.WriteLine("Id,Amount,LegacyCategory,Date,Description");
 
         foreach (var expense in expenses)
         {
             var line = string.Join(",",
                 expense.Id.ToString(),
                 expense.Amount.ToString(CultureInfo.InvariantCulture),
-                expense.Category.ToString(),
+                expense.LegacyCategory.ToString(),
                 expense.Date.ToString("O", CultureInfo.InvariantCulture),
                 EscapeCsvField(expense.Description));
 

@@ -36,10 +36,10 @@ using Core.Models;
         var expenseService = new ExpenseService();
 
         expenseService.AddExpense(
-            new Expense(12.50m, Categories.Food));
+            new LegacyExpense(12.50m, LegacyCategories.Food));
 
         expenseService.AddExpense(
-            new Expense(7.25m, Categories.Transportation));
+            new LegacyExpense(7.25m, LegacyCategories.Transportation));
 
         // Act: calculate the total across all categories.
         var total = expenseService.GetTotalAmount();
@@ -56,17 +56,17 @@ using Core.Models;
         // Arrange: create expenses before, inside, and after the selected period.
         var expenseService = new ExpenseService();
 
-        var beforePeriod = new Expense(10m, Categories.Food)
+        var beforePeriod = new LegacyExpense(10m, LegacyCategories.Food)
         {
             Date = new DateTime(2026, 10, 1)
         };
 
-        var insidePeriod = new Expense(20m, Categories.Food)
+        var insidePeriod = new LegacyExpense(20m, LegacyCategories.Food)
         {
             Date = new DateTime(2026, 10, 5)
         };
 
-        var afterPeriod = new Expense(30m, Categories.Food)
+        var afterPeriod = new LegacyExpense(30m, LegacyCategories.Food)
         {
             Date = new DateTime(2026, 10, 10)
         };
@@ -93,12 +93,12 @@ using Core.Models;
         // Arrange: add expenses at the beginning and end of the selected days.
         var expenseService = new ExpenseService();
 
-        var firstDayExpense = new Expense(10m, Categories.Food)
+        var firstDayExpense = new LegacyExpense(10m, LegacyCategories.Food)
         {
             Date = new DateTime(2026, 10, 3, 0, 0, 0)
         };
 
-        var lastDayExpense = new Expense(20m, Categories.Food)
+        var lastDayExpense = new LegacyExpense(20m, LegacyCategories.Food)
         {
             Date = new DateTime(2026, 10, 7, 23, 59, 59)
         };
@@ -117,7 +117,7 @@ using Core.Models;
             Is.EquivalentTo(new[] { firstDayExpense, lastDayExpense }));
     }
     /// <summary>
-    /// Verifies that expenses are summed separately for each category.
+    /// Verifies that expenses are summed separately for each legacyCategory.
     /// </summary>
     [Test]
     public void GetTotalsByCategory_WithDifferentCategories_ReturnsSeparateSums()
@@ -127,24 +127,24 @@ using Core.Models;
         var date = new DateTime(2026, 10, 10);
 
         expenseService.AddExpense(
-            new Expense(12.50m, Categories.Food) { Date = date });
+            new LegacyExpense(12.50m, LegacyCategories.Food) { Date = date });
 
         expenseService.AddExpense(
-            new Expense(7.25m, Categories.Food) { Date = date });
+            new LegacyExpense(7.25m, LegacyCategories.Food) { Date = date });
 
         expenseService.AddExpense(
-            new Expense(5m, Categories.Transportation) { Date = date });
+            new LegacyExpense(5m, LegacyCategories.Transportation) { Date = date });
 
-        // Act: calculate category totals for October.
+        // Act: calculate legacyCategory totals for October.
         var result = expenseService.GetTotalsByCategory(
             new DateTime(2026, 10, 1),
             new DateTime(2026, 10, 31));
 
-        // Assert: each category should contain its own total.
-        var expected = new Dictionary<Categories, decimal>
+        // Assert: each legacyCategory should contain its own total.
+        var expected = new Dictionary<LegacyCategories, decimal>
         {
-            [Categories.Food] = 19.75m,
-            [Categories.Transportation] = 5m
+            [LegacyCategories.Food] = 19.75m,
+            [LegacyCategories.Transportation] = 5m
         };
 
         Assert.That(result, Is.EqualTo(expected));
@@ -160,38 +160,38 @@ using Core.Models;
         var expenseService = new ExpenseService();
 
         expenseService.AddExpense(
-            new Expense(20m, Categories.Food)
+            new LegacyExpense(20m, LegacyCategories.Food)
             {
                 Date = new DateTime(2026, 10, 10)
             });
 
         expenseService.AddExpense(
-            new Expense(100m, Categories.Food)
+            new LegacyExpense(100m, LegacyCategories.Food)
             {
                 Date = new DateTime(2026, 9, 30)
             });
 
         expenseService.AddExpense(
-            new Expense(100m, Categories.Food)
+            new LegacyExpense(100m, LegacyCategories.Food)
             {
                 Date = new DateTime(2026, 11, 1)
             });
 
         expenseService.AddExpense(
-            new Expense(100m, Categories.Transportation)
+            new LegacyExpense(100m, LegacyCategories.Transportation)
             {
                 Date = new DateTime(2025, 10, 10)
             });
 
-        // Act: calculate category totals for October 2026 only.
+        // Act: calculate legacyCategory totals for October 2026 only.
         var result = expenseService.GetTotalsByCategory(
             new DateTime(2026, 10, 1),
             new DateTime(2026, 10, 31));
 
         // Assert: only the matching food expense should contribute.
-        var expected = new Dictionary<Categories, decimal>
+        var expected = new Dictionary<LegacyCategories, decimal>
         {
-            [Categories.Food] = 20m
+            [LegacyCategories.Food] = 20m
         };
 
         Assert.That(result, Is.EqualTo(expected));
