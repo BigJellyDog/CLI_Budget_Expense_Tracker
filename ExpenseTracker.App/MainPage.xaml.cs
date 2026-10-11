@@ -10,7 +10,7 @@ public partial class MainPage : ContentPage
     private readonly ExpensesViewModel _viewModel;
     private readonly IServiceProvider _services;
 
-    private bool _openingExpense;
+    private bool _openingPage;
     private bool _confirmingDelete;
 
     public MainPage(
@@ -31,27 +31,32 @@ public partial class MainPage : ContentPage
         await _viewModel.RefreshAsync();
     }
 
-    private async void OnAddExpenseClicked(object? sender, EventArgs e)
-    {
-        if (_openingExpense || _confirmingDelete || _viewModel.IsBusy)
-            return;
+    private async void OnAddExpenseClicked(object? sender, EventArgs e) =>
+        await OpenPageAsync<AddExpensePage>();
 
-        _openingExpense = true;
+    private async void OnBankImportClicked(object? sender, EventArgs e) =>
+        await OpenPageAsync<BankImportPage>();
+
+    private async Task OpenPageAsync<TPage>() where TPage : Page
+    {
+        if (_openingPage || _confirmingDelete || _viewModel.IsBusy) return;
+
+        _openingPage = true;
 
         try
         {
-            var page = _services.GetRequiredService<AddExpensePage>();
+            var page = _services.GetRequiredService<TPage>();
             await Navigation.PushAsync(page);
         }
         finally
         {
-            _openingExpense = false;
+            _openingPage = false;
         }
     }
 
     private async void OnDeleteExpenseClicked(object? sender, EventArgs e)
     {
-        if (_confirmingDelete || _openingExpense || _viewModel.IsBusy
+        if (_confirmingDelete || _openingPage || _viewModel.IsBusy
             || sender is not Button { BindingContext: ExpenseListItem expense })
         {
             return;

@@ -8,4 +8,9 @@ using Models;
 public interface IBankStatementReader
 {
     IReadOnlyList<BankStatementEntry> Read(string filePath);
+
+    /// <summary>
+    /// Reads from the current position and leaves the stream open.
+    /// </summary>
+    IReadOnlyList<BankStatementEntry> Read(Stream stream);
 }

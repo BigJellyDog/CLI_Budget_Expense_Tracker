@@ -11,8 +11,13 @@
     BackgroundColor="{AppThemeBinding Light=#F5F6FA, Dark=#151821}">
 
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Add expense"
-                     Clicked="OnAddExpenseClicked" />
+        <ToolbarItem
+            Text="Add expense"
+            Clicked="OnAddExpenseClicked" />
+
+        <ToolbarItem
+            Text="Revolut CSV"
+            Clicked="OnBankImportClicked" />
     </ContentPage.ToolbarItems>
     
     <Grid

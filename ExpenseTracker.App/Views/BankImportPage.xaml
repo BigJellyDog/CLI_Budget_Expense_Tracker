@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:ExpenseTracker.App.ViewModels"
+    xmlns:models="clr-namespace:ExpenseTracker.App.Models"
+    x:Class="ExpenseTracker.App.Views.BankImportPage"
+    x:DataType="vm:BankImportViewModel"
+    Title="Revolut CSV preview"
+    NavigationPage.HasBackButton="{Binding IsIdle}"
+    BackgroundColor="{AppThemeBinding Light=#F5F6FA, Dark=#151821}">
+
+    <Grid
+        Padding="24"
+        RowDefinitions="Auto,Auto,Auto,*"
+        RowSpacing="16">
+
+        <VerticalStackLayout Spacing="8">
+            <Button
+                Text="Choose CSV"
+                Clicked="OnChooseFileClicked"
+                IsEnabled="{Binding IsIdle}"
+                HorizontalOptions="Start" />
+
+            <Label Text="Revolut CSV with German column names · EUR" />
+
+            <Label Text="Preview only. No expenses are saved." />
+
+            <Label
+                Text="{Binding FileName}"
+                FontAttributes="Bold"
+                LineBreakMode="MiddleTruncation" />
+        </VerticalStackLayout>
+
+        <VerticalStackLayout
+            Grid.Row="1"
+            Spacing="8"
+            IsVisible="{Binding ShowPreview}">
+
+            <Label Text="{Binding Summary}" />
+
+            <Label
+                Text="{Binding TotalText}"
+                FontSize="18"
+                FontAttributes="Bold" />
+        </VerticalStackLayout>
+
+        <VerticalStackLayout Grid.Row="2" Spacing="8">
+            <ActivityIndicator
+                IsRunning="{Binding IsBusy}"
+                IsVisible="{Binding IsBusy}" />
+
+            <Label
+                Text="{Binding ErrorMessage}"
+                IsVisible="{Binding HasError}"
+                TextColor="{AppThemeBinding Light=#B42318, Dark=#FFB4AB}" />
+        </VerticalStackLayout>
+
+        <CollectionView
+            Grid.Row="3"
+            ItemsSource="{Binding Items}"
+            IsVisible="{Binding ShowPreview}"
+            SelectionMode="None">
+
+            <CollectionView.EmptyView>
+                <Label
+                    Text="The statement contains no transactions."
+                    Margin="24"
+                    HorizontalTextAlignment="Center" />
+            </CollectionView.EmptyView>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:BankImportListItem">
+                    <Border
+                        Padding="16"
+                        Margin="0,0,0,8"
+                        StrokeShape="RoundRectangle 10"
+                        Stroke="{AppThemeBinding Light=#D8DDE8, Dark=#384054}"
+                        BackgroundColor="{AppThemeBinding Light=White, Dark=#202532}">
+
+                        <Grid
+                            ColumnDefinitions="*,Auto"
+                            RowDefinitions="Auto,Auto,Auto,Auto,Auto"
+                            ColumnSpacing="16"
+                            RowSpacing="6">
+
+                            <Label
+                                Text="{Binding Kind}"
+                                FontAttributes="Bold" />
+
+                            <Label
+                                Grid.Column="1"
+                                Text="{Binding Amount}"
+                                FontAttributes="Bold"
+                                HorizontalTextAlignment="End" />
+
+                            <Label
+                                Grid.Row="1"
+                                Grid.ColumnSpan="2"
+                                Text="{Binding Description}" />
+
+                            <Label
+                                Grid.Row="2"
+                                Grid.ColumnSpan="2"
+                                Text="{Binding Date}" />
+
+                            <Label
+                                Grid.Row="3"
+                                Grid.ColumnSpan="2"
+                                Text="{Binding Details}"
+                                FontSize="12" />
+
+                            <Label
+                                Grid.Row="4"
+                                Grid.ColumnSpan="2"
+                                Text="{Binding Reason}"
+                                FontSize="12" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>

@@ -21,8 +21,17 @@ public sealed class RevolutCsvReader : IBankStatementReader
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
 
+        using var stream = File.OpenRead(filePath);
+        return Read(stream);
+    }
+    
+    public IReadOnlyList<BankStatementEntry> Read(Stream stream)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
+
         using var parser = new TextFieldParser(
-            filePath, new UTF8Encoding(false, true))
+            stream, new UTF8Encoding(false, true),
+            detectEncoding: true, leaveOpen: true)
         {
             TextFieldType = FieldType.Delimited,
             HasFieldsEnclosedInQuotes = true,
