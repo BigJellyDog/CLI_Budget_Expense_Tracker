@@ -54,6 +54,8 @@ public sealed class AddExpenseViewModel : ObservableObject
     public bool HasError => ErrorMessage.Length > 0;
 
     public bool CanReload => !IsBusy && !IsSaved;
+    
+    public bool CanGoBack => !IsBusy;
 
     public bool CanEdit => _loaded && CanReload;
 
@@ -218,6 +220,23 @@ public sealed class AddExpenseViewModel : ObservableObject
             NotifyState();
         }
     }
+    
+    public void StartNewExpense()
+    {
+        if (IsBusy || !IsSaved) return;
+
+        IsSaved = false;
+        AmountText = "";
+        Description = "";
+        NewCategoryName = "";
+        ErrorMessage = "";
+
+        OnPropertyChanged(nameof(AmountText));
+        OnPropertyChanged(nameof(Description));
+        OnPropertyChanged(nameof(NewCategoryName));
+
+        NotifyState();
+    }
 
     private bool SetError(string message)
     {
@@ -228,6 +247,7 @@ public sealed class AddExpenseViewModel : ObservableObject
 
     private void NotifyState()
     {
+        OnPropertyChanged(nameof(CanGoBack));
         OnPropertyChanged(nameof(ErrorMessage));
         OnPropertyChanged(nameof(HasError));
         OnPropertyChanged(nameof(IsBusy));

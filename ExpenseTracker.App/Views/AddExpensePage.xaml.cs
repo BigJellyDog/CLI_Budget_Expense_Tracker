@@ -29,9 +29,9 @@ public partial class AddExpensePage : ContentPage
     private async void OnAddCategoryClicked(object? sender, EventArgs e) =>
         await _viewModel.AddCategoryAsync();
 
-    private async void OnSaveClicked(object? sender, EventArgs e)
-    {
-        if (await _viewModel.SaveAsync())
-            await Navigation.PopAsync();
-    }
+    private async void OnSaveClicked(object? sender, EventArgs e) =>
+        await _viewModel.SaveAsync();
+    
+    private void OnAddAnotherClicked(object? sender, EventArgs e) =>
+        _viewModel.StartNewExpense();
 }

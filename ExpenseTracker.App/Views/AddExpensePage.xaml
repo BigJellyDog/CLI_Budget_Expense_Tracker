@@ -6,7 +6,7 @@
              x:Class="ExpenseTracker.App.Views.AddExpensePage"
              x:DataType="vm:AddExpenseViewModel"
              Title="Add expense"
-             NavigationPage.HasBackButton="{Binding CanReload}">
+             NavigationPage.HasBackButton="{Binding CanGoBack}">
 
     <ScrollView>
         <VerticalStackLayout Padding="24"
@@ -20,6 +20,15 @@
             <Label Text="{Binding ErrorMessage}"
                    IsVisible="{Binding HasError}"
                    TextColor="{AppThemeBinding Light=#B42318, Dark=#FFB4AB}" />
+            
+            <VerticalStackLayout IsVisible="{Binding IsSaved}" Spacing="8">
+                   <Label Text="Expense saved."
+                          FontAttributes="Bold"
+                          TextColor="{AppThemeBinding Light=#16703C, Dark=#83D9A4}" />
+
+                   <Button Text="Add another expense"
+                           Clicked="OnAddAnotherClicked" />
+            </VerticalStackLayout>
 
             <Button Text="Reload categories"
                     Clicked="OnReloadClicked"
