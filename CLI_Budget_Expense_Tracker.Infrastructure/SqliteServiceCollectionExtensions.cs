@@ -32,6 +32,7 @@ public static class SqliteServiceCollectionExtensions
             IRecurringExpenseGenerator,
             SqliteRecurringExpenseGenerator>();
         
+        services.AddSingleton<IBankStatementClassifier, RevolutStatementClassifier>();
         services.AddSingleton<IBankStatementReader, RevolutCsvReader>();
         services.AddScoped<RecurringExpenseService>();
         services.AddScoped<DatabaseInitializer>();
