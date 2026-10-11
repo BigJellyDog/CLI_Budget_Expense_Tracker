@@ -1,23 +1,22 @@
 ﻿namespace ExpenseTracker.App;
 
+using ViewModels;
+
 public partial class MainPage : ContentPage
 {
-	int count = 0;
+    private readonly ExpensesViewModel _viewModel;
 
-	public MainPage()
-	{
-		InitializeComponent();
-	}
+    public MainPage(ExpensesViewModel viewModel)
+    {
+        InitializeComponent();
 
-	private void OnCounterClicked(object? sender, EventArgs e)
-	{
-		count++;
+        this._viewModel = viewModel;
+        BindingContext = viewModel;
+    }
 
-		if (count == 1)
-			CounterBtn.Text = $"Clicked {count} time";
-		else
-			CounterBtn.Text = $"Clicked {count} times";
-
-		SemanticScreenReader.Announce(CounterBtn.Text);
-	}
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+        await _viewModel.RefreshAsync();
+    }
 }

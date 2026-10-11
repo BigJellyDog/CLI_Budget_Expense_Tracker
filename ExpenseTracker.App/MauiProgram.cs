@@ -1,24 +1,49 @@
-﻿using Microsoft.Extensions.Logging;
+﻿namespace ExpenseTracker.App;
 
-namespace ExpenseTracker.App;
+using CLI_Budget_Expense_Tracker.Infrastructure;
+using Microsoft.Data.Sqlite;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Services;
+using ViewModels;
 
 public static class MauiProgram
 {
-	public static MauiApp CreateMauiApp()
-	{
-		var builder = MauiApp.CreateBuilder();
-		builder
-			.UseMauiApp<App>()
-			.ConfigureFonts(fonts =>
-			{
-				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-				fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
-			});
+    public static MauiApp CreateMauiApp()
+    {
+        var builder = MauiApp.CreateBuilder();
+
+        builder.UseMauiApp<App>().ConfigureFonts(fonts =>
+        {
+            fonts.AddFont(
+                "OpenSans-Regular.ttf", "OpenSansRegular");
+
+            fonts.AddFont(
+                "OpenSans-Semibold.ttf", "OpenSansSemibold");
+        });
+
+        var dataDirectory = FileSystem.Current.AppDataDirectory;
+
+        var connectionString = new SqliteConnectionStringBuilder
+        {
+            DataSource = Path.Combine(
+                dataDirectory, "expense-tracker.db"),
+            ForeignKeys = true
+        }.ToString();
+
+        builder.Services.AddExpenseTrackerSqlite(connectionString);
+
+        builder.Services.AddSingleton(services => new AppInitializer(
+            services.GetRequiredService<IServiceScopeFactory>(),
+            dataDirectory));
+
+        builder.Services.AddTransient<ExpensesViewModel>();
+        builder.Services.AddTransient<MainPage>();
 
 #if DEBUG
-		builder.Logging.AddDebug();
+        builder.Logging.AddDebug();
 #endif
 
-		return builder.Build();
-	}
+        return builder.Build();
+    }
 }
