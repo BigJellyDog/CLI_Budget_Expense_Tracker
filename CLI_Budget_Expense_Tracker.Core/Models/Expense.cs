@@ -11,14 +11,22 @@ public sealed class Expense
     public DateOnly Date { get; private set; }
     public string Description { get; private set; }
     public bool IsDeleted { get; private set; }
+    public Guid? RecurringExpenseId { get; private set; }
 
     public Expense(
         Guid id,
         decimal amount,
         Guid categoryId,
         DateOnly date,
-        string description = "")
+        string description = "",
+        Guid? recurringExpenseId = null)
     {
+        if (recurringExpenseId == Guid.Empty)
+        {
+            throw new ArgumentException(
+                "Recurring expense ID must not be empty.",
+                nameof(recurringExpenseId));
+        }
         if (id == Guid.Empty)
         {
             throw new ArgumentException(
@@ -39,6 +47,7 @@ public sealed class Expense
         CategoryId = categoryId;
         Date = date;
         Description = description;
+        RecurringExpenseId = recurringExpenseId;
     }
 
     /// <summary>

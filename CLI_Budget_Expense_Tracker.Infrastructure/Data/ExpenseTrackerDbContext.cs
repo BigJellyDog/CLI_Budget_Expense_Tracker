@@ -69,6 +69,18 @@ public sealed class ExpenseTrackerDbContext(
         expense.HasIndex(x => new { x.CategoryId, x.Date });
 
         expense.HasQueryFilter(x => !x.IsDeleted);
+        
+        expense.HasOne<RecurringExpense>()
+            .WithMany()
+            .HasForeignKey(x => x.RecurringExpenseId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        expense.HasIndex(x => new
+            {
+                x.RecurringExpenseId,
+                x.Date
+            })
+            .IsUnique();
 
         // Allow only one budget per category and calendar month.
         var budget = modelBuilder.Entity<BudgetLimit>();

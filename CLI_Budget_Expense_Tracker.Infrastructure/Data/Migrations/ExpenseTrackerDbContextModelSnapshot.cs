@@ -88,11 +88,17 @@ namespace CLI_Budget_Expense_Tracker.Infrastructure.Data.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("INTEGER");
 
+                    b.Property<Guid?>("RecurringExpenseId")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Date");
 
                     b.HasIndex("CategoryId", "Date");
+
+                    b.HasIndex("RecurringExpenseId", "Date")
+                        .IsUnique();
 
                     b.ToTable("Expenses", null, t =>
                         {
@@ -160,6 +166,11 @@ namespace CLI_Budget_Expense_Tracker.Infrastructure.Data.Migrations
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("CLI_Budget_Expense_Tracker.Core.Models.RecurringExpense", null)
+                        .WithMany()
+                        .HasForeignKey("RecurringExpenseId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("CLI_Budget_Expense_Tracker.Core.Models.RecurringExpense", b =>
