@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage
+    
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:vm="clr-namespace:ExpenseTracker.App.ViewModels"
@@ -9,6 +10,11 @@
     Title="Expenses"
     BackgroundColor="{AppThemeBinding Light=#F5F6FA, Dark=#151821}">
 
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Add expense"
+                     Clicked="OnAddExpenseClicked" />
+    </ContentPage.ToolbarItems>
+    
     <Grid
         Padding="24"
         RowDefinitions="Auto,Auto,Auto,*"

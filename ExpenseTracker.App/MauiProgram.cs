@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Services;
 using ViewModels;
+using Views;
 
 public static class MauiProgram
 {
@@ -39,6 +40,8 @@ public static class MauiProgram
 
         builder.Services.AddTransient<ExpensesViewModel>();
         builder.Services.AddTransient<MainPage>();
+        builder.Services.AddTransient<AddExpenseViewModel>();
+        builder.Services.AddTransient<AddExpensePage>();
 
 #if DEBUG
         builder.Logging.AddDebug();
