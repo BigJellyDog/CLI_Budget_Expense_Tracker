@@ -30,7 +30,8 @@ public sealed class ConsoleApplication(
                 13. Delete unused category    14. Show monthly budgets
                 15. Remove monthly limit      16. Add recurring expense
                 17. Show recurring expenses   18. Deactivate recurring expense
-                19. Generate due expenses      0. Exit
+                19. Generate due expenses     20. Preview Revolut CSV
+                0. Exit
                 """);
             try
             {
@@ -48,8 +49,13 @@ public sealed class ConsoleApplication(
             {
                 writer.WriteLine($"Cannot access the database: {exception.Message}");
             }
-            catch (Exception exception) when (exception is ArgumentException or InvalidOperationException
-                or IOException or UnauthorizedAccessException)
+            catch (Exception exception) when (
+                exception is ArgumentException
+                    or InvalidOperationException
+                    or IOException
+                    or UnauthorizedAccessException
+                    or FormatException
+                    or OverflowException)
             {
                 writer.WriteLine($"Error: {exception.Message}");
             }
@@ -150,6 +156,13 @@ public sealed class ConsoleApplication(
                     .GenerateAsync();
 
                 writer.WriteLine($"Generated {generated} recurring expense(s).");
+                break;
+            case "20":
+                new BankImportPreview(
+                    services.GetRequiredService<IBankStatementReader>(),
+                    services.GetRequiredService<IBankStatementClassifier>(),
+                    input,
+                    writer).Run();
                 break;
             default:
                 writer.WriteLine("Invalid option. Try again.");
