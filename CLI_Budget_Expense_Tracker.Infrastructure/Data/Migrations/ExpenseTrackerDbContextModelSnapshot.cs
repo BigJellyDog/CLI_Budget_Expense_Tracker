@@ -100,6 +100,50 @@ namespace CLI_Budget_Expense_Tracker.Infrastructure.Data.Migrations
                         });
                 });
 
+            modelBuilder.Entity("CLI_Budget_Expense_Tracker.Core.Models.RecurringExpense", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("Amount")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("AmountInCents");
+
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Frequency")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateOnly>("NextDueDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("IsActive", "NextDueDate");
+
+                    b.ToTable("RecurringExpenses", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_RecurringExpenses_AmountInCents", "typeof(\"AmountInCents\") = 'integer'\nAND \"AmountInCents\" > 0");
+
+                            t.HasCheckConstraint("CK_RecurringExpenses_Frequency", "\"Frequency\" IN (1, 2, 3, 4)");
+
+                            t.HasCheckConstraint("CK_RecurringExpenses_NextDueDate", "\"NextDueDate\" >= \"StartDate\"");
+                        });
+                });
+
             modelBuilder.Entity("CLI_Budget_Expense_Tracker.Core.Models.BudgetLimit", b =>
                 {
                     b.HasOne("CLI_Budget_Expense_Tracker.Core.Models.Category", null)
@@ -110,6 +154,15 @@ namespace CLI_Budget_Expense_Tracker.Infrastructure.Data.Migrations
                 });
 
             modelBuilder.Entity("CLI_Budget_Expense_Tracker.Core.Models.Expense", b =>
+                {
+                    b.HasOne("CLI_Budget_Expense_Tracker.Core.Models.Category", null)
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("CLI_Budget_Expense_Tracker.Core.Models.RecurringExpense", b =>
                 {
                     b.HasOne("CLI_Budget_Expense_Tracker.Core.Models.Category", null)
                         .WithMany()

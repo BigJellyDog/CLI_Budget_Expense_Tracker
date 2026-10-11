@@ -179,7 +179,9 @@ public sealed class SqliteWorkflowTests
         await using var scope = database.Services.CreateAsyncScope();
         var context = scope.ServiceProvider.GetRequiredService<ExpenseTrackerDbContext>();
         Assert.That(context.Database.HasPendingModelChanges(), Is.False);
-        Assert.That((await context.Database.GetAppliedMigrationsAsync()).Count(), Is.EqualTo(1));
+        Assert.That(
+        await context.Database.GetAppliedMigrationsAsync(),
+    Is.EquivalentTo(context.Database.GetMigrations()));
         await using var connection = new SqliteConnection(database.ConnectionString);
         await connection.OpenAsync();
         await using var command = connection.CreateCommand();
@@ -187,6 +189,12 @@ public sealed class SqliteWorkflowTests
         var tables = new List<string>();
         await using var reader = await command.ExecuteReaderAsync();
         while (await reader.ReadAsync()) tables.Add(reader.GetString(0));
-        Assert.That(tables, Is.EqualTo(new[] { "BudgetLimits", "Categories", "Expenses" }));
+        Assert.That(tables, Is.EqualTo(new[]
+        {
+            "BudgetLimits",
+            "Categories",
+            "Expenses",
+            "RecurringExpenses"
+        }));
     }
 }

@@ -23,9 +23,13 @@ public static class SqliteServiceCollectionExtensions
 
         services.AddDbContext<ExpenseTrackerDbContext>(options =>
             options.UseSqlite(connectionString));
+        services.AddScoped<
+            IRecurringExpenseRepository,
+            SqliteRecurringExpenseRepository>();
 
+        services.AddScoped<RecurringExpenseService>();
         services.AddScoped<DatabaseInitializer>();
-        services.TryAddSingleton<TimeProvider>(TimeProvider.System);
+        services.TryAddSingleton(TimeProvider.System);
         services.AddScoped<ICategoryRepository, SqliteCategoryRepository>();
         services.AddScoped<IExpenseRepository, SqliteExpenseRepository>();
         services.AddScoped<IBudgetRepository, SqliteBudgetRepository>();
@@ -33,6 +37,7 @@ public static class SqliteServiceCollectionExtensions
         services.AddScoped<ExpenseService>();
         services.AddScoped<BudgetService>();
         services.AddSingleton<CsvExpenseExporter>();
+        
 
         return services;
     }

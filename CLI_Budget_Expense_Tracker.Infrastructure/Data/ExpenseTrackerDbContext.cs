@@ -14,6 +14,8 @@ public sealed class ExpenseTrackerDbContext(
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<Expense> Expenses => Set<Expense>();
     public DbSet<BudgetLimit> BudgetLimits => Set<BudgetLimit>();
+    public DbSet<RecurringExpense> RecurringExpenses =>
+        Set<RecurringExpense>();
 
     /// <summary>
     /// Configures tables, relationships, constraints, and money conversion.
@@ -70,6 +72,52 @@ public sealed class ExpenseTrackerDbContext(
 
         // Allow only one budget per category and calendar month.
         var budget = modelBuilder.Entity<BudgetLimit>();
+        
+        // Configure recurring payments and their schedules.
+        var recurring = modelBuilder.Entity<RecurringExpense>();
+
+        recurring.ToTable("RecurringExpenses", table =>
+        {
+            table.HasCheckConstraint(
+                "CK_RecurringExpenses_AmountInCents",
+                """
+                typeof("AmountInCents") = 'integer'
+                AND "AmountInCents" > 0
+                """);
+
+            table.HasCheckConstraint(
+                "CK_RecurringExpenses_Frequency",
+                """
+                "Frequency" IN (1, 2, 3, 4)
+                """);
+
+            table.HasCheckConstraint(
+                "CK_RecurringExpenses_NextDueDate",
+                """
+                "NextDueDate" >= "StartDate"
+                """);
+        });
+
+        recurring.HasKey(x => x.Id);
+        recurring.Property(x => x.Id).ValueGeneratedNever();
+
+        recurring.Property(x => x.Amount)
+            .HasConversion(moneyConverter)
+            .HasColumnName("AmountInCents")
+            .HasColumnType("INTEGER");
+
+        recurring.Property(x => x.Frequency)
+            .HasConversion<int>();
+
+        recurring.Property(x => x.Description)
+            .IsRequired();
+
+        recurring.HasOne<Category>()
+            .WithMany()
+            .HasForeignKey(x => x.CategoryId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        recurring.HasIndex(x => new { x.IsActive, x.NextDueDate });
 
         budget.ToTable("BudgetLimits", table =>
         {
@@ -101,6 +149,7 @@ public sealed class ExpenseTrackerDbContext(
         budget.HasIndex(x => new { x.CategoryId, x.Month })
             .IsUnique();
     }
+    
 
     /// <summary>
     /// Converts an exact monetary amount to cents and rejects overflow.
