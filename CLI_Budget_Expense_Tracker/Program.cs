@@ -1,5 +1,6 @@
 namespace CLI_Budget_Expense_Tracker;
 
+using Core.Interfaces;
 using Infrastructure;
 using Infrastructure.Data;
 using Microsoft.Data.Sqlite;
@@ -42,6 +43,16 @@ internal static class Program
             await using (var scope = provider.CreateAsyncScope())
             {
                 await scope.ServiceProvider.GetRequiredService<DatabaseInitializer>().InitializeAsync();
+            }
+            
+            await using (var scope = provider.CreateAsyncScope())
+            {
+                var generated = await scope.ServiceProvider
+                    .GetRequiredService<IRecurringExpenseGenerator>()
+                    .GenerateAsync();
+
+                if (generated > 0)
+                    Console.WriteLine($"Generated {generated} recurring expense(s).");
             }
 
             Console.WriteLine($"Data directory: {paths.DataDirectory}");

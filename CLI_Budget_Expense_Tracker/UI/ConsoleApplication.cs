@@ -1,5 +1,6 @@
 namespace CLI_Budget_Expense_Tracker.UI;
 
+using Core.Interfaces;
 using Core.Models;
 using Core.Services;
 using Infrastructure.Exporting;
@@ -27,7 +28,9 @@ public sealed class ConsoleApplication(
                 9. Export expenses to CSV     10. Add category
                 11. Show categories           12. Rename category
                 13. Delete unused category    14. Show monthly budgets
-                15. Remove monthly limit       0. Exit
+                15. Remove monthly limit      16. Add recurring expense
+                17. Show recurring expenses   18. Deactivate recurring expense
+                19. Generate due expenses      0. Exit
                 """);
             try
             {
@@ -58,6 +61,7 @@ public sealed class ConsoleApplication(
         var categories = services.GetRequiredService<CategoryService>();
         var expenses = services.GetRequiredService<ExpenseService>();
         var budgets = services.GetRequiredService<BudgetService>();
+        var recurring = services.GetRequiredService<RecurringExpenseService>();
         switch (choice)
         {
             case "1":
@@ -127,10 +131,118 @@ public sealed class ConsoleApplication(
                 writer.WriteLine(await budgets.DeleteMonthlyLimitAsync(removed.Id, input.ReadMonth())
                     ? "Monthly limit removed." : "No limit for this category and month.");
                 break;
+            case "16":
+                await AddRecurringExpenseAsync(categories, recurring, expenses.Today);
+                break;
+
+            case "17":
+                await ShowRecurringExpensesAsync(categories, recurring);
+                break;
+
+            case "18":
+                await DeactivateRecurringExpenseAsync(categories, recurring);
+                break;
+
+            case "19":
+            case "generate":
+                var generated = await services
+                    .GetRequiredService<IRecurringExpenseGenerator>()
+                    .GenerateAsync();
+
+                writer.WriteLine($"Generated {generated} recurring expense(s).");
+                break;
             default:
                 writer.WriteLine("Invalid option. Try again.");
                 break;
         }
+    }
+        
+    private async Task AddRecurringExpenseAsync(
+    CategoryService categories,
+    RecurringExpenseService recurring,
+    DateOnly today)
+    {
+        var category = await SelectCategoryAsync(categories);
+        if (category is null) return;
+
+        var frequencies = Enum.GetValues<RecurrenceFrequency>();
+
+        writer.WriteLine("Frequency:");
+        for (var i = 0; i < frequencies.Length; i++)
+            writer.WriteLine($"{i + 1}. {frequencies[i]}");
+
+        var number = input.ReadSelection(frequencies.Length);
+        if (number == 0) return;
+
+        var amount = input.ReadAmount(false);
+        var startDate = input.ReadDate("First payment date", today);
+        var description = input.Read("Description (optional): ");
+
+        await recurring.AddAsync(
+            amount,
+            category.Id,
+            frequencies[number - 1],
+            startDate,
+            description);
+
+        writer.WriteLine(
+            "Recurring expense saved. Choose 19 to generate due expenses now.");
+    }
+
+    private async Task<IReadOnlyList<RecurringExpense>> ShowRecurringExpensesAsync(
+        CategoryService categories,
+        RecurringExpenseService recurring,
+        bool activeOnly = false)
+    {
+        var items = (await recurring.GetAllAsync())
+            .Where(x => !activeOnly || x.IsActive)
+            .ToArray();
+
+        if (items.Length == 0)
+        {
+            writer.WriteLine(activeOnly
+                ? "No active recurring expenses."
+                : "No recurring expenses.");
+
+            return items;
+        }
+
+        var names = (await categories.GetAllAsync())
+            .ToDictionary(x => x.Id, x => x.Name);
+
+        for (var i = 0; i < items.Length; i++)
+        {
+            var item = items[i];
+            var status = item.IsActive ? "Active" : "Inactive";
+            var nextDate = item.IsActive
+                ? item.NextDueDate.ToString("dd.MM.yyyy")
+                : "-";
+
+            writer.WriteLine(
+                $"{i + 1}. {names[item.CategoryId]} | {item.Amount:F2} | " +
+                $"{item.Frequency} | Next: {nextDate} | {status} | {item.Description}");
+        }
+
+        return items;
+    }
+
+    private async Task DeactivateRecurringExpenseAsync(
+        CategoryService categories,
+        RecurringExpenseService recurring)
+    {
+        var items = await ShowRecurringExpensesAsync(
+            categories,
+            recurring,
+            activeOnly: true);
+
+        if (items.Count == 0) return;
+
+        var number = input.ReadSelection(items.Count);
+        if (number == 0) return;
+
+        await recurring.DeactivateAsync(items[number - 1].Id);
+
+        writer.WriteLine("Recurring expense deactivated.");
     }
 
     private async Task AddExpenseAsync(CategoryService categories, ExpenseService expenses, BudgetService budgets)
