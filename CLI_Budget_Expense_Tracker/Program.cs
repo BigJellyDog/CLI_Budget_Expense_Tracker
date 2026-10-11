@@ -5,11 +5,13 @@ using System.Text.Json;
 using System.Globalization;
 using Core.Services;
 using Core.Models;
+using Infrastructure;
+using Microsoft.Data.Sqlite;
 
 
 class Program
 {
-    private static void Main(string[] args)
+    private static async Task Main(string[] args)
     {
         // Resolve the paths used by storage and export operations.
         var projectDirectory = FindProjectDirectory();
@@ -18,6 +20,14 @@ class Program
         var filePath = Path.Combine(storageDirectory, "expenses.json");
         var budgetFilePath = Path.Combine(storageDirectory, "budgets.json");
         var exportDirectory = Path.Combine(projectDirectory, "Exports");
+        
+        var databasePath = Path.Combine(storageDirectory, "expense-tracker.db");
+
+        var connectionString = new SqliteConnectionStringBuilder
+        {
+            DataSource = databasePath,
+            ForeignKeys = true
+        }.ToString();
 
         // Register shared services for the current application run.
         var services = new ServiceCollection();
@@ -33,8 +43,42 @@ class Program
         services.AddSingleton<JsonBudgetStorage>(
             _ => new JsonBudgetStorage(budgetFilePath));
 
-        // Keep the container alive until Main finishes.
-        using var serviceProvider = services.BuildServiceProvider();
+        // Register SQLite before building the container.
+        services.AddExpenseTrackerSqlite(connectionString);
+
+        // Validate registrations and keep the container alive until Main finishes.
+        await using var serviceProvider = services.BuildServiceProvider(
+            new ServiceProviderOptions
+            {
+                ValidateScopes = true,
+                ValidateOnBuild = true
+            });
+        
+        // Initialize the database before loading data and showing the menu.
+        try
+        {
+            Directory.CreateDirectory(storageDirectory);
+
+            await using var initializationScope = serviceProvider.CreateAsyncScope();
+
+            var initializer = initializationScope.ServiceProvider
+                .GetRequiredService<DatabaseInitializer>();
+
+            await initializer.InitializeAsync();
+
+            Console.WriteLine($"SQLite database ready: {databasePath}");
+        }
+        catch (Exception exception) when (
+            exception is SqliteException
+                or IOException
+                or UnauthorizedAccessException)
+        {
+            Console.Error.WriteLine(
+                $"Database initialization failed: {exception.Message}");
+
+            Environment.ExitCode = 1;
+            return;
+        }
 
         var expenseService = serviceProvider.GetRequiredService<ExpenseService>();
         var budgetService = serviceProvider.GetRequiredService<BudgetService>();
