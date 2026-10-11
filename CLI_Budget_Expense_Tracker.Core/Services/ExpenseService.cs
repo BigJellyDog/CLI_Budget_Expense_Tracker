@@ -1,77 +1,38 @@
-﻿namespace CLI_Budget_Expense_Tracker.Core.Services;
+namespace CLI_Budget_Expense_Tracker.Core.Services;
+
+using Interfaces;
 using Models;
 
-public class ExpenseService
+public sealed class ExpenseService(
+    IExpenseRepository expenses, ICategoryRepository categories, TimeProvider timeProvider)
 {
-    // Create a list with objects inside called with <>
-    // _expenses ist the name of the list 
-    private readonly List<LegacyExpense> _expenses = [];
+    public DateOnly Today => DateOnly.FromDateTime(timeProvider.GetLocalNow().DateTime);
 
-    public void AddExpense(LegacyExpense legacyExpense)
+    public async Task<Expense> AddAsync(
+        decimal amount, Guid categoryId, DateOnly date, string description = "",
+        CancellationToken cancellationToken = default)
     {
-        _expenses.Add(legacyExpense);
+        if (date > Today)
+            throw new ArgumentOutOfRangeException(nameof(date), "Expense date cannot be in the future.");
+        var expense = new Expense(Guid.NewGuid(), amount, categoryId, date, description);
+        if (await categories.GetByIdAsync(categoryId, cancellationToken) is null)
+            throw new InvalidOperationException("Category not found.");
+        await expenses.AddAsync(expense, cancellationToken);
+        return expense;
     }
 
-    public IReadOnlyList<LegacyExpense> GetAllExpenses()
+    public async Task<ExpenseReport> GetReportAsync(
+        DateOnly? start = null, DateOnly? end = null, Guid? categoryId = null,
+        CancellationToken cancellationToken = default)
     {
-        return _expenses.AsReadOnly();
+        if (start.HasValue && end.HasValue && end.Value < start.Value)
+            throw new ArgumentException("End date cannot be earlier than start date.");
+        var items = await expenses.GetAsync(start, end, categoryId, cancellationToken);
+        // A SQL sum of integer cents could overflow Int64; sum decimal amounts after loading.
+        return new ExpenseReport(items, items.Sum(x => x.Amount),
+            items.GroupBy(x => x.CategoryId).ToDictionary(g => g.Key, g => g.Sum(x => x.Amount)));
     }
 
-    public decimal GetTotalAmount()
-    {
-        return _expenses.Sum(expense => expense.Amount);
-    }
-
-    public IReadOnlyList<LegacyExpense> GetExpensesByCategory(LegacyCategories legacyCategory)
-    {
-        return [.. _expenses.Where(expense => expense.LegacyCategory == legacyCategory)];
-    }
-
-    public IReadOnlyList<LegacyExpense> GetExpensesByPeriod(
-        DateTime startDate,
-        DateTime endDate)
-    {
-        return
-        [
-            .. _expenses.Where(expense =>
-                expense.Date.Date >= startDate.Date &&
-                expense.Date.Date <= endDate.Date)];
-    }
-
-    public decimal GetTotalAmount(DateTime startDate, DateTime endDate)
-    {
-        return GetExpensesByPeriod(startDate, endDate).Sum(expense => expense.Amount);
-    }
-
-    public IReadOnlyDictionary<LegacyCategories, decimal> GetTotalsByCategory(
-        DateTime startDate,
-        DateTime endDate)
-    {
-        var expenses = GetExpensesByPeriod(startDate, endDate);
-
-        var groups = expenses.GroupBy(expense => expense.LegacyCategory);
-
-        return groups.ToDictionary(
-            group => group.Key,
-            group => group.Sum(expense => expense.Amount));
-    }
-
-    public IReadOnlyList<LegacyCategories> GetTopCategories(
-        DateTime startDate,
-        DateTime endDate)
-    {
-        var totalsByCategory = GetTotalsByCategory(startDate, endDate);
-
-        if (totalsByCategory.Count == 0) return [];
-
-        var maxAmount = totalsByCategory.Values.Max();
-
-        return
-        [
-            .. totalsByCategory
-                .Where(categoryTotal => categoryTotal.Value == maxAmount)
-                .Select(categoryTotal => categoryTotal.Key)
-        ];
-    }
-
+    public Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default) =>
+        expenses.DeleteAsync(id, cancellationToken);
 }

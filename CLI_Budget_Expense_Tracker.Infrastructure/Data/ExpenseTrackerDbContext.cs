@@ -1,4 +1,4 @@
-﻿namespace CLI_Budget_Expense_Tracker.Infrastructure.Data;
+namespace CLI_Budget_Expense_Tracker.Infrastructure.Data;
 
 using Core.Models;
 using Microsoft.EntityFrameworkCore;
@@ -14,8 +14,6 @@ public sealed class ExpenseTrackerDbContext(
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<Expense> Expenses => Set<Expense>();
     public DbSet<BudgetLimit> BudgetLimits => Set<BudgetLimit>();
-    public DbSet<ImportHistoryEntry> ImportHistory =>
-        Set<ImportHistoryEntry>();
 
     /// <summary>
     /// Configures tables, relationships, constraints, and money conversion.
@@ -48,10 +46,6 @@ public sealed class ExpenseTrackerDbContext(
             table.HasCheckConstraint(
                 "CK_Expenses_AmountInCents",
                 """typeof("AmountInCents") = 'integer' AND "AmountInCents" > 0""");
-
-            table.HasCheckConstraint(
-                "CK_Expenses_Source",
-                "\"Source\" IN (0, 1, 2)");
         });
 
         expense.HasKey(x => x.Id);
@@ -63,7 +57,6 @@ public sealed class ExpenseTrackerDbContext(
             .HasColumnType("INTEGER");
 
         expense.Property(x => x.Description).IsRequired();
-        expense.Property(x => x.Source).HasConversion<int>();
 
         expense.HasOne<Category>()
             .WithMany()
@@ -107,20 +100,6 @@ public sealed class ExpenseTrackerDbContext(
 
         budget.HasIndex(x => new { x.CategoryId, x.Month })
             .IsUnique();
-        
-        // Track completed imports using a unique, application-defined identifier.
-        var importHistory = modelBuilder.Entity<ImportHistoryEntry>();
-
-        importHistory.ToTable("ImportHistory");
-
-        importHistory.HasKey(x => x.Id);
-
-        importHistory.Property(x => x.Id)
-            .ValueGeneratedNever()
-            .IsRequired();
-
-        importHistory.Property(x => x.CompletedAtUtc)
-            .IsRequired();
     }
 
     /// <summary>

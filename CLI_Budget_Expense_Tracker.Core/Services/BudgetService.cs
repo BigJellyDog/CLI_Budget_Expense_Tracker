@@ -1,67 +1,52 @@
-﻿namespace CLI_Budget_Expense_Tracker.Core.Services;
+namespace CLI_Budget_Expense_Tracker.Core.Services;
+
+using Interfaces;
 using Models;
 
-public class BudgetService
+public sealed class BudgetService(
+    IBudgetRepository budgets, IExpenseRepository expenses, ICategoryRepository categories)
 {
-    private readonly Dictionary<LegacyCategories, LegacyBudgetLimit> _limits = [];
-
-    public void SetMonthlyLimit(LegacyCategories legacyCategory, decimal monthlyAmount)
+    public async Task SetMonthlyLimitAsync(
+        Guid categoryId, DateOnly date, decimal amount, CancellationToken cancellationToken = default)
     {
-        // Reject negative limits before changing the stored value.
-        if (monthlyAmount < 0m)
+        var candidate = new BudgetLimit(Guid.NewGuid(), categoryId, date, amount);
+        if (await categories.GetByIdAsync(categoryId, cancellationToken) is null)
+            throw new InvalidOperationException("Category not found.");
+        var existing = await budgets.GetAsync(categoryId, candidate.Month, cancellationToken);
+        if (existing is null)
+            await budgets.AddAsync(candidate, cancellationToken);
+        else
         {
-            throw new ArgumentOutOfRangeException(
-                nameof(monthlyAmount),
-                monthlyAmount,
-                "Monthly limit cannot be negative.");
+            existing.SetMonthlyAmount(amount);
+            await budgets.UpdateAsync(existing, cancellationToken);
         }
-        if (!Enum.IsDefined(legacyCategory))
-            throw new ArgumentOutOfRangeException(nameof(monthlyAmount));
-
-        _limits[legacyCategory] = new LegacyBudgetLimit(legacyCategory, monthlyAmount);
     }
 
-    public LegacyBudgetLimit? GetMonthlyLimit(LegacyCategories legacyCategory)
+    public async Task<BudgetStatus> GetStatusAsync(
+        Guid categoryId, DateOnly date, CancellationToken cancellationToken = default)
     {
-        return _limits.GetValueOrDefault(legacyCategory);
+        var month = FirstDay(date);
+        var limit = await budgets.GetAsync(categoryId, month, cancellationToken);
+        var items = await expenses.GetAsync(month, LastDay(date), categoryId, cancellationToken);
+        return new BudgetStatus(categoryId, month, limit?.MonthlyAmount, items.Sum(x => x.Amount));
     }
 
-    /// <summary>
-    /// Calculates how much spending exceeds the monthly legacyCategory limit.
-    /// </summary>
-    /// <param name="legacyCategory">The legacyCategory to check.</param>
-    /// <param name="date">The date that determines the month and year to check.</param>
-    /// <param name="expenses">The expenses included in the calculation.</param>
-    /// <returns>
-    /// The amount exceeding the limit, or zero if no limit is configured
-    /// or spending does not exceed it.
-    /// </returns>
-    public decimal GetMonthlyOverspend(
-        LegacyCategories legacyCategory,
-        DateTime date,
-        IReadOnlyList<LegacyExpense> expenses)
+    public async Task<IReadOnlyList<BudgetStatus>> GetMonthlyStatusesAsync(
+        DateOnly date, CancellationToken cancellationToken = default)
     {
-        var limit = GetMonthlyLimit(legacyCategory);
-
-        // A legacyCategory without a configured limit has no budget restriction.
-        if (limit is null) return 0m;
-
-        // Match both month and year to avoid combining expenses from different years.
-        var monthlyTotal = expenses.Where(expense =>
-            expense.LegacyCategory == legacyCategory && expense.Date.Year == date.Year &&
-            expense.Date.Month == date.Month).Sum(expense => expense.Amount);
-
-        // Spending below the limit should return zero instead of a negative amount.
-        return Math.Max(0m, monthlyTotal - limit.MonthlyAmount);
+        var month = FirstDay(date);
+        var limits = await budgets.GetForMonthAsync(month, cancellationToken);
+        var items = await expenses.GetAsync(month, LastDay(date), cancellationToken: cancellationToken);
+        var totals = items.GroupBy(x => x.CategoryId).ToDictionary(g => g.Key, g => g.Sum(x => x.Amount));
+        return limits.Select(x => new BudgetStatus(
+            x.CategoryId, month, x.MonthlyAmount, totals.GetValueOrDefault(x.CategoryId))).ToArray();
     }
-    
-    /// <summary>
-    /// Returns a snapshot of all configured legacyCategory limits.
-    /// </summary>
-    /// <returns>A collection containing the current budget limits.</returns>
-    public IReadOnlyList<LegacyBudgetLimit> GetAllLimits()
-    {
-        // Copy the values so callers cannot modify the internal dictionary.
-        return [.. _limits.Values];
-    }
+
+    public Task<bool> DeleteMonthlyLimitAsync(
+        Guid categoryId, DateOnly date, CancellationToken cancellationToken = default) =>
+        budgets.DeleteAsync(categoryId, FirstDay(date), cancellationToken);
+
+    private static DateOnly FirstDay(DateOnly date) => new(date.Year, date.Month, 1);
+    private static DateOnly LastDay(DateOnly date) =>
+        new(date.Year, date.Month, DateTime.DaysInMonth(date.Year, date.Month));
 }

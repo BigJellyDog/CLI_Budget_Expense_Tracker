@@ -1,11 +1,11 @@
-﻿namespace CLI_Budget_Expense_Tracker.Test;
+namespace CLI_Budget_Expense_Tracker.Test;
 
 using Core.Models;
 
 public class CategoryTests
 {
     /// <summary>
-    /// Verifies trimming and consistent normalization of legacyCategory names.
+    /// Verifies trimming and consistent normalization of category names.
     /// </summary>
     [TestCase("  Food  ", "Food")]
     [TestCase("food", "food")]
@@ -58,7 +58,7 @@ public class CategoryTests
     }
 
     /// <summary>
-    /// Verifies that an invalid rename leaves the legacyCategory unchanged.
+    /// Verifies that an invalid rename leaves the category unchanged.
     /// </summary>
     [TestCase(null)]
     [TestCase("")]

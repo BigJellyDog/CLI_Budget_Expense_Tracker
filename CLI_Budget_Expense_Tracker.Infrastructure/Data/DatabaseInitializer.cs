@@ -1,4 +1,4 @@
-﻿namespace CLI_Budget_Expense_Tracker.Infrastructure.Data;
+namespace CLI_Budget_Expense_Tracker.Infrastructure.Data;
 
 using Microsoft.EntityFrameworkCore;
 

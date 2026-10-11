@@ -41,7 +41,7 @@ namespace CLI_Budget_Expense_Tracker.Infrastructure.Data.Migrations
                         {
                             t.HasCheckConstraint("CK_BudgetLimits_Month", "substr(\"Month\", 9, 2) = '01'");
 
-                            t.HasCheckConstraint("CK_BudgetLimits_MonthlyAmountInCents", "typeof(\"MonthlyAmountInCents\") = 'integer'\r\nAND \"MonthlyAmountInCents\" >= 0");
+                            t.HasCheckConstraint("CK_BudgetLimits_MonthlyAmountInCents", "typeof(\"MonthlyAmountInCents\") = 'integer'\nAND \"MonthlyAmountInCents\" >= 0");
                         });
                 });
 
@@ -88,9 +88,6 @@ namespace CLI_Budget_Expense_Tracker.Infrastructure.Data.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("Source")
-                        .HasColumnType("INTEGER");
-
                     b.HasKey("Id");
 
                     b.HasIndex("Date");
@@ -100,22 +97,7 @@ namespace CLI_Budget_Expense_Tracker.Infrastructure.Data.Migrations
                     b.ToTable("Expenses", null, t =>
                         {
                             t.HasCheckConstraint("CK_Expenses_AmountInCents", "typeof(\"AmountInCents\") = 'integer' AND \"AmountInCents\" > 0");
-
-                            t.HasCheckConstraint("CK_Expenses_Source", "\"Source\" IN (0, 1, 2)");
                         });
-                });
-
-            modelBuilder.Entity("CLI_Budget_Expense_Tracker.Infrastructure.Data.ImportHistoryEntry", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTimeOffset>("CompletedAtUtc")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ImportHistory", (string)null);
                 });
 
             modelBuilder.Entity("CLI_Budget_Expense_Tracker.Core.Models.BudgetLimit", b =>

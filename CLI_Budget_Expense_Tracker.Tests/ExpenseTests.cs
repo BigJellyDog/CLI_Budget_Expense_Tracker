@@ -1,4 +1,4 @@
-﻿namespace CLI_Budget_Expense_Tracker.Test;
+namespace CLI_Budget_Expense_Tracker.Test;
 
 using Core.Models;
 
@@ -38,7 +38,6 @@ public class ExpenseTests
             Assert.That(expense.CategoryId, Is.EqualTo(categoryId));
             Assert.That(expense.Date, Is.EqualTo(date));
             Assert.That(expense.Description, Is.EqualTo("Historical expense"));
-            Assert.That(expense.Source, Is.EqualTo(ExpenseSource.Manual));
             Assert.That(expense.IsDeleted, Is.False);
         });
     }

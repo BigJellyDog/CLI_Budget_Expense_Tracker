@@ -19,10 +19,6 @@ coverage/
 coverage*.xml
 coverage.json
 
-# Local application data
-**/Storage/expenses.json
-**/Storage/budgets.json
-
 # Generated reports
 **/Exports/*.csv
 **/Exports/*.md
@@ -44,8 +40,6 @@ appsettings.Local.json
 .env.*
 !.env.example
 
-# Local SQLite database and its journal files
-**/Storage/expense-tracker.db
-**/Storage/expense-tracker.db-wal
-**/Storage/expense-tracker.db-shm
-**/Storage/expense-tracker.db-journal
+
+# Optional data directory selected via --data-dir
+data/

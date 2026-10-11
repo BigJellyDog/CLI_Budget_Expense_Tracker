@@ -1,12 +1,10 @@
-﻿namespace CLI_Budget_Expense_Tracker.Core.Models;
+namespace CLI_Budget_Expense_Tracker.Core.Models;
 
 /// <summary>
 /// Represents a spending limit for one category and one calendar month.
 /// </summary>
 public sealed class BudgetLimit
 {
-    private const decimal MaxAmount = long.MaxValue / 100m;
-
     public Guid Id { get; private set; }
     public Guid CategoryId { get; private set; }
 
@@ -47,20 +45,7 @@ public sealed class BudgetLimit
     /// </summary>
     public void SetMonthlyAmount(decimal monthlyAmount)
     {
-        if (monthlyAmount < 0 || monthlyAmount > MaxAmount)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(monthlyAmount),
-                monthlyAmount,
-                "Monthly amount must be non-negative and fit into a 64-bit integer in cents.");
-        }
-
-        if (decimal.Round(monthlyAmount, 2) != monthlyAmount)
-        {
-            throw new ArgumentException(
-                "Monthly amount must represent a whole number of cents.",
-                nameof(monthlyAmount));
-        }
+        MoneyRules.Validate(monthlyAmount, nameof(monthlyAmount), allowZero: true);
 
         MonthlyAmount = monthlyAmount;
     }
