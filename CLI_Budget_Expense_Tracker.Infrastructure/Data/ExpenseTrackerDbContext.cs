@@ -14,6 +14,8 @@ public sealed class ExpenseTrackerDbContext(
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<Expense> Expenses => Set<Expense>();
     public DbSet<BudgetLimit> BudgetLimits => Set<BudgetLimit>();
+    public DbSet<ImportHistoryEntry> ImportHistory =>
+        Set<ImportHistoryEntry>();
 
     /// <summary>
     /// Configures tables, relationships, constraints, and money conversion.
@@ -105,6 +107,20 @@ public sealed class ExpenseTrackerDbContext(
 
         budget.HasIndex(x => new { x.CategoryId, x.Month })
             .IsUnique();
+        
+        // Track completed imports using a unique, application-defined identifier.
+        var importHistory = modelBuilder.Entity<ImportHistoryEntry>();
+
+        importHistory.ToTable("ImportHistory");
+
+        importHistory.HasKey(x => x.Id);
+
+        importHistory.Property(x => x.Id)
+            .ValueGeneratedNever()
+            .IsRequired();
+
+        importHistory.Property(x => x.CompletedAtUtc)
+            .IsRequired();
     }
 
     /// <summary>

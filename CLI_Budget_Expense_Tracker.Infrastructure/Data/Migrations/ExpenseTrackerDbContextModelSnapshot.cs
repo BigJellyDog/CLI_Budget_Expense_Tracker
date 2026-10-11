@@ -105,6 +105,19 @@ namespace CLI_Budget_Expense_Tracker.Infrastructure.Data.Migrations
                         });
                 });
 
+            modelBuilder.Entity("CLI_Budget_Expense_Tracker.Infrastructure.Data.ImportHistoryEntry", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("CompletedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ImportHistory", (string)null);
+                });
+
             modelBuilder.Entity("CLI_Budget_Expense_Tracker.Core.Models.BudgetLimit", b =>
                 {
                     b.HasOne("CLI_Budget_Expense_Tracker.Core.Models.Category", null)
