@@ -1,5 +1,6 @@
 namespace CLI_Budget_Expense_Tracker.Infrastructure;
 
+using Services;
 using Data;
 using Core.Interfaces;
 using Core.Services;
@@ -26,6 +27,9 @@ public static class SqliteServiceCollectionExtensions
         services.AddScoped<
             IRecurringExpenseRepository,
             SqliteRecurringExpenseRepository>();
+        services.AddScoped<
+            IRecurringExpenseGenerator,
+            SqliteRecurringExpenseGenerator>();
 
         services.AddScoped<RecurringExpenseService>();
         services.AddScoped<DatabaseInitializer>();
