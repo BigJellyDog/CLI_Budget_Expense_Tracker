@@ -1,5 +1,6 @@
 namespace CLI_Budget_Expense_Tracker.Infrastructure;
 
+using Importing;
 using Services;
 using Data;
 using Core.Interfaces;
@@ -30,7 +31,8 @@ public static class SqliteServiceCollectionExtensions
         services.AddScoped<
             IRecurringExpenseGenerator,
             SqliteRecurringExpenseGenerator>();
-
+        
+        services.AddSingleton<IBankStatementReader, RevolutCsvReader>();
         services.AddScoped<RecurringExpenseService>();
         services.AddScoped<DatabaseInitializer>();
         services.TryAddSingleton(TimeProvider.System);
