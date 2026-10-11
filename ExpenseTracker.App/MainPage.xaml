@@ -87,7 +87,7 @@
                         BackgroundColor="{AppThemeBinding Light=White, Dark=#202532}">
 
                         <Grid
-                            ColumnDefinitions="*,Auto"
+                            ColumnDefinitions="*,Auto,Auto"
                             RowDefinitions="Auto,Auto"
                             ColumnSpacing="16"
                             RowSpacing="6">
@@ -112,6 +112,17 @@
                                 Grid.Column="1"
                                 Text="{Binding Date, StringFormat='{0:dd.MM.yyyy}'}"
                                 HorizontalTextAlignment="End" />
+
+                            <Button
+                                Grid.Column="2"
+                                Grid.RowSpan="2"
+                                Text="Delete"
+                                Clicked="OnDeleteExpenseClicked"
+                                VerticalOptions="Center"
+                                Padding="12,6"
+                                BackgroundColor="{AppThemeBinding Light=#B42318, Dark=#A32A25}"
+                                TextColor="White" />
+
                         </Grid>
                     </Border>
                 </DataTemplate>

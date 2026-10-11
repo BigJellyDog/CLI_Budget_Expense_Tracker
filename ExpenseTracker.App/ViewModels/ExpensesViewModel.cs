@@ -138,6 +138,45 @@ public sealed class ExpensesViewModel : ObservableObject
             NotifyState();
         }
     }
+    
+    public async Task DeleteAsync(Guid id)
+    {
+        if (IsBusy || Items.All(x => x.Id != id)) return;
+
+        IsBusy = true;
+        ErrorMessage = "";
+        NotifyState();
+
+        try
+        {
+            await Task.Run(async () =>
+            {
+                await using var scope = _scopeFactory.CreateAsyncScope();
+
+                await scope.ServiceProvider
+                    .GetRequiredService<ExpenseService>()
+                    .DeleteAsync(id);
+            });
+
+            // Also remove a stale row if it was already deleted elsewhere.
+            Items = Items.Where(x => x.Id != id).ToArray();
+            _total = Items.Sum(x => x.Amount);
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(
+                exception,
+                "Failed to delete expense {ExpenseId}.",
+                id);
+
+            ErrorMessage = "Could not delete the expense. Try Refresh.";
+        }
+        finally
+        {
+            IsBusy = false;
+            NotifyState();
+        }
+    }
 
     private async Task MoveMonthAsync(int offset)
     {

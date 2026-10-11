@@ -1,6 +1,7 @@
 ﻿namespace ExpenseTracker.App;
 
 using Microsoft.Extensions.DependencyInjection;
+using Models;
 using ViewModels;
 using Views;
 
@@ -10,6 +11,7 @@ public partial class MainPage : ContentPage
     private readonly IServiceProvider _services;
 
     private bool _openingExpense;
+    private bool _confirmingDelete;
 
     public MainPage(
         ExpensesViewModel viewModel,
@@ -31,7 +33,8 @@ public partial class MainPage : ContentPage
 
     private async void OnAddExpenseClicked(object? sender, EventArgs e)
     {
-        if (_openingExpense || _viewModel.IsBusy) return;
+        if (_openingExpense || _confirmingDelete || _viewModel.IsBusy)
+            return;
 
         _openingExpense = true;
 
@@ -43,6 +46,33 @@ public partial class MainPage : ContentPage
         finally
         {
             _openingExpense = false;
+        }
+    }
+
+    private async void OnDeleteExpenseClicked(object? sender, EventArgs e)
+    {
+        if (_confirmingDelete || _openingExpense || _viewModel.IsBusy
+            || sender is not Button { BindingContext: ExpenseListItem expense })
+        {
+            return;
+        }
+
+        _confirmingDelete = true;
+
+        try
+        {
+            var confirmed = await DisplayAlertAsync(
+                "Delete expense?",
+                $"{expense.CategoryName}\n{expense.Amount:N2} · {expense.Date:dd.MM.yyyy}",
+                "Delete",
+                "Cancel");
+
+            if (confirmed)
+                await _viewModel.DeleteAsync(expense.Id);
+        }
+        finally
+        {
+            _confirmingDelete = false;
         }
     }
 }
