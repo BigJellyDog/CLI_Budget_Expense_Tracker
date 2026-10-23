@@ -7,6 +7,63 @@ public sealed class ExpenseService(
     IExpenseRepository expenses, ICategoryRepository categories, TimeProvider timeProvider)
 {
     public DateOnly Today => DateOnly.FromDateTime(timeProvider.GetLocalNow().DateTime);
+    
+    public Task<Expense?> GetByIdAsync(
+        Guid id,
+        CancellationToken cancellationToken = default) =>
+        expenses.GetByIdAsync(id, cancellationToken);
+
+    /// <summary>
+    /// Preserves identity and detects changes made since the expense was loaded.
+    /// Returns false when the expense was changed or deleted.
+    /// </summary>
+    public async Task<bool> UpdateAsync(
+        Expense original,
+        decimal amount,
+        Guid categoryId,
+        DateOnly date,
+        string description = "",
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(original);
+
+        if (original.IsDeleted)
+            return false;
+
+        if (date > Today)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(date),
+                "Expense date cannot be in the future.");
+        }
+
+        if (original.RecurringExpenseId.HasValue
+            && date != original.Date)
+        {
+            throw new InvalidOperationException(
+                "The date of a recurring expense occurrence cannot be changed.");
+        }
+
+        var updated = new Expense(
+            original.Id,
+            amount,
+            categoryId,
+            date,
+            description,
+            original.RecurringExpenseId);
+
+        if (await categories.GetByIdAsync(
+                categoryId, cancellationToken) is null)
+        {
+            throw new InvalidOperationException(
+                "Category not found.");
+        }
+
+        return await expenses.UpdateAsync(
+            original,
+            updated,
+            cancellationToken);
+    }
 
     public async Task<Expense> AddAsync(
         decimal amount, Guid categoryId, DateOnly date, string description = "",

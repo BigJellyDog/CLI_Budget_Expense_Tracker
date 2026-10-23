@@ -7,6 +7,53 @@ using Microsoft.EntityFrameworkCore;
 
 public sealed class SqliteExpenseRepository(ExpenseTrackerDbContext context) : IExpenseRepository
 {
+    
+    public Task<Expense?> GetByIdAsync(
+        Guid id,
+        CancellationToken cancellationToken = default) =>
+        context.Expenses
+            .AsNoTracking()
+            .SingleOrDefaultAsync(
+                x => x.Id == id,
+                cancellationToken);
+
+    public async Task<bool> UpdateAsync(
+        Expense original,
+        Expense updated,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(original);
+        ArgumentNullException.ThrowIfNull(updated);
+
+        if (original.Id != updated.Id
+            || original.RecurringExpenseId != updated.RecurringExpenseId)
+        {
+            throw new ArgumentException(
+                "An update must preserve the expense identity.",
+                nameof(updated));
+        }
+
+        // Compare the original values and update the expense atomically.
+        var affected = await context.Expenses
+            .Where(x =>
+                x.Id == original.Id
+                && !x.IsDeleted
+                && x.Amount == original.Amount
+                && x.CategoryId == original.CategoryId
+                && x.Date == original.Date
+                && x.Description == original.Description
+                && x.RecurringExpenseId == original.RecurringExpenseId)
+            .ExecuteUpdateAsync(
+                setters => setters
+                    .SetProperty(x => x.Amount, updated.Amount)
+                    .SetProperty(x => x.CategoryId, updated.CategoryId)
+                    .SetProperty(x => x.Date, updated.Date)
+                    .SetProperty(x => x.Description, updated.Description),
+                cancellationToken);
+
+        return affected == 1;
+    }
+    
     public async Task<IReadOnlyList<Expense>> GetAsync(
         DateOnly? start = null, DateOnly? end = null, Guid? categoryId = null,
         CancellationToken cancellationToken = default)

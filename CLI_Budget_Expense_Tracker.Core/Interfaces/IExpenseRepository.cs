@@ -4,6 +4,19 @@ using Models;
 
 public interface IExpenseRepository
 {
+    
+    Task<Expense?> GetByIdAsync(
+        Guid id,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Updates only when the active expense still matches the original values.
+    /// </summary>
+    Task<bool> UpdateAsync(
+        Expense original,
+        Expense updated,
+        CancellationToken cancellationToken = default);
+    
     /// <summary>Returns active expenses within inclusive optional date bounds.</summary>
     Task<IReadOnlyList<Expense>> GetAsync(
         DateOnly? start = null, DateOnly? end = null, Guid? categoryId = null,
