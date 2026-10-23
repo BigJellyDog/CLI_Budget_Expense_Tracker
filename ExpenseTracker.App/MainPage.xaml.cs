@@ -32,20 +32,35 @@ public partial class MainPage : ContentPage
     }
 
     private async void OnAddExpenseClicked(object? sender, EventArgs e) =>
-        await OpenPageAsync<AddExpensePage>();
+        await OpenPageAsync<ExpenseEditorPage>();
+    
+    private async void OnEditExpenseClicked(object? sender, EventArgs e)
+    {
+        if (sender is not Button { BindingContext: ExpenseListItem expense })
+            return;
+
+        await OpenPageAsync<ExpenseEditorPage>(
+            page => page.ConfigureForEdit(expense.Id));
+    }
 
     private async void OnBankImportClicked(object? sender, EventArgs e) =>
         await OpenPageAsync<BankImportPage>();
 
-    private async Task OpenPageAsync<TPage>() where TPage : Page
+    private async Task OpenPageAsync<TPage>(
+        Action<TPage>? configure = null)
+        where TPage : Page
     {
-        if (_openingPage || _confirmingDelete || _viewModel.IsBusy) return;
+        if (_openingPage || _confirmingDelete || _viewModel.IsBusy)
+            return;
 
         _openingPage = true;
 
         try
         {
             var page = _services.GetRequiredService<TPage>();
+
+            configure?.Invoke(page);
+
             await Navigation.PushAsync(page);
         }
         finally

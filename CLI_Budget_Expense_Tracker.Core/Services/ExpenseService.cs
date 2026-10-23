@@ -4,10 +4,13 @@ using Interfaces;
 using Models;
 
 public sealed class ExpenseService(
-    IExpenseRepository expenses, ICategoryRepository categories, TimeProvider timeProvider)
+    IExpenseRepository expenses,
+    ICategoryRepository categories,
+    TimeProvider timeProvider)
 {
-    public DateOnly Today => DateOnly.FromDateTime(timeProvider.GetLocalNow().DateTime);
-    
+    public DateOnly Today =>
+        DateOnly.FromDateTime(timeProvider.GetLocalNow().DateTime);
+
     public Task<Expense?> GetByIdAsync(
         Guid id,
         CancellationToken cancellationToken = default) =>
@@ -66,30 +69,71 @@ public sealed class ExpenseService(
     }
 
     public async Task<Expense> AddAsync(
-        decimal amount, Guid categoryId, DateOnly date, string description = "",
+        decimal amount,
+        Guid categoryId,
+        DateOnly date,
+        string description = "",
         CancellationToken cancellationToken = default)
     {
         if (date > Today)
-            throw new ArgumentOutOfRangeException(nameof(date), "Expense date cannot be in the future.");
-        var expense = new Expense(Guid.NewGuid(), amount, categoryId, date, description);
-        if (await categories.GetByIdAsync(categoryId, cancellationToken) is null)
-            throw new InvalidOperationException("Category not found.");
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(date),
+                "Expense date cannot be in the future.");
+        }
+
+        var expense = new Expense(
+            Guid.NewGuid(),
+            amount,
+            categoryId,
+            date,
+            description);
+
+        if (await categories.GetByIdAsync(
+                categoryId, cancellationToken) is null)
+        {
+            throw new InvalidOperationException(
+                "Category not found.");
+        }
+
         await expenses.AddAsync(expense, cancellationToken);
+
         return expense;
     }
 
     public async Task<ExpenseReport> GetReportAsync(
-        DateOnly? start = null, DateOnly? end = null, Guid? categoryId = null,
+        DateOnly? start = null,
+        DateOnly? end = null,
+        Guid? categoryId = null,
         CancellationToken cancellationToken = default)
     {
-        if (start.HasValue && end.HasValue && end.Value < start.Value)
-            throw new ArgumentException("End date cannot be earlier than start date.");
-        var items = await expenses.GetAsync(start, end, categoryId, cancellationToken);
-        // A SQL sum of integer cents could overflow Int64; sum decimal amounts after loading.
-        return new ExpenseReport(items, items.Sum(x => x.Amount),
-            items.GroupBy(x => x.CategoryId).ToDictionary(g => g.Key, g => g.Sum(x => x.Amount)));
+        if (start.HasValue
+            && end.HasValue
+            && end.Value < start.Value)
+        {
+            throw new ArgumentException(
+                "End date cannot be earlier than start date.");
+        }
+
+        var items = await expenses.GetAsync(
+            start,
+            end,
+            categoryId,
+            cancellationToken);
+
+        // Sum decimal amounts after loading to avoid Int64 overflow in SQL.
+        return new ExpenseReport(
+            items,
+            items.Sum(x => x.Amount),
+            items
+                .GroupBy(x => x.CategoryId)
+                .ToDictionary(
+                    group => group.Key,
+                    group => group.Sum(x => x.Amount)));
     }
 
-    public Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default) =>
+    public Task<bool> DeleteAsync(
+        Guid id,
+        CancellationToken cancellationToken = default) =>
         expenses.DeleteAsync(id, cancellationToken);
 }

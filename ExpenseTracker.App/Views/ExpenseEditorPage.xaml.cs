@@ -2,17 +2,20 @@
 
 using ViewModels;
 
-public partial class AddExpensePage : ContentPage
+public partial class ExpenseEditorPage : ContentPage
 {
-    private readonly AddExpenseViewModel _viewModel;
+    private readonly ExpenseEditorViewModel _viewModel;
 
-    public AddExpensePage(AddExpenseViewModel viewModel)
+    public ExpenseEditorPage(ExpenseEditorViewModel viewModel)
     {
         InitializeComponent();
 
         _viewModel = viewModel;
         BindingContext = viewModel;
     }
+
+    public void ConfigureForEdit(Guid expenseId) =>
+        _viewModel.ConfigureForEdit(expenseId);
 
     protected override async void OnAppearing()
     {
@@ -31,7 +34,7 @@ public partial class AddExpensePage : ContentPage
 
     private async void OnSaveClicked(object? sender, EventArgs e) =>
         await _viewModel.SaveAsync();
-    
+
     private void OnAddAnotherClicked(object? sender, EventArgs e) =>
         _viewModel.StartNewExpense();
 }
