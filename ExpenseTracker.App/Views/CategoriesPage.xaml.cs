@@ -44,4 +44,21 @@ public partial class CategoriesPage : ContentPage
         _viewModel.StartRename(category);
         CategoryNameEntry.Focus();
     }
+    
+    private async void OnDeleteClicked(object? sender, EventArgs e)
+    {
+        if (!_viewModel.CanEdit
+            || sender is not Button { BindingContext: Category category })
+        {
+            return;
+        }
+
+        await _viewModel.DeleteAsync(
+            category.Id,
+            () => DisplayAlertAsync(
+                "Delete category?",
+                $"Delete \"{category.Name}\"?\n\nOnly unused categories can be deleted.",
+                "Delete",
+                "Cancel"));
+    }
 }

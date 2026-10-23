@@ -97,9 +97,9 @@
                         StrokeShape="RoundRectangle 10"
                         Stroke="{AppThemeBinding Light=#D8DDE8, Dark=#384054}"
                         BackgroundColor="{AppThemeBinding Light=White, Dark=#202532}">
-
+                        
                         <Grid
-                            ColumnDefinitions="*,Auto"
+                            ColumnDefinitions="*,Auto,Auto"
                             ColumnSpacing="12">
 
                             <Label
@@ -111,7 +111,15 @@
                                 Grid.Column="1"
                                 Text="Rename"
                                 Clicked="OnRenameClicked" />
+
+                            <Button
+                                Grid.Column="2"
+                                Text="Delete"
+                                Clicked="OnDeleteClicked"
+                                BackgroundColor="{AppThemeBinding Light=#B42318, Dark=#A32A25}"
+                                TextColor="White" />
                         </Grid>
+
                     </Border>
                 </DataTemplate>
             </CollectionView.ItemTemplate>

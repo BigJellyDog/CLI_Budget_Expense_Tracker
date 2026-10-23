@@ -158,6 +158,58 @@ public sealed class CategoriesViewModel : ObservableObject
             : "Could not save the category. Click Refresh and try again.");
     }
 
+    public async Task DeleteAsync(
+        Guid categoryId,
+        Func<Task<bool>> confirmDeletion)
+    {
+        if (!CanEdit) return;
+
+        await RunAsync(async () =>
+        {
+            // Keep other actions disabled while confirmation is open.
+            if (!await confirmDeletion())
+                return;
+
+            bool deleted;
+
+            try
+            {
+                deleted = await Task.Run(async () =>
+                {
+                    await using var scope = _scopeFactory.CreateAsyncScope();
+
+                    return await scope.ServiceProvider
+                        .GetRequiredService<CategoryService>()
+                        .DeleteAsync(categoryId);
+                });
+            }
+            catch (InvalidOperationException exception)
+            {
+                _logger.LogWarning(
+                    exception,
+                    "Deletion was rejected for category {CategoryId}.",
+                    categoryId);
+
+                ErrorMessage = exception.Message;
+                return;
+            }
+
+            Items = Items
+                .Where(x => x.Id != categoryId)
+                .ToArray();
+
+            if (_editingCategoryId == categoryId)
+            {
+                _editingCategoryId = null;
+                NameText = "";
+            }
+
+            SuccessMessage = deleted
+                ? "Category deleted."
+                : "The category was already deleted. The list has been updated.";
+        }, () => "Could not delete the category. Try Refresh.");
+    }
+    
     private Task<IReadOnlyList<Category>> ReadCategoriesAsync() =>
         Task.Run(async () =>
         {
