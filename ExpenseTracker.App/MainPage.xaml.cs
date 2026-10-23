@@ -45,6 +45,9 @@ public partial class MainPage : ContentPage
 
     private async void OnBankImportClicked(object? sender, EventArgs e) =>
         await OpenPageAsync<BankImportPage>();
+    
+    private async void OnCategoriesClicked(object? sender, EventArgs e) =>
+        await OpenPageAsync<CategoriesPage>();
 
     private async Task OpenPageAsync<TPage>(
         Action<TPage>? configure = null)

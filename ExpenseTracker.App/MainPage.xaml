@@ -16,8 +16,11 @@
             Clicked="OnAddExpenseClicked" />
 
         <ToolbarItem
-            Text="Revolut CSV"
+            Text="Add CSV"
             Clicked="OnBankImportClicked" />
+        <ToolbarItem
+            Text="Categories"
+            Clicked="OnCategoriesClicked" />
     </ContentPage.ToolbarItems>
     
     <Grid
