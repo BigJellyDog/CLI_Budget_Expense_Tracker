@@ -21,6 +21,9 @@
         <ToolbarItem
             Text="Categories"
             Clicked="OnCategoriesClicked" />
+        <ToolbarItem
+            Text="Budgets"
+            Clicked="OnBudgetsClicked" />
     </ContentPage.ToolbarItems>
     
     <Grid
