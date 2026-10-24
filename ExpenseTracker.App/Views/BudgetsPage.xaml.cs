@@ -47,4 +47,24 @@ public partial class BudgetsPage : ContentPage
         _viewModel.SelectBudget(item);
         LimitEntry.Focus();
     }
+    
+    private async void OnRemoveLimitClicked(object? sender, EventArgs e)
+    {
+        if (!_viewModel.CanEdit
+            || sender is not Button { BindingContext: BudgetListItem item })
+        {
+            return;
+        }
+
+        await _viewModel.RemoveLimitAsync(
+            item.CategoryId,
+            () => DisplayAlertAsync(
+                "Remove budget limit?",
+                $"{item.CategoryName}\n{_viewModel.MonthTitle}\n\n"
+                + "Remove the limit for this month? Your expenses will be kept.",
+                "Remove",
+                "Cancel"));
+    }
+    
+    
 }

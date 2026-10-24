@@ -167,6 +167,43 @@ public sealed class BudgetsViewModel : ObservableObject
             : "Could not save the budget. Click Refresh and try again.");
     }
 
+    public async Task RemoveLimitAsync(
+        Guid categoryId,
+        Func<Task<bool>> confirmRemoval)
+    {
+        if (!CanEdit || Items.All(x => x.CategoryId != categoryId))
+            return;
+
+        var month = _month;
+
+        await RunAsync(async () =>
+        {
+            // Keep the selected month fixed while confirmation is open.
+            if (!await confirmRemoval())
+                return;
+
+            var removed = await Task.Run(async () =>
+            {
+                await using var scope = _scopeFactory.CreateAsyncScope();
+
+                return await scope.ServiceProvider
+                    .GetRequiredService<BudgetService>()
+                    .DeleteMonthlyLimitAsync(categoryId, month);
+            });
+
+            Items = Items
+                .Where(x => x.CategoryId != categoryId)
+                .ToArray();
+
+            if (SelectedCategory?.Id == categoryId)
+                UseSelectedLimit();
+
+            SuccessMessage = removed
+                ? "Budget limit removed."
+                : "The limit was already removed. The list has been updated.";
+        }, () => "Could not remove the budget limit. Try Refresh.");
+    }
+    
     private async Task ReloadAsync()
     {
         _loaded = false;
