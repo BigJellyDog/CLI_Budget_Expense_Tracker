@@ -182,6 +182,43 @@ public sealed class RecurringExpensesViewModel : ObservableObject
             : "Could not generate due expenses. Try again.");
     }
 
+    public async Task DeactivateAsync(
+        Guid scheduleId,
+        Func<Task<bool>> confirmDeactivation)
+    {
+        if (!ShowResults
+            || !Items.Any(x => x.Id == scheduleId && x.IsActive))
+        {
+            return;
+        }
+
+        await RunAsync(async () =>
+        {
+            if (!await confirmDeactivation())
+                return;
+
+            await Task.Run(async () =>
+            {
+                await using var scope = _scopeFactory.CreateAsyncScope();
+
+                await scope.ServiceProvider
+                    .GetRequiredService<RecurringExpenseService>()
+                    .DeactivateAsync(scheduleId);
+            });
+
+            Items = Items
+                .Select(x => x.Id == scheduleId
+                    ? x with { IsActive = false }
+                    : x)
+                .OrderByDescending(x => x.IsActive)
+                .ThenBy(x => x.NextDueDate)
+                .ThenBy(x => x.Id)
+                .ToArray();
+
+            SuccessMessage = "Schedule deactivated.";
+        }, () => "Could not deactivate the schedule. Try Refresh.");
+    }
+    
     public void StartNewSchedule()
     {
         if (!CanStartNew) return;

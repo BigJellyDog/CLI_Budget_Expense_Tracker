@@ -1,6 +1,7 @@
 namespace ExpenseTracker.App.Views;
 
 using ViewModels;
+using Models;
 
 public partial class RecurringExpensesPage : ContentPage
 {
@@ -34,4 +35,25 @@ public partial class RecurringExpensesPage : ContentPage
 
     private void OnAddAnotherClicked(object? sender, EventArgs e) =>
         _viewModel.StartNewSchedule();
+    
+    private async void OnDeactivateClicked(object? sender, EventArgs e)
+    {
+        if (!_viewModel.ShowResults
+            || sender is not Button
+            {
+                BindingContext: RecurringExpenseListItem item
+            })
+        {
+            return;
+        }
+
+        await _viewModel.DeactivateAsync(
+            item.Id,
+            () => DisplayAlertAsync(
+                "Deactivate schedule?",
+                $"{item.CategoryName}\n{item.Summary}\n{item.Description}\n\n"
+                + "Stop generating expenses for this schedule? Existing expenses will be kept.",
+                "Deactivate",
+                "Cancel"));
+    }
 }

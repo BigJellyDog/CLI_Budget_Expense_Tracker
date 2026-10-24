@@ -166,6 +166,13 @@
                                     Text="{Binding StartDate, StringFormat='Start: {0:dd.MM.yyyy}'}" />
 
                                 <Label Text="{Binding NextDueText}" />
+                                
+                                <Button
+                                    Text="Deactivate"
+                                    Clicked="OnDeactivateClicked"
+                                    IsVisible="{Binding IsActive}"
+                                    BackgroundColor="{AppThemeBinding Light=#B42318, Dark=#A32A25}"
+                                    TextColor="White" />
                             </VerticalStackLayout>
                         </Border>
                     </DataTemplate>
