@@ -47,6 +47,12 @@ public sealed class ExpensesViewModel : ObservableObject
     }
 
     public IReadOnlyList<ExpenseListItem> Items { get; private set; } = [];
+    
+    public IReadOnlyList<ExpenseCategoryFilter> CategoryFilters { get; private set; } = [];
+
+    public ExpenseCategoryFilter? SelectedCategoryFilter { get; set; }
+
+    public bool CanChangeCategoryFilter => ShowResults;
 
     public string MonthTitle => _month.ToString("MMMM yyyy");
 
@@ -71,22 +77,35 @@ public sealed class ExpensesViewModel : ObservableObject
     {
         if (IsBusy) return;
 
+        var selectedMonth = _month;
+        var selectedCategoryId = SelectedCategoryFilter?.CategoryId;
+
         IsBusy = true;
         ErrorMessage = "";
         NotifyState();
 
-        var selectedMonth = _month;
-
         try
         {
-            // SQLite work runs off the UI thread.
-            // Results are applied after awaiting.
-            (Items, _total) = await Task.Run(async () =>
+            var result = await Task.Run(async () =>
             {
                 await _initializer.InitializeAsync();
 
                 await using var scope = _scopeFactory.CreateAsyncScope();
                 var services = scope.ServiceProvider;
+
+                var categories = await services
+                    .GetRequiredService<CategoryService>()
+                    .GetAllAsync();
+
+                IReadOnlyList<ExpenseCategoryFilter> filters =
+                [
+                    new(null, "All categories"),
+                    .. categories.Select(x =>
+                        new ExpenseCategoryFilter(x.Id, x.Name))
+                ];
+
+                var selectedFilter = filters.FirstOrDefault(
+                    x => x.CategoryId == selectedCategoryId) ?? filters[0];
 
                 var end = new DateOnly(
                     selectedMonth.Year,
@@ -97,11 +116,10 @@ public sealed class ExpensesViewModel : ObservableObject
 
                 var report = await services
                     .GetRequiredService<ExpenseService>()
-                    .GetReportAsync(selectedMonth, end);
-
-                var categories = await services
-                    .GetRequiredService<CategoryService>()
-                    .GetAllAsync();
+                    .GetReportAsync(
+                        selectedMonth,
+                        end,
+                        selectedFilter.CategoryId);
 
                 var names = categories.ToDictionary(
                     x => x.Id,
@@ -117,8 +135,21 @@ public sealed class ExpensesViewModel : ObservableObject
                         x.Description))
                     .ToArray();
 
-                return (rows, report.Total);
+                return (
+                    Rows: rows,
+                    Total: report.Total,
+                    Filters: filters,
+                    SelectedFilter: selectedFilter);
             });
+
+            Items = result.Rows;
+            _total = result.Total;
+
+            CategoryFilters = result.Filters;
+            OnPropertyChanged(nameof(CategoryFilters));
+
+            SelectedCategoryFilter = result.SelectedFilter;
+            OnPropertyChanged(nameof(SelectedCategoryFilter));
 
             _loaded = true;
         }
@@ -126,8 +157,9 @@ public sealed class ExpensesViewModel : ObservableObject
         {
             _logger.LogError(
                 exception,
-                "Failed to load expenses for {Month}.",
-                selectedMonth);
+                "Failed to load expenses for {Month} and category {CategoryId}.",
+                selectedMonth,
+                selectedCategoryId);
 
             ErrorMessage = "Could not load expenses. Try Refresh.";
             _loaded = false;
@@ -196,6 +228,7 @@ public sealed class ExpensesViewModel : ObservableObject
         OnPropertyChanged(nameof(HasError));
         OnPropertyChanged(nameof(ShowResults));
 
+        OnPropertyChanged(nameof(CanChangeCategoryFilter));
         RefreshCommand.NotifyCanExecuteChanged();
         PreviousMonthCommand.NotifyCanExecuteChanged();
         NextMonthCommand.NotifyCanExecuteChanged();

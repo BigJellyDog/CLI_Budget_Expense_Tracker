@@ -55,6 +55,21 @@ public partial class MainPage : ContentPage
     private async void OnRecurringExpensesClicked(object? sender, EventArgs e) =>
         await OpenPageAsync<RecurringExpensesPage>();
 
+    private async void OnCategoryFilterChanged(object? sender, EventArgs e)
+    {
+        if (!_viewModel.CanChangeCategoryFilter
+            || sender is not Picker
+            {
+                SelectedItem: ExpenseCategoryFilter filter
+            })
+        {
+            return;
+        }
+
+        _viewModel.SelectedCategoryFilter = filter;
+        await _viewModel.RefreshAsync();
+    }
+    
     private async Task OpenPageAsync<TPage>(
         Action<TPage>? configure = null)
         where TPage : Page

@@ -61,11 +61,22 @@
                 Command="{Binding RefreshCommand}" />
         </Grid>
 
-        <Label
-            Grid.Row="1"
-            Text="{Binding Summary}"
-            FontSize="18"
-            IsVisible="{Binding ShowResults}" />
+        <VerticalStackLayout Grid.Row="1" Spacing="8">
+            <Label Text="Category" />
+
+            <Picker
+                Title="Category"
+                ItemsSource="{Binding CategoryFilters}"
+                ItemDisplayBinding="{Binding Name, x:DataType=models:ExpenseCategoryFilter}"
+                SelectedItem="{Binding SelectedCategoryFilter, Mode=TwoWay}"
+                SelectedIndexChanged="OnCategoryFilterChanged"
+                IsEnabled="{Binding CanChangeCategoryFilter}" />
+
+            <Label
+                Text="{Binding Summary}"
+                FontSize="18"
+                IsVisible="{Binding ShowResults}" />
+        </VerticalStackLayout>
 
         <VerticalStackLayout Grid.Row="2" Spacing="8">
             <ActivityIndicator
@@ -86,7 +97,7 @@
 
             <CollectionView.EmptyView>
                 <Label
-                    Text="No expenses for this month."
+                    Text="No expenses for this month and selected category."
                     Margin="24"
                     HorizontalTextAlignment="Center" />
             </CollectionView.EmptyView>
