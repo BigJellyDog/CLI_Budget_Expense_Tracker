@@ -24,6 +24,9 @@
         <ToolbarItem
             Text="Budgets"
             Clicked="OnBudgetsClicked" />
+        <ToolbarItem
+            Text="Recurring expenses"
+            Clicked="OnRecurringExpensesClicked" />
     </ContentPage.ToolbarItems>
     
     <Grid

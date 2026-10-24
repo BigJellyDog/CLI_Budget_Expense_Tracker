@@ -46,6 +46,8 @@ public static class MauiProgram
         builder.Services.AddTransient<CategoriesPage>();
         builder.Services.AddTransient<BudgetsViewModel>();
         builder.Services.AddTransient<BudgetsPage>();
+        builder.Services.AddTransient<RecurringExpensesViewModel>();
+        builder.Services.AddTransient<RecurringExpensesPage>();
         builder.Services.AddTransient<BankImportViewModel>();
         builder.Services.AddTransient<BankImportPage>();
 

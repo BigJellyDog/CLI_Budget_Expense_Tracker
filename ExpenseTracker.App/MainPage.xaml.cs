@@ -51,6 +51,9 @@ public partial class MainPage : ContentPage
     
     private async void OnBudgetsClicked(object? sender, EventArgs e) =>
         await OpenPageAsync<BudgetsPage>();
+    
+    private async void OnRecurringExpensesClicked(object? sender, EventArgs e) =>
+        await OpenPageAsync<RecurringExpensesPage>();
 
     private async Task OpenPageAsync<TPage>(
         Action<TPage>? configure = null)

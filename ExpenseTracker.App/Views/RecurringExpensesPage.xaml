@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:ExpenseTracker.App.ViewModels"
+    xmlns:models="clr-namespace:ExpenseTracker.App.Models"
+    xmlns:core="clr-namespace:CLI_Budget_Expense_Tracker.Core.Models;assembly=CLI_Budget_Expense_Tracker.Core"
+    x:Class="ExpenseTracker.App.Views.RecurringExpensesPage"
+    x:DataType="vm:RecurringExpensesViewModel"
+    Title="Recurring expenses"
+    NavigationPage.HasBackButton="{Binding CanGoBack}"
+    BackgroundColor="{AppThemeBinding Light=#F5F6FA, Dark=#151821}">
+
+    <Grid
+        Padding="24"
+        RowDefinitions="Auto,Auto,*"
+        RowSpacing="16">
+
+        <Grid
+            ColumnDefinitions="*,Auto,Auto"
+            ColumnSpacing="12">
+
+            <Label
+                Text="Recurring expenses"
+                FontSize="24"
+                FontAttributes="Bold"
+                VerticalOptions="Center" />
+
+            <Button
+                Grid.Column="1"
+                Text="Refresh"
+                Clicked="OnRefreshClicked"
+                IsEnabled="{Binding CanRefresh}" />
+
+            <Button
+                Grid.Column="2"
+                Text="Generate due expenses"
+                Clicked="OnGenerateClicked"
+                IsEnabled="{Binding CanRefresh}" />
+        </Grid>
+
+        <VerticalStackLayout Grid.Row="1" Spacing="8">
+            <ActivityIndicator
+                IsRunning="{Binding IsBusy}"
+                IsVisible="{Binding IsBusy}" />
+
+            <Label
+                Text="{Binding ErrorMessage}"
+                IsVisible="{Binding HasError}"
+                TextColor="{AppThemeBinding Light=#B42318, Dark=#FFB4AB}" />
+
+            <Label
+                Text="{Binding SuccessMessage}"
+                IsVisible="{Binding HasSuccess}"
+                TextColor="{AppThemeBinding Light=#18794E, Dark=#75D6A6}" />
+
+            <Label
+                Text="Create a category on the Categories screen first."
+                IsVisible="{Binding ShowNoCategories}" />
+        </VerticalStackLayout>
+
+        <Grid
+            Grid.Row="2"
+            ColumnDefinitions="360,*"
+            ColumnSpacing="24">
+
+            <ScrollView>
+                <VerticalStackLayout Spacing="16">
+                    <Label
+                        Text="New schedule"
+                        FontSize="18"
+                        FontAttributes="Bold" />
+
+                    <VerticalStackLayout
+                        Spacing="10"
+                        IsEnabled="{Binding CanEdit}">
+
+                        <Label Text="Category" />
+
+                        <Picker
+                            Title="Choose a category"
+                            ItemsSource="{Binding Categories}"
+                            ItemDisplayBinding="{Binding Name, x:DataType=core:Category}"
+                            SelectedItem="{Binding SelectedCategory, Mode=TwoWay}" />
+
+                        <Label Text="Amount per occurrence" />
+
+                        <Entry
+                            Placeholder="12.50"
+                            Keyboard="Numeric"
+                            Text="{Binding AmountText, Mode=TwoWay}" />
+
+                        <Label Text="Frequency" />
+
+                        <Picker
+                            Title="Choose a frequency"
+                            ItemsSource="{Binding Frequencies}"
+                            SelectedItem="{Binding SelectedFrequency, Mode=TwoWay}" />
+
+                        <Label Text="Start date" />
+
+                        <DatePicker
+                            Date="{Binding SelectedStartDate, Mode=TwoWay}"
+                            MinimumDate="{x:Null}"
+                            MaximumDate="{x:Null}"
+                            Format="dd.MM.yyyy" />
+
+                        <Label Text="Description (optional)" />
+
+                        <Editor
+                            Text="{Binding Description, Mode=TwoWay}"
+                            AutoSize="TextChanges"
+                            MinimumHeightRequest="80" />
+
+                        <Label
+                            Text="Creating a schedule also generates due expenses through today. Past start dates include missed occurrences."
+                            FontSize="12" />
+
+                        <Button
+                            Text="Create schedule"
+                            Clicked="OnCreateClicked" />
+                    </VerticalStackLayout>
+
+                    <Button
+                        Text="Add another schedule"
+                        Clicked="OnAddAnotherClicked"
+                        IsVisible="{Binding IsSaved}"
+                        IsEnabled="{Binding CanStartNew}" />
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <CollectionView
+                Grid.Column="1"
+                ItemsSource="{Binding Items}"
+                IsVisible="{Binding ShowResults}"
+                SelectionMode="None">
+
+                <CollectionView.EmptyView>
+                    <Label
+                        Text="No recurring expenses yet."
+                        Margin="24"
+                        HorizontalTextAlignment="Center" />
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:RecurringExpenseListItem">
+                        <Border
+                            Padding="16"
+                            Margin="0,0,0,8"
+                            StrokeShape="RoundRectangle 10"
+                            Stroke="{AppThemeBinding Light=#D8DDE8, Dark=#384054}"
+                            BackgroundColor="{AppThemeBinding Light=White, Dark=#202532}">
+
+                            <VerticalStackLayout Spacing="8">
+                                <Label
+                                    Text="{Binding CategoryName}"
+                                    FontAttributes="Bold" />
+
+                                <Label Text="{Binding Summary}" />
+
+                                <Label
+                                    Text="{Binding Description}"
+                                    LineBreakMode="TailTruncation" />
+
+                                <Label
+                                    Text="{Binding StartDate, StringFormat='Start: {0:dd.MM.yyyy}'}" />
+
+                                <Label Text="{Binding NextDueText}" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Grid>
+    </Grid>
+</ContentPage>
