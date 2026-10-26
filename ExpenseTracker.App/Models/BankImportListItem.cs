@@ -7,14 +7,18 @@ public sealed class BankImportListItem : ObservableObject
 {
     private readonly Action _selectionChanged;
     private bool _isSelected;
+    private Category? _category;
+    private bool _categoryChosen;
 
     public BankImportListItem(
         ClassifiedBankEntry entry,
         string hash,
+        IReadOnlyList<Category> categories,
         Action selectionChanged)
     {
         Entry = entry;
         Hash = hash;
+        Categories = categories;
         _selectionChanged = selectionChanged;
 
         // Only outgoing payments can become expenses.
@@ -31,6 +35,30 @@ public sealed class BankImportListItem : ObservableObject
     public string Hash { get; }
 
     public bool CanSelect { get; }
+
+    public IReadOnlyList<Category> Categories { get; }
+
+    /// <summary>The category this record is imported into.</summary>
+    public Category? Category
+    {
+        get => _category;
+        set
+        {
+            // A picker can briefly write null while its list is being filled.
+            if (value is null || !SetProperty(ref _category, value)) return;
+
+            _categoryChosen = true;
+            _selectionChanged();
+        }
+    }
+
+    /// <summary>Follows the default category unless this record already has its own.</summary>
+    public void UseDefaultCategory(Category? category)
+    {
+        if (_categoryChosen) return;
+
+        SetProperty(ref _category, category, nameof(Category));
+    }
 
     public bool IsSelected
     {

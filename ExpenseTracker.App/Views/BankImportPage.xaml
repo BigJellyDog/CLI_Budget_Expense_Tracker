@@ -25,7 +25,7 @@
 
             <Label Text="Revolut CSV with German column names · EUR" />
 
-            <Label Text="Choose a file, pick the records to import and a category, then press Import selected. Records already imported are skipped." />
+            <Label Text="Choose a file, tick the records to import and set a category for each one (the default category is used until you change it), then press Import selected. Records already imported are skipped." />
 
             <Label
                 Text="{Binding FileName}"
@@ -50,7 +50,7 @@
                 IsVisible="{Binding NeedsCategory}" />
 
             <Picker
-                Title="Category for imported expenses"
+                Title="Default category for all records"
                 ItemsSource="{Binding Categories}"
                 ItemDisplayBinding="{Binding Name, x:DataType=core:Category}"
                 SelectedItem="{Binding SelectedCategory, Mode=TwoWay}" />
@@ -106,7 +106,7 @@
 
                         <Grid
                             ColumnDefinitions="Auto,*,Auto"
-                            RowDefinitions="Auto,Auto,Auto,Auto,Auto"
+                            RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
                             ColumnSpacing="16"
                             RowSpacing="6">
 
@@ -152,6 +152,17 @@
                                 Grid.ColumnSpan="2"
                                 Text="{Binding Reason}"
                                 FontSize="12" />
+
+                            <Picker
+                                Grid.Row="5"
+                                Grid.Column="1"
+                                Grid.ColumnSpan="2"
+                                Title="Category"
+                                ItemsSource="{Binding Categories}"
+                                ItemDisplayBinding="{Binding Name, x:DataType=core:Category}"
+                                SelectedItem="{Binding Category, Mode=TwoWay}"
+                                IsVisible="{Binding CanSelect}"
+                                IsEnabled="{Binding CanSelect}" />
                         </Grid>
                     </Border>
                 </DataTemplate>

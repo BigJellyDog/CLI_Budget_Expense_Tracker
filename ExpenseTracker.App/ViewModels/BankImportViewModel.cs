@@ -45,8 +45,12 @@ public sealed class BankImportViewModel : ObservableObject
         get => _selectedCategory;
         set
         {
-            if (SetProperty(ref _selectedCategory, value))
-                OnPropertyChanged(nameof(CanImport));
+            if (!SetProperty(ref _selectedCategory, value)) return;
+
+            foreach (var item in Items)
+                item.UseDefaultCategory(value);
+
+            OnPropertyChanged(nameof(CanImport));
         }
     }
 
@@ -89,8 +93,8 @@ public sealed class BankImportViewModel : ObservableObject
     public bool CanImport =>
         ShowPreview
         && !_imported
-        && SelectedCategory is not null
-        && Items.Any(x => x.IsSelected);
+        && Items.Any(x => x.IsSelected)
+        && Items.Where(x => x.IsSelected).All(x => x.Category is not null);
 
     public async Task LoadAsync(
         string fileName,
@@ -125,6 +129,7 @@ public sealed class BankImportViewModel : ObservableObject
                 .Select(x => new BankImportListItem(
                     x,
                     result.Hashes[x.Source.RowNumber],
+                    result.Categories,
                     NotifySelection))
                 .ToArray();
 
@@ -164,11 +169,11 @@ public sealed class BankImportViewModel : ObservableObject
 
     public async Task ImportAsync()
     {
-        if (!CanImport || SelectedCategory is not { } category) return;
+        if (!CanImport) return;
 
         var candidates = Items
             .Where(x => x.IsSelected)
-            .Select(x => new BankImportCandidate(x.Entry, x.Hash, category.Id))
+            .Select(x => new BankImportCandidate(x.Entry, x.Hash, x.Category!.Id))
             .ToArray();
 
         IsBusy = true;
