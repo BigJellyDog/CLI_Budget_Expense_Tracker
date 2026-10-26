@@ -45,6 +45,14 @@ public sealed class CategoryService(ICategoryRepository categories)
         return await categories.MoveAndDeleteAsync(id, targetId, cancellationToken);
     }
 
+    public async Task<CategoryUsage> DeleteWithDataAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        _ = await categories.GetByIdAsync(id, cancellationToken)
+            ?? throw new InvalidOperationException("Category not found.");
+
+        return await categories.DeleteWithDataAsync(id, cancellationToken);
+    }
+
     private async Task EnsureUniqueAsync(string name, Guid id, CancellationToken cancellationToken)
     {
         var existing = await categories.GetByNormalizedNameAsync(name, cancellationToken);

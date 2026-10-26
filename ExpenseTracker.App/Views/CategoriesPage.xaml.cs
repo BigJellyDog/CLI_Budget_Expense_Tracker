@@ -7,6 +7,8 @@ public partial class CategoriesPage : ContentPage
 {
     private readonly CategoriesViewModel _viewModel;
 
+    private const string DeleteWithDataText = "Delete category and all its data";
+
     private bool _choosingDeleteAction;
 
     public CategoriesPage(CategoriesViewModel viewModel)
@@ -92,16 +94,6 @@ public partial class CategoriesPage : ContentPage
             .Where(x => x.Id != category.Id)
             .ToArray();
 
-        if (targets.Length == 0)
-        {
-            await DisplayAlertAsync(
-                "Cannot delete",
-                $"\"{category.Name}\" is in use. Create another category first, so its data can be moved there.",
-                "OK");
-
-            return;
-        }
-
         var history = usage.DeletedExpenses > 0
             ? $" (+{usage.DeletedExpenses} deleted, kept in history)"
             : "";
@@ -109,10 +101,28 @@ public partial class CategoriesPage : ContentPage
         var picked = await DisplayActionSheetAsync(
             $"\"{category.Name}\" is used by {usage.ActiveExpenses} expenses{history}, "
             + $"{usage.RecurringExpenses} schedules and {usage.BudgetLimits} budget limits. "
-            + "Move expenses and schedules to:",
+            + (targets.Length > 0
+                ? "Move expenses and schedules to another category, or delete everything:"
+                : "There is no other category to move them to. You can delete everything:"),
             "Cancel",
-            null,
+            DeleteWithDataText,
             targets.Select(x => x.Name).ToArray());
+
+        if (picked == DeleteWithDataText)
+        {
+            await _viewModel.DeleteWithDataAsync(
+                category.Id,
+                () => DisplayAlertAsync(
+                    "Delete everything?",
+                    $"Permanently delete \"{category.Name}\" together with "
+                    + $"{usage.ActiveExpenses} expenses{history}, "
+                    + $"{usage.RecurringExpenses} schedules and {usage.BudgetLimits} budget limits?\n\n"
+                    + "A backup is saved first, so you can undo this with Backup > Restore.",
+                    "Delete everything",
+                    "Cancel"));
+
+            return;
+        }
 
         var target = targets.FirstOrDefault(x => x.Name == picked);
 

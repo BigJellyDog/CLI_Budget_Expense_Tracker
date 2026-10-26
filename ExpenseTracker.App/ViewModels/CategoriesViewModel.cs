@@ -2,6 +2,7 @@ namespace ExpenseTracker.App.ViewModels;
 
 using CLI_Budget_Expense_Tracker.Core.Models;
 using CLI_Budget_Expense_Tracker.Core.Services;
+using CLI_Budget_Expense_Tracker.Infrastructure.Backup;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -11,6 +12,7 @@ public sealed class CategoriesViewModel : ObservableObject
 {
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly AppInitializer _initializer;
+    private readonly DatabaseBackupService _backups;
     private readonly ILogger<CategoriesViewModel> _logger;
 
     private Guid? _editingCategoryId;
@@ -19,8 +21,10 @@ public sealed class CategoriesViewModel : ObservableObject
     public CategoriesViewModel(
         IServiceScopeFactory scopeFactory,
         AppInitializer initializer,
+        DatabaseBackupService backups,
         ILogger<CategoriesViewModel> logger)
     {
+        _backups = backups;
         _scopeFactory = scopeFactory;
         _initializer = initializer;
         _logger = logger;
@@ -288,6 +292,61 @@ public sealed class CategoriesViewModel : ObservableObject
                 $"Category deleted. Moved: {moved.ActiveExpenses + moved.DeletedExpenses} expenses, "
                 + $"{moved.RecurringExpenses} schedules. Budget limits removed: {moved.BudgetLimits}.";
         }, () => "Could not move and delete the category. Nothing was changed. Try Refresh.");
+    }
+
+    public async Task DeleteWithDataAsync(
+        Guid categoryId,
+        Func<Task<bool>> confirmDeletion)
+    {
+        if (!CanEdit) return;
+
+        await RunAsync(async () =>
+        {
+            if (!await confirmDeletion())
+                return;
+
+            CategoryUsage deleted;
+
+            try
+            {
+                deleted = await Task.Run(async () =>
+                {
+                    // Safety copy, so this permanent delete can be undone with Restore.
+                    _backups.CreateBackup(DatabaseBackupService.AutomaticPrefix);
+
+                    await using var scope = _scopeFactory.CreateAsyncScope();
+
+                    return await scope.ServiceProvider
+                        .GetRequiredService<CategoryService>()
+                        .DeleteWithDataAsync(categoryId);
+                });
+            }
+            catch (InvalidOperationException exception)
+            {
+                _logger.LogWarning(
+                    exception,
+                    "Deleting category {CategoryId} with its data was rejected.",
+                    categoryId);
+
+                ErrorMessage = exception.Message;
+                return;
+            }
+
+            Items = Items
+                .Where(x => x.Id != categoryId)
+                .ToArray();
+
+            if (_editingCategoryId == categoryId)
+            {
+                _editingCategoryId = null;
+                NameText = "";
+            }
+
+            SuccessMessage =
+                $"Category deleted with {deleted.ActiveExpenses + deleted.DeletedExpenses} expenses, "
+                + $"{deleted.RecurringExpenses} schedules and {deleted.BudgetLimits} budget limits. "
+                + "A backup was saved first.";
+        }, () => "Could not delete the category. Nothing was changed. Try Refresh.");
     }
 
     private Task<IReadOnlyList<Category>> ReadCategoriesAsync() =>

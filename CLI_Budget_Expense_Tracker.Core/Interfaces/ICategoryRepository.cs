@@ -17,4 +17,9 @@ public interface ICategoryRepository
     /// of the old one, then deletes it. Returns what the old category held.
     /// </summary>
     Task<CategoryUsage> MoveAndDeleteAsync(Guid id, Guid targetId, CancellationToken cancellationToken = default);
+    /// <summary>
+    /// Permanently deletes a category together with its expenses, recurring schedules and budget limits.
+    /// Returns what the category held.
+    /// </summary>
+    Task<CategoryUsage> DeleteWithDataAsync(Guid id, CancellationToken cancellationToken = default);
 }

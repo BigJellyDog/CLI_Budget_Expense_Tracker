@@ -92,6 +92,43 @@ public sealed class SqliteCategoryRepository(ExpenseTrackerDbContext context) : 
         return usage;
     }
 
+    public async Task<CategoryUsage> DeleteWithDataAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
+
+        var usage = await GetUsageAsync(id, cancellationToken);
+
+        await context.Expenses.IgnoreQueryFilters()
+            .Where(x => x.CategoryId == id)
+            .ExecuteDeleteAsync(cancellationToken);
+
+        // Expenses of other categories may still point at this category's schedules.
+        var scheduleIds = await context.RecurringExpenses
+            .Where(x => x.CategoryId == id)
+            .Select(x => x.Id)
+            .ToListAsync(cancellationToken);
+
+        await context.Expenses.IgnoreQueryFilters()
+            .Where(x => x.RecurringExpenseId != null && scheduleIds.Contains(x.RecurringExpenseId.Value))
+            .ExecuteUpdateAsync(x => x.SetProperty(e => e.RecurringExpenseId, (Guid?)null), cancellationToken);
+
+        await context.RecurringExpenses
+            .Where(x => x.CategoryId == id)
+            .ExecuteDeleteAsync(cancellationToken);
+
+        await context.BudgetLimits
+            .Where(x => x.CategoryId == id)
+            .ExecuteDeleteAsync(cancellationToken);
+
+        await context.Categories
+            .Where(x => x.Id == id)
+            .ExecuteDeleteAsync(cancellationToken);
+
+        await transaction.CommitAsync(cancellationToken);
+
+        return usage;
+    }
+
     private async Task SaveCategoryAsync(Category category, CancellationToken cancellationToken)
     {
         try
