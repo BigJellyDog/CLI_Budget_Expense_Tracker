@@ -22,6 +22,9 @@
             Text="Categories"
             Clicked="OnCategoriesClicked" />
         <ToolbarItem
+            Text="Reports"
+            Clicked="OnReportsClicked" />
+        <ToolbarItem
             Text="Budgets"
             Clicked="OnBudgetsClicked" />
         <ToolbarItem

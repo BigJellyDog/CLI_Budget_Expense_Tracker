@@ -49,6 +49,9 @@ public partial class MainPage : ContentPage
     private async void OnCategoriesClicked(object? sender, EventArgs e) =>
         await OpenPageAsync<CategoriesPage>();
     
+    private async void OnReportsClicked(object? sender, EventArgs e) =>
+        await OpenPageAsync<ReportsPage>();
+
     private async void OnBudgetsClicked(object? sender, EventArgs e) =>
         await OpenPageAsync<BudgetsPage>();
     
