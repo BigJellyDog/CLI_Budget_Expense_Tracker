@@ -33,6 +33,12 @@ public partial class BankImportPage : ContentPage
     private async void OnImportClicked(object? sender, EventArgs e) =>
         await _viewModel.ImportAsync();
 
+    private void OnDelimiterChanged(object? sender, EventArgs e) =>
+        _viewModel.RefreshCustomHeaders();
+
+    private async void OnShowPreviewClicked(object? sender, EventArgs e) =>
+        await _viewModel.PreviewCustomAsync();
+
     private async void OnChooseFileClicked(object? sender, EventArgs e)
     {
         if (_pickingFile || _viewModel.IsBusy) return;
@@ -43,15 +49,20 @@ public partial class BankImportPage : ContentPage
         {
             var file = await FilePicker.Default.PickAsync(new PickOptions
             {
-                PickerTitle = "Choose a Revolut CSV statement",
+                PickerTitle = "Choose a CSV statement",
                 FileTypes = new FilePickerFileType(
                     new Dictionary<DevicePlatform, IEnumerable<string>>
                     {
-                        [DevicePlatform.WinUI] = [".csv"]
+                        [DevicePlatform.WinUI] = [".csv", ".txt"]
                     })
             });
 
-            if (file is not null)
+            if (file is null)
+                return;
+
+            if (_viewModel.IsCustomFormat)
+                await _viewModel.LoadCustomFileAsync(file.FileName, file.OpenReadAsync);
+            else
                 await _viewModel.LoadAsync(file.FileName, file.OpenReadAsync);
         }
         catch (OperationCanceledException)

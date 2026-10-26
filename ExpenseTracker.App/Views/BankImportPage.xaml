@@ -7,7 +7,7 @@
     xmlns:core="clr-namespace:CLI_Budget_Expense_Tracker.Core.Models;assembly=CLI_Budget_Expense_Tracker.Core"
     x:Class="ExpenseTracker.App.Views.BankImportPage"
     x:DataType="vm:BankImportViewModel"
-    Title="Revolut CSV preview"
+    Title="Bank CSV import"
     NavigationPage.HasBackButton="{Binding IsIdle}"
     BackgroundColor="{AppThemeBinding Light=#F5F6FA, Dark=#151821}">
 
@@ -17,6 +17,13 @@
         RowSpacing="16">
 
         <VerticalStackLayout Spacing="8">
+            <Picker
+                Title="File format"
+                ItemsSource="{Binding Formats}"
+                ItemDisplayBinding="{Binding Name, x:DataType=models:ImportFormatOption}"
+                SelectedItem="{Binding SelectedFormat, Mode=TwoWay}"
+                IsEnabled="{Binding IsIdle}" />
+
             <HorizontalStackLayout Spacing="12">
                 <Button
                     Text="Choose CSV"
@@ -29,7 +36,7 @@
                     IsEnabled="{Binding IsIdle}" />
             </HorizontalStackLayout>
 
-            <Label Text="Revolut CSV with German column names · EUR" />
+            <Label Text="{Binding FormatHint}" />
 
             <Label Text="Choose a file, tick the records to import and set a category for each one (the default category is used until you change it), then press Import selected. Records already imported are skipped." />
 
@@ -37,6 +44,78 @@
                 Text="{Binding FileName}"
                 FontAttributes="Bold"
                 LineBreakMode="MiddleTruncation" />
+
+            <VerticalStackLayout Spacing="8" IsVisible="{Binding ShowMapping}">
+                <Label Text="How is this file written?" FontAttributes="Bold" />
+
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12">
+                    <Picker
+                        Title="Delimiter"
+                        ItemsSource="{Binding Custom.DelimiterOptions}"
+                        ItemDisplayBinding="{Binding Name, x:DataType=models:DelimiterOption}"
+                        SelectedItem="{Binding Custom.SelectedDelimiter, Mode=TwoWay}"
+                        SelectedIndexChanged="OnDelimiterChanged" />
+
+                    <Picker
+                        Grid.Column="1"
+                        Title="Number format"
+                        ItemsSource="{Binding Custom.CultureOptions}"
+                        ItemDisplayBinding="{Binding Label, x:DataType=models:CultureOption}"
+                        SelectedItem="{Binding Custom.SelectedCulture, Mode=TwoWay}" />
+
+                    <Entry
+                        Grid.Column="2"
+                        Placeholder="Date format"
+                        Text="{Binding Custom.DateFormat, Mode=TwoWay}" />
+                </Grid>
+
+                <Label
+                    Text="Date format examples: yyyy-MM-dd, dd.MM.yyyy, MM/dd/yyyy (MM is the month, mm is minutes)."
+                    FontSize="12" />
+
+                <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="12">
+                    <Picker
+                        Title="Date column"
+                        ItemsSource="{Binding Custom.Headers}"
+                        SelectedItem="{Binding Custom.SelectedDateColumn, Mode=TwoWay}" />
+
+                    <Picker
+                        Grid.Column="1"
+                        Title="Description column"
+                        ItemsSource="{Binding Custom.Headers}"
+                        SelectedItem="{Binding Custom.SelectedDescriptionColumn, Mode=TwoWay}" />
+
+                    <Picker
+                        Grid.Column="2"
+                        Title="Amount column"
+                        ItemsSource="{Binding Custom.Headers}"
+                        SelectedItem="{Binding Custom.SelectedAmountColumn, Mode=TwoWay}" />
+
+                    <Picker
+                        Grid.Column="3"
+                        Title="Currency column"
+                        ItemsSource="{Binding Custom.CurrencyHeaders}"
+                        SelectedItem="{Binding Custom.SelectedCurrencyColumn, Mode=TwoWay}" />
+                </Grid>
+
+                <Grid ColumnDefinitions="*,140" ColumnSpacing="12">
+                    <Picker
+                        Title="Sign of amounts"
+                        ItemsSource="{Binding Custom.SignOptions}"
+                        ItemDisplayBinding="{Binding Label, x:DataType=models:SignOption}"
+                        SelectedItem="{Binding Custom.SelectedSign, Mode=TwoWay}" />
+
+                    <Entry
+                        Grid.Column="1"
+                        Placeholder="Currency, e.g. EUR"
+                        Text="{Binding Custom.DefaultCurrency, Mode=TwoWay}" />
+                </Grid>
+
+                <Button
+                    Text="Show preview"
+                    Clicked="OnShowPreviewClicked"
+                    HorizontalOptions="Start" />
+            </VerticalStackLayout>
         </VerticalStackLayout>
 
         <VerticalStackLayout

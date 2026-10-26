@@ -36,6 +36,8 @@ public static class SqliteServiceCollectionExtensions
         
         services.AddSingleton<IBankStatementClassifier, RevolutStatementClassifier>();
         services.AddSingleton<IBankStatementReader, RevolutCsvReader>();
+        services.AddSingleton<GenericCsvReader>();
+        services.AddSingleton<GenericStatementClassifier>();
         services.AddScoped<RecurringExpenseService>();
         services.AddScoped<DatabaseInitializer>();
         services.AddSingleton(provider =>
