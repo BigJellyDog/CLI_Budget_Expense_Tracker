@@ -14,6 +14,9 @@ public sealed class RecurringExpense
     public DateOnly StartDate { get; private set; }
     public DateOnly NextDueDate { get; private set; }
 
+    /// <summary>Last day an occurrence may fall on. Null means the schedule never ends.</summary>
+    public DateOnly? EndDate { get; private set; }
+
     public bool IsActive { get; private set; }
 
     public RecurringExpense(
@@ -22,7 +25,8 @@ public sealed class RecurringExpense
         Guid categoryId,
         RecurrenceFrequency frequency,
         DateOnly startDate,
-        string description = "")
+        string description = "",
+        DateOnly? endDate = null)
     {
         if (id == Guid.Empty)
         {
@@ -49,6 +53,13 @@ public sealed class RecurringExpense
         MoneyRules.Validate(amount, nameof(amount), allowZero: false);
         ArgumentNullException.ThrowIfNull(description);
 
+        if (endDate is { } end && end < startDate)
+        {
+            throw new ArgumentException(
+                "End date cannot be before the start date.",
+                nameof(endDate));
+        }
+
         Id = id;
         Amount = amount;
         CategoryId = categoryId;
@@ -56,7 +67,62 @@ public sealed class RecurringExpense
         StartDate = startDate;
         NextDueDate = startDate;
         Description = description;
+        EndDate = endDate;
         IsActive = true;
+    }
+
+    /// <summary>
+    /// Changes the schedule. Expenses created earlier stay as they are.
+    /// A new frequency counts from the next due date, so the cycle stays consistent.
+    /// An end date before the next due date finishes the schedule.
+    /// </summary>
+    public void Update(
+        decimal amount,
+        Guid categoryId,
+        RecurrenceFrequency frequency,
+        string description,
+        DateOnly? endDate)
+    {
+        if (categoryId == Guid.Empty)
+        {
+            throw new ArgumentException(
+                "Category ID must not be empty.",
+                nameof(categoryId));
+        }
+
+        if (!Enum.IsDefined(frequency))
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(frequency),
+                frequency,
+                "Unsupported recurrence frequency.");
+        }
+
+        MoneyRules.Validate(amount, nameof(amount), allowZero: false);
+        ArgumentNullException.ThrowIfNull(description);
+
+        if (endDate is { } end && end < StartDate)
+        {
+            throw new ArgumentException(
+                "End date cannot be before the start date.",
+                nameof(endDate));
+        }
+
+        if (frequency != Frequency)
+        {
+            StartDate = NextDueDate;
+        }
+
+        Amount = amount;
+        CategoryId = categoryId;
+        Frequency = frequency;
+        Description = description;
+        EndDate = endDate;
+
+        if (EndDate is { } last && NextDueDate > last)
+        {
+            Deactivate();
+        }
     }
 
     /// <summary>
@@ -120,6 +186,12 @@ public sealed class RecurringExpense
         catch (ArgumentOutOfRangeException)
         {
             // No further occurrence can fit within DateOnly's supported range.
+            Deactivate();
+            return;
+        }
+
+        if (EndDate is { } last && NextDueDate > last)
+        {
             Deactivate();
         }
     }

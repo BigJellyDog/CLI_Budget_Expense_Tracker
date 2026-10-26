@@ -67,7 +67,7 @@
             <ScrollView>
                 <VerticalStackLayout Spacing="16">
                     <Label
-                        Text="New schedule"
+                        Text="{Binding FormTitle}"
                         FontSize="18"
                         FontAttributes="Bold" />
 
@@ -103,6 +103,21 @@
                             Date="{Binding SelectedStartDate, Mode=TwoWay}"
                             MinimumDate="{x:Null}"
                             MaximumDate="{x:Null}"
+                            IsEnabled="{Binding CanChangeStartDate}"
+                            Format="dd.MM.yyyy" />
+
+                        <HorizontalStackLayout Spacing="8">
+                            <CheckBox IsChecked="{Binding HasEndDate, Mode=TwoWay}" />
+                            <Label
+                                Text="End date (optional)"
+                                VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+
+                        <DatePicker
+                            Date="{Binding SelectedEndDate, Mode=TwoWay}"
+                            MinimumDate="{x:Null}"
+                            MaximumDate="{x:Null}"
+                            IsEnabled="{Binding HasEndDate}"
                             Format="dd.MM.yyyy" />
 
                         <Label Text="Description (optional)" />
@@ -114,11 +129,22 @@
 
                         <Label
                             Text="Creating a schedule also generates due expenses through today. Past start dates include missed occurrences."
-                            FontSize="12" />
+                            FontSize="12"
+                            IsVisible="{Binding CanChangeStartDate}" />
+
+                        <Label
+                            Text="Changes apply to future expenses only. Expenses created earlier are not changed. A new frequency counts from the next due date."
+                            FontSize="12"
+                            IsVisible="{Binding IsEditing}" />
 
                         <Button
-                            Text="Create schedule"
-                            Clicked="OnCreateClicked" />
+                            Text="{Binding SaveButtonText}"
+                            Clicked="OnSaveClicked" />
+
+                        <Button
+                            Text="Cancel"
+                            Clicked="OnCancelEditClicked"
+                            IsVisible="{Binding IsEditing}" />
                     </VerticalStackLayout>
 
                     <Button
@@ -166,6 +192,14 @@
                                     Text="{Binding StartDate, StringFormat='Start: {0:dd.MM.yyyy}'}" />
 
                                 <Label Text="{Binding NextDueText}" />
+
+                                <Label
+                                    Text="{Binding EndText}"
+                                    IsVisible="{Binding HasEndDate}" />
+
+                                <Button
+                                    Text="Edit"
+                                    Clicked="OnEditClicked" />
                                 
                                 <Button
                                     Text="Deactivate"

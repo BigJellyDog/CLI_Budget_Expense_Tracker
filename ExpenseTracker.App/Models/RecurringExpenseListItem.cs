@@ -10,8 +10,14 @@ public sealed record RecurringExpenseListItem(
     DateOnly StartDate,
     DateOnly NextDueDate,
     bool IsActive,
-    string Description)
+    string Description,
+    Guid CategoryId,
+    DateOnly? EndDate)
 {
+    public bool HasEndDate => EndDate.HasValue;
+
+    public string EndText => EndDate is { } end ? $"Ends: {end:dd.MM.yyyy}" : "";
+
     public bool IsInactive => !IsActive;
 
     public string Summary => $"{Amount:N2} · {Frequency}";

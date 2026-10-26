@@ -18,6 +18,7 @@ public sealed class RecurringExpensesViewModel : ObservableObject
     private readonly ILogger<RecurringExpensesViewModel> _logger;
 
     private bool _loaded;
+    private Guid? _editingScheduleId;
 
     public RecurringExpensesViewModel(
         IServiceScopeFactory scopeFactory,
@@ -31,6 +32,7 @@ public sealed class RecurringExpensesViewModel : ObservableObject
         _logger = logger;
 
         SelectedStartDate = timeProvider.GetLocalNow().Date;
+        SelectedEndDate = SelectedStartDate;
     }
 
     public IReadOnlyList<Category> Categories { get; private set; } = [];
@@ -50,6 +52,18 @@ public sealed class RecurringExpensesViewModel : ObservableObject
     public string AmountText { get; set; } = "";
 
     public string Description { get; set; } = "";
+
+    public bool HasEndDate { get; set; }
+
+    public DateTime? SelectedEndDate { get; set; }
+
+    public bool IsEditing => _editingScheduleId.HasValue;
+
+    public string FormTitle => IsEditing ? "Edit schedule" : "New schedule";
+
+    public string SaveButtonText => IsEditing ? "Save changes" : "Create schedule";
+
+    public bool CanChangeStartDate => !IsEditing;
 
     public string ErrorMessage { get; private set; } = "";
 
@@ -80,40 +94,23 @@ public sealed class RecurringExpensesViewModel : ObservableObject
         ReloadAsync,
         () => "Could not load recurring expenses. Try Refresh.");
 
+    public async Task SaveAsync()
+    {
+        if (_editingScheduleId is { } id)
+        {
+            await UpdateAsync(id);
+        }
+        else
+        {
+            await CreateAsync();
+        }
+    }
+
     public async Task CreateAsync()
     {
         if (!CanEdit) return;
 
-        if (SelectedCategory is not { } category)
-        {
-            ShowError("Choose a category.");
-            return;
-        }
-
-        var text = (AmountText ?? "").Trim().Replace(',', '.');
-        var separator = text.IndexOf('.');
-
-        if ((separator >= 0 && text.Length - separator - 1 > 2)
-            || !decimal.TryParse(
-                text,
-                NumberStyles.AllowDecimalPoint,
-                CultureInfo.InvariantCulture,
-                out var amount)
-            || amount <= 0
-            || amount > long.MaxValue / 100m)
-        {
-            ShowError(
-                "Enter a positive amount with up to 2 decimal places.");
-
-            return;
-        }
-
-        if (SelectedFrequency is not { } frequency
-            || !Enum.IsDefined(frequency))
-        {
-            ShowError("Choose a frequency.");
-            return;
-        }
+        if (!TryReadForm(out var form)) return;
 
         if (SelectedStartDate is not { } selectedDate)
         {
@@ -122,7 +119,8 @@ public sealed class RecurringExpensesViewModel : ObservableObject
         }
 
         var startDate = DateOnly.FromDateTime(selectedDate);
-        var description = (Description ?? "").Trim();
+        var (amount, category, frequency, description, endDate) =
+            (form.Amount, form.Category, form.Frequency, form.Description, form.EndDate);
 
         var saved = false;
         var generated = false;
@@ -140,7 +138,8 @@ public sealed class RecurringExpensesViewModel : ObservableObject
                         category.Id,
                         frequency,
                         startDate,
-                        description);
+                        description,
+                        endDate);
             });
 
             // The schedule is saved even if generation or reloading fails.
@@ -161,6 +160,183 @@ public sealed class RecurringExpensesViewModel : ObservableObject
             : !generated
                 ? "The schedule was saved, but due expenses could not be generated. Click Generate due expenses to retry."
                 : "The schedule was saved and generation completed, but the list could not be reloaded. Try Refresh.");
+    }
+
+    private async Task UpdateAsync(Guid scheduleId)
+    {
+        if (!CanEdit) return;
+
+        if (!TryReadForm(out var form)) return;
+
+        var saved = false;
+
+        await RunAsync(async () =>
+        {
+            await Task.Run(async () =>
+            {
+                await using var scope = _scopeFactory.CreateAsyncScope();
+
+                await scope.ServiceProvider
+                    .GetRequiredService<RecurringExpenseService>()
+                    .UpdateAsync(
+                        scheduleId,
+                        form.Amount,
+                        form.Category.Id,
+                        form.Frequency,
+                        form.Description,
+                        form.EndDate);
+            });
+
+            saved = true;
+            ResetForm();
+            SuccessMessage = "Schedule updated. Expenses created earlier were not changed.";
+
+            await ReloadAsync();
+        }, () => saved
+            ? "The schedule was updated, but the list could not be reloaded. Try Refresh."
+            : "Could not update the schedule. Check the values and try again.");
+    }
+
+    public void StartEdit(Guid scheduleId)
+    {
+        if (!ShowResults) return;
+
+        var item = Items.FirstOrDefault(x => x.Id == scheduleId);
+
+        if (item is null) return;
+
+        _editingScheduleId = scheduleId;
+        IsSaved = false;
+
+        SelectedCategory = Categories.FirstOrDefault(x => x.Id == item.CategoryId);
+        SelectedFrequency = item.Frequency;
+        SelectedStartDate = item.StartDate.ToDateTime(TimeOnly.MinValue);
+        AmountText = item.Amount.ToString("0.00", CultureInfo.InvariantCulture);
+        Description = item.Description;
+        HasEndDate = item.EndDate.HasValue;
+        SelectedEndDate = (item.EndDate ?? item.NextDueDate).ToDateTime(TimeOnly.MinValue);
+        ErrorMessage = "";
+        SuccessMessage = "";
+
+        NotifyForm();
+        NotifyState();
+    }
+
+    public void CancelEdit()
+    {
+        if (IsBusy || !IsEditing) return;
+
+        ResetForm();
+        NotifyState();
+    }
+
+    private sealed record FormValues(
+        decimal Amount,
+        Category Category,
+        RecurrenceFrequency Frequency,
+        string Description,
+        DateOnly? EndDate);
+
+    private bool TryReadForm(out FormValues values)
+    {
+        values = null!;
+
+        if (SelectedCategory is not { } category)
+        {
+            ShowError("Choose a category.");
+            return false;
+        }
+
+        var text = (AmountText ?? "").Trim().Replace(',', '.');
+        var separator = text.IndexOf('.');
+
+        if ((separator >= 0 && text.Length - separator - 1 > 2)
+            || !decimal.TryParse(
+                text,
+                NumberStyles.AllowDecimalPoint,
+                CultureInfo.InvariantCulture,
+                out var amount)
+            || amount <= 0
+            || amount > long.MaxValue / 100m)
+        {
+            ShowError(
+                "Enter a positive amount with up to 2 decimal places.");
+
+            return false;
+        }
+
+        if (SelectedFrequency is not { } frequency
+            || !Enum.IsDefined(frequency))
+        {
+            ShowError("Choose a frequency.");
+            return false;
+        }
+
+        DateOnly? endDate = null;
+
+        if (HasEndDate)
+        {
+            if (SelectedEndDate is not { } selectedEnd)
+            {
+                ShowError("Choose an end date.");
+                return false;
+            }
+
+            endDate = DateOnly.FromDateTime(selectedEnd);
+
+            DateOnly? start = null;
+
+            if (_editingScheduleId is { } id)
+            {
+                start = Items.FirstOrDefault(x => x.Id == id)?.StartDate;
+            }
+            else if (SelectedStartDate is { } selectedStart)
+            {
+                start = DateOnly.FromDateTime(selectedStart);
+            }
+
+            if (start is { } startDate && endDate < startDate)
+            {
+                ShowError("End date cannot be before the start date.");
+                return false;
+            }
+        }
+
+        values = new FormValues(
+            amount,
+            category,
+            frequency,
+            (Description ?? "").Trim(),
+            endDate);
+
+        return true;
+    }
+
+    private void ResetForm()
+    {
+        var today = _timeProvider.GetLocalNow().Date;
+
+        _editingScheduleId = null;
+        AmountText = "";
+        Description = "";
+        HasEndDate = false;
+        SelectedStartDate = today;
+        SelectedEndDate = today;
+        ErrorMessage = "";
+        SuccessMessage = "";
+
+        NotifyForm();
+    }
+
+    private void NotifyForm()
+    {
+        OnPropertyChanged(nameof(SelectedCategory));
+        OnPropertyChanged(nameof(SelectedFrequency));
+        OnPropertyChanged(nameof(AmountText));
+        OnPropertyChanged(nameof(Description));
+        OnPropertyChanged(nameof(SelectedStartDate));
+        OnPropertyChanged(nameof(HasEndDate));
+        OnPropertyChanged(nameof(SelectedEndDate));
     }
 
     public async Task GenerateDueAsync()
@@ -232,14 +408,27 @@ public sealed class RecurringExpensesViewModel : ObservableObject
 
         await RunAsync(async () =>
         {
-            await Task.Run(async () =>
+            try
             {
-                await using var scope = _scopeFactory.CreateAsyncScope();
+                await Task.Run(async () =>
+                {
+                    await using var scope = _scopeFactory.CreateAsyncScope();
 
-                await scope.ServiceProvider
-                    .GetRequiredService<RecurringExpenseService>()
-                    .ReactivateAsync(scheduleId, today);
-            });
+                    await scope.ServiceProvider
+                        .GetRequiredService<RecurringExpenseService>()
+                        .ReactivateAsync(scheduleId, today);
+                });
+            }
+            catch (InvalidOperationException exception)
+            {
+                _logger.LogWarning(
+                    exception,
+                    "Reactivation was rejected for schedule {ScheduleId}.",
+                    scheduleId);
+
+                ErrorMessage = exception.Message;
+                return;
+            }
 
             SuccessMessage = "Schedule reactivated.";
 
@@ -282,16 +471,7 @@ public sealed class RecurringExpensesViewModel : ObservableObject
         if (!CanStartNew) return;
 
         IsSaved = false;
-        AmountText = "";
-        Description = "";
-        SelectedStartDate = _timeProvider.GetLocalNow().Date;
-        ErrorMessage = "";
-        SuccessMessage = "";
-
-        OnPropertyChanged(nameof(AmountText));
-        OnPropertyChanged(nameof(Description));
-        OnPropertyChanged(nameof(SelectedStartDate));
-
+        ResetForm();
         NotifyState();
     }
 
@@ -341,7 +521,9 @@ public sealed class RecurringExpensesViewModel : ObservableObject
                     x.StartDate,
                     x.NextDueDate,
                     x.IsActive,
-                    x.Description))
+                    x.Description,
+                    x.CategoryId,
+                    x.EndDate))
                 .ToArray();
 
             return (Categories: categories, Items: rows);
@@ -411,5 +593,9 @@ public sealed class RecurringExpensesViewModel : ObservableObject
         OnPropertyChanged(nameof(CanStartNew));
         OnPropertyChanged(nameof(ShowResults));
         OnPropertyChanged(nameof(ShowNoCategories));
+        OnPropertyChanged(nameof(IsEditing));
+        OnPropertyChanged(nameof(FormTitle));
+        OnPropertyChanged(nameof(SaveButtonText));
+        OnPropertyChanged(nameof(CanChangeStartDate));
     }
 }

@@ -30,8 +30,25 @@ public partial class RecurringExpensesPage : ContentPage
     private async void OnGenerateClicked(object? sender, EventArgs e) =>
         await _viewModel.GenerateDueAsync();
 
-    private async void OnCreateClicked(object? sender, EventArgs e) =>
-        await _viewModel.CreateAsync();
+    private async void OnSaveClicked(object? sender, EventArgs e) =>
+        await _viewModel.SaveAsync();
+
+    private void OnCancelEditClicked(object? sender, EventArgs e) =>
+        _viewModel.CancelEdit();
+
+    private void OnEditClicked(object? sender, EventArgs e)
+    {
+        if (!_viewModel.ShowResults
+            || sender is not Button
+            {
+                BindingContext: RecurringExpenseListItem item
+            })
+        {
+            return;
+        }
+
+        _viewModel.StartEdit(item.Id);
+    }
 
     private void OnAddAnotherClicked(object? sender, EventArgs e) =>
         _viewModel.StartNewSchedule();

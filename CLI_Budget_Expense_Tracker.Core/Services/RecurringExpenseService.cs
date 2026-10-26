@@ -25,6 +25,7 @@ public sealed class RecurringExpenseService(
         RecurrenceFrequency frequency,
         DateOnly startDate,
         string description = "",
+        DateOnly? endDate = null,
         CancellationToken cancellationToken = default)
     {
         var recurringExpense = new RecurringExpense(
@@ -33,7 +34,8 @@ public sealed class RecurringExpenseService(
             categoryId,
             frequency,
             startDate,
-            description);
+            description,
+            endDate);
 
         var category = await categories.GetByIdAsync(
             categoryId,
@@ -82,6 +84,46 @@ public sealed class RecurringExpenseService(
     }
 
     /// <summary>
+    /// Changes a schedule's amount, category, frequency, description and end date.
+    /// </summary>
+    public async Task UpdateAsync(
+        Guid id,
+        decimal amount,
+        Guid categoryId,
+        RecurrenceFrequency frequency,
+        string description,
+        DateOnly? endDate,
+        CancellationToken cancellationToken = default)
+    {
+        var recurringExpense = await recurringExpenses.GetByIdAsync(
+            id,
+            cancellationToken);
+
+        if (recurringExpense is null)
+        {
+            throw new InvalidOperationException(
+                "Recurring expense not found.");
+        }
+
+        if (await categories.GetByIdAsync(categoryId, cancellationToken) is null)
+        {
+            throw new InvalidOperationException(
+                "Category not found.");
+        }
+
+        recurringExpense.Update(
+            amount,
+            categoryId,
+            frequency,
+            description,
+            endDate);
+
+        await recurringExpenses.UpdateAsync(
+            recurringExpense,
+            cancellationToken);
+    }
+
+    /// <summary>
     /// Resumes a deactivated schedule from the first occurrence on or after today.
     /// </summary>
     public async Task ReactivateAsync(
@@ -105,6 +147,12 @@ public sealed class RecurringExpenseService(
         }
 
         recurringExpense.Reactivate(today);
+
+        if (!recurringExpense.IsActive)
+        {
+            throw new InvalidOperationException(
+                "The end date has passed. Edit the schedule and change the end date first.");
+        }
 
         await recurringExpenses.UpdateAsync(
             recurringExpense,

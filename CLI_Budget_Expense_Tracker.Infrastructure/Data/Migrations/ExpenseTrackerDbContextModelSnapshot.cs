@@ -41,7 +41,7 @@ namespace CLI_Budget_Expense_Tracker.Infrastructure.Data.Migrations
                         {
                             t.HasCheckConstraint("CK_BudgetLimits_Month", "substr(\"Month\", 9, 2) = '01'");
 
-                            t.HasCheckConstraint("CK_BudgetLimits_MonthlyAmountInCents", "typeof(\"MonthlyAmountInCents\") = 'integer'\nAND \"MonthlyAmountInCents\" >= 0");
+                            t.HasCheckConstraint("CK_BudgetLimits_MonthlyAmountInCents", "typeof(\"MonthlyAmountInCents\") = 'integer'\r\nAND \"MonthlyAmountInCents\" >= 0");
                         });
                 });
 
@@ -129,6 +129,9 @@ namespace CLI_Budget_Expense_Tracker.Infrastructure.Data.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<DateOnly?>("EndDate")
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("Frequency")
                         .HasColumnType("INTEGER");
 
@@ -149,7 +152,7 @@ namespace CLI_Budget_Expense_Tracker.Infrastructure.Data.Migrations
 
                     b.ToTable("RecurringExpenses", null, t =>
                         {
-                            t.HasCheckConstraint("CK_RecurringExpenses_AmountInCents", "typeof(\"AmountInCents\") = 'integer'\nAND \"AmountInCents\" > 0");
+                            t.HasCheckConstraint("CK_RecurringExpenses_AmountInCents", "typeof(\"AmountInCents\") = 'integer'\r\nAND \"AmountInCents\" > 0");
 
                             t.HasCheckConstraint("CK_RecurringExpenses_Frequency", "\"Frequency\" IN (1, 2, 3, 4)");
 
