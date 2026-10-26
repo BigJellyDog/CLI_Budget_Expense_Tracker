@@ -1,4 +1,6 @@
-﻿namespace ExpenseTracker.App;
+﻿using System.Runtime.InteropServices.JavaScript;
+
+namespace ExpenseTracker.App;
 
 using CLI_Budget_Expense_Tracker.Infrastructure;
 using Microsoft.Data.Sqlite;

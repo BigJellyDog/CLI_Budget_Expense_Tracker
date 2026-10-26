@@ -76,6 +76,72 @@ public partial class MainPage : ContentPage
             await DisplayAlertAsync("Export done", path, "OK");
     }
 
+    private async void OnBackupClicked(object? sender, EventArgs e)
+    {
+        if (_openingPage || _confirmingDelete || _viewModel.IsBusy)
+            return;
+
+        _confirmingDelete = true;
+
+        try
+        {
+            var choice = await DisplayActionSheetAsync(
+                "Backup",
+                "Cancel",
+                null,
+                "Create backup",
+                "Restore from backup");
+
+            if (choice == "Create backup")
+            {
+                var path = await _viewModel.CreateBackupAsync();
+
+                if (path is not null)
+                    await DisplayAlertAsync("Backup created", path, "OK");
+            }
+            else if (choice == "Restore from backup")
+            {
+                await RestoreAsync();
+            }
+        }
+        finally
+        {
+            _confirmingDelete = false;
+        }
+    }
+
+    private async Task RestoreAsync()
+    {
+        var names = _viewModel.GetBackups()
+            .Take(15)
+            .Select(x => x.FileName)
+            .ToArray();
+
+        if (names.Length == 0)
+        {
+            await DisplayAlertAsync("No backups", "Create a backup first.", "OK");
+            return;
+        }
+
+        var picked = await DisplayActionSheetAsync(
+            "Choose a backup (newest first)",
+            "Cancel",
+            null,
+            names);
+
+        if (picked is null || !names.Contains(picked))
+            return;
+
+        var confirmed = await DisplayAlertAsync(
+            "Restore backup?",
+            $"{picked}\n\nCurrent data will be replaced. A copy of the current database is saved first.",
+            "Restore",
+            "Cancel");
+
+        if (confirmed && await _viewModel.RestoreBackupAsync(picked))
+            await DisplayAlertAsync("Restored", picked, "OK");
+    }
+
     private async void OnCategoryFilterChanged(object? sender, EventArgs e)
     {
         if (!_viewModel.CanChangeCategoryFilter

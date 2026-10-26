@@ -1,6 +1,8 @@
 namespace CLI_Budget_Expense_Tracker.Infrastructure;
 
+using Backup;
 using Importing;
+using Microsoft.Data.Sqlite;
 using Services;
 using Data;
 using Core.Interfaces;
@@ -36,6 +38,16 @@ public static class SqliteServiceCollectionExtensions
         services.AddSingleton<IBankStatementReader, RevolutCsvReader>();
         services.AddScoped<RecurringExpenseService>();
         services.AddScoped<DatabaseInitializer>();
+        services.AddSingleton(provider =>
+        {
+            var databasePath = Path.GetFullPath(
+                new SqliteConnectionStringBuilder(connectionString).DataSource);
+
+            return new DatabaseBackupService(
+                databasePath,
+                Path.Combine(Path.GetDirectoryName(databasePath)!, "backups"),
+                provider.GetRequiredService<TimeProvider>());
+        });
         services.TryAddSingleton(TimeProvider.System);
         services.AddScoped<ICategoryRepository, SqliteCategoryRepository>();
         services.AddScoped<IExpenseRepository, SqliteExpenseRepository>();

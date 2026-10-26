@@ -1,6 +1,8 @@
 ﻿namespace ExpenseTracker.App.ViewModels;
 
 using CLI_Budget_Expense_Tracker.Core.Services;
+using CLI_Budget_Expense_Tracker.Infrastructure.Backup;
+using CLI_Budget_Expense_Tracker.Infrastructure.Data;
 using CLI_Budget_Expense_Tracker.Infrastructure.Exporting;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -14,6 +16,7 @@ public sealed class ExpensesViewModel : ObservableObject
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly AppInitializer _initializer;
     private readonly ExportLocation _exportLocation;
+    private readonly DatabaseBackupService _backups;
     private readonly ILogger<ExpensesViewModel> _logger;
 
     private DateOnly _month;
@@ -25,8 +28,10 @@ public sealed class ExpensesViewModel : ObservableObject
         AppInitializer initializer,
         TimeProvider timeProvider,
         ExportLocation exportLocation,
+        DatabaseBackupService backups,
         ILogger<ExpensesViewModel> logger)
     {
+        this._backups = backups;
         this._exportLocation = exportLocation;
         this._scopeFactory = scopeFactory;
         this._initializer = initializer;
@@ -285,6 +290,79 @@ public sealed class ExpensesViewModel : ObservableObject
             IsBusy = false;
             NotifyState();
         }
+    }
+
+    /// <summary>Creates a database backup. Returns its path, or null on failure.</summary>
+    public async Task<string?> CreateBackupAsync()
+    {
+        if (IsBusy) return null;
+
+        IsBusy = true;
+        ErrorMessage = "";
+        NotifyState();
+
+        try
+        {
+            return await Task.Run(() => _backups.CreateBackup());
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, "Failed to create a database backup.");
+
+            ErrorMessage = "Could not create the backup.";
+            return null;
+        }
+        finally
+        {
+            IsBusy = false;
+            NotifyState();
+        }
+    }
+
+    public IReadOnlyList<BackupInfo> GetBackups() => _backups.List();
+
+    /// <summary>Replaces the database with a backup and reloads the list.</summary>
+    public async Task<bool> RestoreBackupAsync(string fileName)
+    {
+        if (IsBusy) return false;
+
+        IsBusy = true;
+        ErrorMessage = "";
+        NotifyState();
+
+        var restored = false;
+
+        try
+        {
+            await Task.Run(async () =>
+            {
+                _backups.Restore(fileName);
+
+                // An older backup may need newer migrations.
+                await using var scope = _scopeFactory.CreateAsyncScope();
+
+                await scope.ServiceProvider
+                    .GetRequiredService<DatabaseInitializer>()
+                    .InitializeAsync();
+            });
+
+            restored = true;
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, "Failed to restore backup {FileName}.", fileName);
+
+            ErrorMessage = "Could not restore the backup. The current data was not changed.";
+        }
+        finally
+        {
+            IsBusy = false;
+            NotifyState();
+        }
+
+        if (restored) await RefreshAsync();
+
+        return restored;
     }
 
     private static string SafeFileName(string value) =>

@@ -28,6 +28,9 @@
             Text="Export Markdown"
             Clicked="OnExportMarkdownClicked" />
         <ToolbarItem
+            Text="Backup"
+            Clicked="OnBackupClicked" />
+        <ToolbarItem
             Text="Reports"
             Clicked="OnReportsClicked" />
         <ToolbarItem
