@@ -10,7 +10,7 @@
 - `CLI_Budget_Expense_Tracker.Core`: модели, сервисы, интерфейсы (без знания про EF Core)
 - `CLI_Budget_Expense_Tracker.Infrastructure`: EF Core, SQLite, миграции, репозитории, импорт Revolut CSV, CSV-экспорт
 - `ExpenseTracker.App`: MAUI-приложение (Views / ViewModels / Models / Services)
-- Деньги только `decimal`; БД в `FileSystem.AppDataDirectory`
+- Деньги только `decimal`; БД лежит рядом с `.sln` (запасной путь: `FileSystem.AppDataDirectory`)
 
 ## 2. Готово (работает в приложении)
 
@@ -46,7 +46,7 @@
 - [ ] Автокатегоризация по правилам ("содержит LIDL → Еда")
 - [x] Отчёты: месяц к месяцу, топ-5, среднее в день, прогноз (экран Reports)
 - [ ] Графики по категориям
-- [ ] Экспорт CSV и Markdown (экспортёр уже есть в Infrastructure, не подключён к UI)
+- [x] Экспорт CSV и Markdown: текущий месяц и категория, файлы в `exports/` рядом с БД
 
 ## 6. Этап D. Качество и полировка
 

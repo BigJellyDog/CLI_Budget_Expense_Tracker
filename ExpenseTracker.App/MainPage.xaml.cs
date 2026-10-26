@@ -2,6 +2,7 @@
 
 using Microsoft.Extensions.DependencyInjection;
 using Models;
+using Services;
 using ViewModels;
 using Views;
 
@@ -57,6 +58,23 @@ public partial class MainPage : ContentPage
     
     private async void OnRecurringExpensesClicked(object? sender, EventArgs e) =>
         await OpenPageAsync<RecurringExpensesPage>();
+
+    private async void OnExportCsvClicked(object? sender, EventArgs e) =>
+        await ExportAsync(ExportFormat.Csv);
+
+    private async void OnExportMarkdownClicked(object? sender, EventArgs e) =>
+        await ExportAsync(ExportFormat.Markdown);
+
+    private async Task ExportAsync(ExportFormat format)
+    {
+        if (_openingPage || _confirmingDelete || _viewModel.IsBusy)
+            return;
+
+        var path = await _viewModel.ExportAsync(format);
+
+        if (path is not null)
+            await DisplayAlertAsync("Export done", path, "OK");
+    }
 
     private async void OnCategoryFilterChanged(object? sender, EventArgs e)
     {

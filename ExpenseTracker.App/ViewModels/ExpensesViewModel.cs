@@ -1,6 +1,7 @@
 ﻿namespace ExpenseTracker.App.ViewModels;
 
 using CLI_Budget_Expense_Tracker.Core.Services;
+using CLI_Budget_Expense_Tracker.Infrastructure.Exporting;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +13,7 @@ public sealed class ExpensesViewModel : ObservableObject
 {
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly AppInitializer _initializer;
+    private readonly ExportLocation _exportLocation;
     private readonly ILogger<ExpensesViewModel> _logger;
 
     private DateOnly _month;
@@ -22,8 +24,10 @@ public sealed class ExpensesViewModel : ObservableObject
         IServiceScopeFactory scopeFactory,
         AppInitializer initializer,
         TimeProvider timeProvider,
+        ExportLocation exportLocation,
         ILogger<ExpensesViewModel> logger)
     {
+        this._exportLocation = exportLocation;
         this._scopeFactory = scopeFactory;
         this._initializer = initializer;
         this._logger = logger;
@@ -209,6 +213,82 @@ public sealed class ExpensesViewModel : ObservableObject
             NotifyState();
         }
     }
+
+    /// <summary>Exports the month and category currently shown. Returns the file path, or null on failure.</summary>
+    public async Task<string?> ExportAsync(ExportFormat format)
+    {
+        if (IsBusy || !_loaded) return null;
+
+        var selectedMonth = _month;
+        var selectedCategoryId = SelectedCategoryFilter?.CategoryId;
+        var categoryName = SelectedCategoryFilter?.CategoryId is null
+            ? null
+            : SelectedCategoryFilter.Name;
+
+        IsBusy = true;
+        ErrorMessage = "";
+        NotifyState();
+
+        try
+        {
+            return await Task.Run(async () =>
+            {
+                await using var scope = _scopeFactory.CreateAsyncScope();
+                var services = scope.ServiceProvider;
+
+                var categories = await services
+                    .GetRequiredService<CategoryService>()
+                    .GetAllAsync();
+
+                var end = new DateOnly(
+                    selectedMonth.Year,
+                    selectedMonth.Month,
+                    DateTime.DaysInMonth(selectedMonth.Year, selectedMonth.Month));
+
+                var report = await services
+                    .GetRequiredService<ExpenseService>()
+                    .GetReportAsync(selectedMonth, end, selectedCategoryId);
+
+                var names = categories.ToDictionary(x => x.Id, x => x.Name);
+                var baseName = $"expenses-{selectedMonth:yyyy-MM}"
+                               + (categoryName is null ? "" : "-" + SafeFileName(categoryName));
+
+                if (format == ExportFormat.Csv)
+                {
+                    var path = Path.Combine(_exportLocation.Directory, baseName + ".csv");
+                    new CsvExpenseExporter().Export(report.Expenses, names, path);
+                    return path;
+                }
+                else
+                {
+                    var path = Path.Combine(_exportLocation.Directory, baseName + ".md");
+                    var title = $"Expenses {selectedMonth:MMMM yyyy}"
+                                + (categoryName is null ? "" : $" · {categoryName}");
+                    new MarkdownExpenseExporter().Export(report.Expenses, names, title, path);
+                    return path;
+                }
+            });
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(
+                exception,
+                "Failed to export expenses for {Month} and category {CategoryId}.",
+                selectedMonth,
+                selectedCategoryId);
+
+            ErrorMessage = "Could not export expenses.";
+            return null;
+        }
+        finally
+        {
+            IsBusy = false;
+            NotifyState();
+        }
+    }
+
+    private static string SafeFileName(string value) =>
+        string.Concat(value.Select(c => Path.GetInvalidFileNameChars().Contains(c) ? '_' : c));
 
     private async Task MoveMonthAsync(int offset)
     {

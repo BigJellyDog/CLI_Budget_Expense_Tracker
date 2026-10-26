@@ -22,6 +22,12 @@
             Text="Categories"
             Clicked="OnCategoriesClicked" />
         <ToolbarItem
+            Text="Export CSV"
+            Clicked="OnExportCsvClicked" />
+        <ToolbarItem
+            Text="Export Markdown"
+            Clicked="OnExportMarkdownClicked" />
+        <ToolbarItem
             Text="Reports"
             Clicked="OnReportsClicked" />
         <ToolbarItem

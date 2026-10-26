@@ -25,11 +25,16 @@ public static class MauiProgram
 
         var dataDirectory = FileSystem.Current.AppDataDirectory;
 
+        var databasePath = ResolveDatabasePath(dataDirectory);
+
         var connectionString = new SqliteConnectionStringBuilder
         {
-            DataSource = ResolveDatabasePath(dataDirectory),
+            DataSource = databasePath,
             ForeignKeys = true
         }.ToString();
+
+        builder.Services.AddSingleton(new ExportLocation(
+            Path.Combine(Path.GetDirectoryName(databasePath)!, "exports")));
 
         builder.Services.AddExpenseTrackerSqlite(connectionString);
 
