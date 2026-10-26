@@ -56,7 +56,7 @@
 
             <Label
                 Grid.Column="1"
-                Text="{Binding MonthTitle}"
+                Text="{Binding PeriodTitle}"
                 FontSize="24"
                 FontAttributes="Bold"
                 VerticalOptions="Center"
@@ -74,15 +74,94 @@
         </Grid>
 
         <VerticalStackLayout Grid.Row="1" Spacing="8">
-            <Label Text="Category" />
+            <Grid
+                ColumnDefinitions="*,*,*"
+                ColumnSpacing="12">
 
-            <Picker
-                Title="Category"
-                ItemsSource="{Binding CategoryFilters}"
-                ItemDisplayBinding="{Binding Name, x:DataType=models:ExpenseCategoryFilter}"
-                SelectedItem="{Binding SelectedCategoryFilter, Mode=TwoWay}"
-                SelectedIndexChanged="OnCategoryFilterChanged"
-                IsEnabled="{Binding CanChangeCategoryFilter}" />
+                <Picker
+                    Title="Period"
+                    ItemsSource="{Binding PeriodOptions}"
+                    ItemDisplayBinding="{Binding Name, x:DataType=models:PeriodOption}"
+                    SelectedItem="{Binding SelectedPeriod, Mode=TwoWay}"
+                    SelectedIndexChanged="OnPeriodOrSortChanged"
+                    IsEnabled="{Binding CanChangeCategoryFilter}" />
+
+                <Picker
+                    Grid.Column="1"
+                    Title="Category"
+                    ItemsSource="{Binding CategoryFilters}"
+                    ItemDisplayBinding="{Binding Name, x:DataType=models:ExpenseCategoryFilter}"
+                    SelectedItem="{Binding SelectedCategoryFilter, Mode=TwoWay}"
+                    SelectedIndexChanged="OnCategoryFilterChanged"
+                    IsEnabled="{Binding CanChangeCategoryFilter}" />
+
+                <Picker
+                    Grid.Column="2"
+                    Title="Sort"
+                    ItemsSource="{Binding SortOptions}"
+                    ItemDisplayBinding="{Binding Name, x:DataType=models:SortOption}"
+                    SelectedItem="{Binding SelectedSort, Mode=TwoWay}"
+                    SelectedIndexChanged="OnPeriodOrSortChanged"
+                    IsEnabled="{Binding CanChangeCategoryFilter}" />
+            </Grid>
+
+            <Grid
+                ColumnDefinitions="*,*"
+                ColumnSpacing="12"
+                IsVisible="{Binding IsCustomPeriod}">
+
+                <DatePicker
+                    Date="{Binding CustomFrom, Mode=TwoWay}"
+                    MinimumDate="{x:Null}"
+                    MaximumDate="{x:Null}"
+                    Format="dd.MM.yyyy" />
+
+                <DatePicker
+                    Grid.Column="1"
+                    Date="{Binding CustomTo, Mode=TwoWay}"
+                    MinimumDate="{x:Null}"
+                    MaximumDate="{x:Null}"
+                    Format="dd.MM.yyyy" />
+            </Grid>
+
+            <Grid
+                ColumnDefinitions="*,120,120,Auto,Auto"
+                ColumnSpacing="12">
+
+                <Entry
+                    Placeholder="Search description"
+                    Text="{Binding SearchText, Mode=TwoWay}"
+                    Completed="OnApplyFiltersClicked" />
+
+                <Entry
+                    Grid.Column="1"
+                    Placeholder="Min amount"
+                    Keyboard="Numeric"
+                    Text="{Binding MinAmountText, Mode=TwoWay}"
+                    Completed="OnApplyFiltersClicked" />
+
+                <Entry
+                    Grid.Column="2"
+                    Placeholder="Max amount"
+                    Keyboard="Numeric"
+                    Text="{Binding MaxAmountText, Mode=TwoWay}"
+                    Completed="OnApplyFiltersClicked" />
+
+                <Button
+                    Grid.Column="3"
+                    Text="Apply"
+                    Clicked="OnApplyFiltersClicked" />
+
+                <Button
+                    Grid.Column="4"
+                    Text="Reset"
+                    Clicked="OnResetFiltersClicked" />
+            </Grid>
+
+            <Label
+                Text="{Binding FilterError}"
+                IsVisible="{Binding HasFilterError}"
+                TextColor="{AppThemeBinding Light=#B42318, Dark=#FFB4AB}" />
 
             <Label
                 Text="{Binding Summary}"

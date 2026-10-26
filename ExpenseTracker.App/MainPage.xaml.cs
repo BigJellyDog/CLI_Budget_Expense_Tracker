@@ -156,6 +156,23 @@ public partial class MainPage : ContentPage
         _viewModel.SelectedCategoryFilter = filter;
         await _viewModel.RefreshAsync();
     }
+
+    private async void OnPeriodOrSortChanged(object? sender, EventArgs e)
+    {
+        if (!_viewModel.CanChangeCategoryFilter)
+            return;
+
+        await _viewModel.RefreshAsync();
+    }
+
+    private async void OnApplyFiltersClicked(object? sender, EventArgs e) =>
+        await _viewModel.RefreshAsync();
+
+    private async void OnResetFiltersClicked(object? sender, EventArgs e)
+    {
+        _viewModel.ResetFilters();
+        await _viewModel.RefreshAsync();
+    }
     
     private async Task OpenPageAsync<TPage>(
         Action<TPage>? configure = null)

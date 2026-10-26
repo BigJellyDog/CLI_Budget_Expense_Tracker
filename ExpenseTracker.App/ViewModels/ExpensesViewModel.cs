@@ -1,5 +1,6 @@
 ﻿namespace ExpenseTracker.App.ViewModels;
 
+using System.Globalization;
 using CLI_Budget_Expense_Tracker.Core.Services;
 using CLI_Budget_Expense_Tracker.Infrastructure.Backup;
 using CLI_Budget_Expense_Tracker.Infrastructure.Data;
@@ -42,17 +43,22 @@ public sealed class ExpensesViewModel : ObservableObject
 
         _month = new DateOnly(today.Year, today.Month, 1);
 
+        SelectedPeriod = PeriodOptions[0];
+        SelectedSort = SortOptions[0];
+        CustomFrom = today.ToDateTime(TimeOnly.MinValue);
+        CustomTo = CustomFrom;
+
         RefreshCommand = new AsyncRelayCommand(
             RefreshAsync,
             () => !IsBusy);
 
         PreviousMonthCommand = new AsyncRelayCommand(
             () => MoveMonthAsync(-1),
-            () => !IsBusy && _month > DateOnly.MinValue);
+            () => !IsBusy && IsMonthPeriod && _month > DateOnly.MinValue);
 
         NextMonthCommand = new AsyncRelayCommand(
             () => MoveMonthAsync(1),
-            () => !IsBusy && _month < new DateOnly(9999, 12, 1));
+            () => !IsBusy && IsMonthPeriod && _month < new DateOnly(9999, 12, 1));
     }
 
     public IReadOnlyList<ExpenseListItem> Items { get; private set; } = [];
@@ -61,9 +67,53 @@ public sealed class ExpensesViewModel : ObservableObject
 
     public ExpenseCategoryFilter? SelectedCategoryFilter { get; set; }
 
+    public IReadOnlyList<PeriodOption> PeriodOptions { get; } =
+    [
+        new(ExpensePeriod.Month, "Month"),
+        new(ExpensePeriod.AllTime, "All time"),
+        new(ExpensePeriod.Custom, "Custom range")
+    ];
+
+    public PeriodOption SelectedPeriod { get; set; }
+
+    public IReadOnlyList<SortOption> SortOptions { get; } =
+    [
+        new(ExpenseSort.DateNewestFirst, "Date: newest first"),
+        new(ExpenseSort.DateOldestFirst, "Date: oldest first"),
+        new(ExpenseSort.AmountHighestFirst, "Amount: highest first"),
+        new(ExpenseSort.AmountLowestFirst, "Amount: lowest first")
+    ];
+
+    public SortOption SelectedSort { get; set; }
+
+    public DateTime? CustomFrom { get; set; }
+
+    public DateTime? CustomTo { get; set; }
+
+    public string SearchText { get; set; } = "";
+
+    public string MinAmountText { get; set; } = "";
+
+    public string MaxAmountText { get; set; } = "";
+
+    public string FilterError { get; private set; } = "";
+
+    public bool HasFilterError => FilterError.Length > 0;
+
+    public bool IsMonthPeriod => SelectedPeriod.Period == ExpensePeriod.Month;
+
+    public bool IsCustomPeriod => SelectedPeriod.Period == ExpensePeriod.Custom;
+
     public bool CanChangeCategoryFilter => ShowResults;
 
-    public string MonthTitle => _month.ToString("MMMM yyyy");
+    public string PeriodTitle => SelectedPeriod.Period switch
+    {
+        ExpensePeriod.AllTime => "All time",
+        ExpensePeriod.Custom when CustomFrom is { } from && CustomTo is { } to =>
+            $"{from:dd.MM.yyyy} – {to:dd.MM.yyyy}",
+        ExpensePeriod.Custom => "Custom range",
+        _ => _month.ToString("MMMM yyyy")
+    };
 
     public string Summary =>
         $"Expenses: {Items.Count} · Total: {_total:N2}";
@@ -86,8 +136,7 @@ public sealed class ExpensesViewModel : ObservableObject
     {
         if (IsBusy) return;
 
-        var selectedMonth = _month;
-        var selectedCategoryId = SelectedCategoryFilter?.CategoryId;
+        if (!TryBuildFilter(out var filter)) return;
 
         IsBusy = true;
         ErrorMessage = "";
@@ -114,27 +163,22 @@ public sealed class ExpensesViewModel : ObservableObject
                 ];
 
                 var selectedFilter = filters.FirstOrDefault(
-                    x => x.CategoryId == selectedCategoryId) ?? filters[0];
-
-                var end = new DateOnly(
-                    selectedMonth.Year,
-                    selectedMonth.Month,
-                    DateTime.DaysInMonth(
-                        selectedMonth.Year,
-                        selectedMonth.Month));
+                    x => x.CategoryId == filter.CategoryId) ?? filters[0];
 
                 var report = await services
                     .GetRequiredService<ExpenseService>()
                     .GetReportAsync(
-                        selectedMonth,
-                        end,
+                        filter.Start,
+                        filter.End,
                         selectedFilter.CategoryId);
+
+                var shown = filter.Query.Apply(report.Expenses);
 
                 var names = categories.ToDictionary(
                     x => x.Id,
                     x => x.Name);
 
-                IReadOnlyList<ExpenseListItem> rows = report.Expenses
+                IReadOnlyList<ExpenseListItem> rows = shown
                     .Select(x => new ExpenseListItem(
                         x.Id,
                         x.Date,
@@ -146,7 +190,7 @@ public sealed class ExpensesViewModel : ObservableObject
 
                 return (
                     Rows: rows,
-                    Total: report.Total,
+                    Total: shown.Sum(x => x.Amount),
                     Filters: filters,
                     SelectedFilter: selectedFilter);
             });
@@ -166,9 +210,9 @@ public sealed class ExpensesViewModel : ObservableObject
         {
             _logger.LogError(
                 exception,
-                "Failed to load expenses for {Month} and category {CategoryId}.",
-                selectedMonth,
-                selectedCategoryId);
+                "Failed to load expenses for {Period} and category {CategoryId}.",
+                filter.Title,
+                filter.CategoryId);
 
             ErrorMessage = "Could not load expenses. Try Refresh.";
             _loaded = false;
@@ -179,7 +223,150 @@ public sealed class ExpensesViewModel : ObservableObject
             NotifyState();
         }
     }
-    
+
+    /// <summary>Puts the search, amount range, sort order, period and category back to their defaults.</summary>
+    public void ResetFilters()
+    {
+        if (IsBusy) return;
+
+        SearchText = "";
+        MinAmountText = "";
+        MaxAmountText = "";
+        SelectedSort = SortOptions[0];
+        SelectedPeriod = PeriodOptions[0];
+        SelectedCategoryFilter = CategoryFilters.FirstOrDefault();
+        FilterError = "";
+
+        OnPropertyChanged(nameof(SearchText));
+        OnPropertyChanged(nameof(MinAmountText));
+        OnPropertyChanged(nameof(MaxAmountText));
+        OnPropertyChanged(nameof(SelectedSort));
+        OnPropertyChanged(nameof(SelectedPeriod));
+        OnPropertyChanged(nameof(SelectedCategoryFilter));
+
+        NotifyState();
+    }
+
+    private sealed record ViewFilter(
+        DateOnly? Start,
+        DateOnly? End,
+        Guid? CategoryId,
+        ExpenseListQuery Query,
+        string Title,
+        string FileLabel)
+    {
+        public bool IsNarrowed =>
+            !string.IsNullOrWhiteSpace(Query.Text)
+            || Query.MinAmount is not null
+            || Query.MaxAmount is not null;
+    }
+
+    /// <summary>Reads the filter inputs. On bad input it shows a message and returns false.</summary>
+    private bool TryBuildFilter(out ViewFilter filter)
+    {
+        filter = null!;
+
+        DateOnly? start = null;
+        DateOnly? end = null;
+        string title;
+        string fileLabel;
+
+        switch (SelectedPeriod.Period)
+        {
+            case ExpensePeriod.AllTime:
+                title = "All expenses";
+                fileLabel = "all";
+                break;
+
+            case ExpensePeriod.Custom:
+                if (CustomFrom is not { } from || CustomTo is not { } to)
+                {
+                    ShowFilterError("Choose both dates.");
+                    return false;
+                }
+
+                start = DateOnly.FromDateTime(from);
+                end = DateOnly.FromDateTime(to);
+
+                if (end < start)
+                {
+                    ShowFilterError("The end date cannot be earlier than the start date.");
+                    return false;
+                }
+
+                title = $"Expenses {start:dd.MM.yyyy} – {end:dd.MM.yyyy}";
+                fileLabel = $"{start:yyyyMMdd}-{end:yyyyMMdd}";
+                break;
+
+            default:
+                start = _month;
+                end = new DateOnly(
+                    _month.Year,
+                    _month.Month,
+                    DateTime.DaysInMonth(_month.Year, _month.Month));
+
+                title = $"Expenses {_month:MMMM yyyy}";
+                fileLabel = $"{_month:yyyy-MM}";
+                break;
+        }
+
+        if (!TryParseAmount(MinAmountText, out var min)
+            || !TryParseAmount(MaxAmountText, out var max))
+        {
+            ShowFilterError("Enter amounts as numbers, for example 12.50.");
+            return false;
+        }
+
+        if (min is { } lowest && max is { } highest && highest < lowest)
+        {
+            ShowFilterError("The maximum amount cannot be less than the minimum.");
+            return false;
+        }
+
+        filter = new ViewFilter(
+            start,
+            end,
+            SelectedCategoryFilter?.CategoryId,
+            new ExpenseListQuery(SearchText, min, max, SelectedSort.Sort),
+            title,
+            fileLabel);
+
+        FilterError = "";
+        OnPropertyChanged(nameof(FilterError));
+        OnPropertyChanged(nameof(HasFilterError));
+
+        return true;
+    }
+
+    private static bool TryParseAmount(string? text, out decimal? amount)
+    {
+        amount = null;
+
+        var value = (text ?? "").Trim().Replace(',', '.');
+
+        if (value.Length == 0) return true;
+
+        if (!decimal.TryParse(
+                value,
+                NumberStyles.AllowDecimalPoint,
+                CultureInfo.InvariantCulture,
+                out var parsed)
+            || parsed < 0)
+        {
+            return false;
+        }
+
+        amount = parsed;
+        return true;
+    }
+
+    private void ShowFilterError(string message)
+    {
+        FilterError = message;
+        OnPropertyChanged(nameof(FilterError));
+        OnPropertyChanged(nameof(HasFilterError));
+    }
+
     public async Task DeleteAsync(Guid id)
     {
         if (IsBusy || Items.All(x => x.Id != id)) return;
@@ -219,13 +406,13 @@ public sealed class ExpensesViewModel : ObservableObject
         }
     }
 
-    /// <summary>Exports the month and category currently shown. Returns the file path, or null on failure.</summary>
+    /// <summary>Exports the expenses currently shown, with the same filters. Returns the file path, or null on failure.</summary>
     public async Task<string?> ExportAsync(ExportFormat format)
     {
         if (IsBusy || !_loaded) return null;
 
-        var selectedMonth = _month;
-        var selectedCategoryId = SelectedCategoryFilter?.CategoryId;
+        if (!TryBuildFilter(out var filter)) return null;
+
         var categoryName = SelectedCategoryFilter?.CategoryId is null
             ? null
             : SelectedCategoryFilter.Name;
@@ -245,31 +432,30 @@ public sealed class ExpensesViewModel : ObservableObject
                     .GetRequiredService<CategoryService>()
                     .GetAllAsync();
 
-                var end = new DateOnly(
-                    selectedMonth.Year,
-                    selectedMonth.Month,
-                    DateTime.DaysInMonth(selectedMonth.Year, selectedMonth.Month));
-
                 var report = await services
                     .GetRequiredService<ExpenseService>()
-                    .GetReportAsync(selectedMonth, end, selectedCategoryId);
+                    .GetReportAsync(filter.Start, filter.End, filter.CategoryId);
+
+                var shown = filter.Query.Apply(report.Expenses);
 
                 var names = categories.ToDictionary(x => x.Id, x => x.Name);
-                var baseName = $"expenses-{selectedMonth:yyyy-MM}"
-                               + (categoryName is null ? "" : "-" + SafeFileName(categoryName));
+                var baseName = $"expenses-{filter.FileLabel}"
+                               + (categoryName is null ? "" : "-" + SafeFileName(categoryName))
+                               + (filter.IsNarrowed ? "-filtered" : "");
 
                 if (format == ExportFormat.Csv)
                 {
                     var path = Path.Combine(_exportLocation.Directory, baseName + ".csv");
-                    new CsvExpenseExporter().Export(report.Expenses, names, path);
+                    new CsvExpenseExporter().Export(shown, names, path);
                     return path;
                 }
                 else
                 {
                     var path = Path.Combine(_exportLocation.Directory, baseName + ".md");
-                    var title = $"Expenses {selectedMonth:MMMM yyyy}"
-                                + (categoryName is null ? "" : $" · {categoryName}");
-                    new MarkdownExpenseExporter().Export(report.Expenses, names, title, path);
+                    var title = filter.Title
+                                + (categoryName is null ? "" : $" · {categoryName}")
+                                + (filter.IsNarrowed ? " (filtered)" : "");
+                    new MarkdownExpenseExporter().Export(shown, names, title, path);
                     return path;
                 }
             });
@@ -278,9 +464,9 @@ public sealed class ExpensesViewModel : ObservableObject
         {
             _logger.LogError(
                 exception,
-                "Failed to export expenses for {Month} and category {CategoryId}.",
-                selectedMonth,
-                selectedCategoryId);
+                "Failed to export expenses for {Period} and category {CategoryId}.",
+                filter.Title,
+                filter.CategoryId);
 
             ErrorMessage = "Could not export expenses.";
             return null;
@@ -379,7 +565,9 @@ public sealed class ExpensesViewModel : ObservableObject
     private void NotifyState()
     {
         OnPropertyChanged(nameof(Items));
-        OnPropertyChanged(nameof(MonthTitle));
+        OnPropertyChanged(nameof(PeriodTitle));
+        OnPropertyChanged(nameof(IsMonthPeriod));
+        OnPropertyChanged(nameof(IsCustomPeriod));
         OnPropertyChanged(nameof(Summary));
         OnPropertyChanged(nameof(ErrorMessage));
         OnPropertyChanged(nameof(IsBusy));
