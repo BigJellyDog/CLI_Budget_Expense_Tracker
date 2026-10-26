@@ -210,6 +210,86 @@ public sealed class CategoriesViewModel : ObservableObject
         }, () => "Could not delete the category. Try Refresh.");
     }
     
+    /// <summary>Counts the records that use a category. Returns null if it could not be read.</summary>
+    public async Task<CategoryUsage?> GetUsageAsync(Guid categoryId)
+    {
+        if (!CanEdit) return null;
+
+        try
+        {
+            return await Task.Run(async () =>
+            {
+                await using var scope = _scopeFactory.CreateAsyncScope();
+
+                return await scope.ServiceProvider
+                    .GetRequiredService<CategoryService>()
+                    .GetUsageAsync(categoryId);
+            });
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(
+                exception,
+                "Failed to read usage of category {CategoryId}.",
+                categoryId);
+
+            ShowError("Could not check where the category is used. Try Refresh.");
+            return null;
+        }
+    }
+
+    public async Task MoveAndDeleteAsync(
+        Guid categoryId,
+        Guid targetCategoryId,
+        Func<Task<bool>> confirmMove)
+    {
+        if (!CanEdit) return;
+
+        await RunAsync(async () =>
+        {
+            if (!await confirmMove())
+                return;
+
+            CategoryUsage moved;
+
+            try
+            {
+                moved = await Task.Run(async () =>
+                {
+                    await using var scope = _scopeFactory.CreateAsyncScope();
+
+                    return await scope.ServiceProvider
+                        .GetRequiredService<CategoryService>()
+                        .MoveAndDeleteAsync(categoryId, targetCategoryId);
+                });
+            }
+            catch (InvalidOperationException exception)
+            {
+                _logger.LogWarning(
+                    exception,
+                    "Moving and deleting was rejected for category {CategoryId}.",
+                    categoryId);
+
+                ErrorMessage = exception.Message;
+                return;
+            }
+
+            Items = Items
+                .Where(x => x.Id != categoryId)
+                .ToArray();
+
+            if (_editingCategoryId == categoryId)
+            {
+                _editingCategoryId = null;
+                NameText = "";
+            }
+
+            SuccessMessage =
+                $"Category deleted. Moved: {moved.ActiveExpenses + moved.DeletedExpenses} expenses, "
+                + $"{moved.RecurringExpenses} schedules. Budget limits removed: {moved.BudgetLimits}.";
+        }, () => "Could not move and delete the category. Nothing was changed. Try Refresh.");
+    }
+
     private Task<IReadOnlyList<Category>> ReadCategoriesAsync() =>
         Task.Run(async () =>
         {

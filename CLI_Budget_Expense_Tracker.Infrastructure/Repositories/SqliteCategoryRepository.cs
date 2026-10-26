@@ -52,6 +52,46 @@ public sealed class SqliteCategoryRepository(ExpenseTrackerDbContext context) : 
         }
     }
 
+    public async Task<CategoryUsage> GetUsageAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var expenses = context.Expenses.IgnoreQueryFilters().Where(x => x.CategoryId == id);
+
+        return new CategoryUsage(
+            await expenses.CountAsync(x => !x.IsDeleted, cancellationToken),
+            await expenses.CountAsync(x => x.IsDeleted, cancellationToken),
+            await context.RecurringExpenses.CountAsync(x => x.CategoryId == id, cancellationToken),
+            await context.BudgetLimits.CountAsync(x => x.CategoryId == id, cancellationToken));
+    }
+
+    public async Task<CategoryUsage> MoveAndDeleteAsync(Guid id, Guid targetId, CancellationToken cancellationToken = default)
+    {
+        await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
+
+        var usage = await GetUsageAsync(id, cancellationToken);
+
+        // Deleted expenses are moved too, so no record keeps pointing at the old category.
+        await context.Expenses.IgnoreQueryFilters()
+            .Where(x => x.CategoryId == id)
+            .ExecuteUpdateAsync(x => x.SetProperty(e => e.CategoryId, targetId), cancellationToken);
+
+        await context.RecurringExpenses
+            .Where(x => x.CategoryId == id)
+            .ExecuteUpdateAsync(x => x.SetProperty(e => e.CategoryId, targetId), cancellationToken);
+
+        // The target may already have a limit for the same month, so the old limits are dropped.
+        await context.BudgetLimits
+            .Where(x => x.CategoryId == id)
+            .ExecuteDeleteAsync(cancellationToken);
+
+        await context.Categories
+            .Where(x => x.Id == id)
+            .ExecuteDeleteAsync(cancellationToken);
+
+        await transaction.CommitAsync(cancellationToken);
+
+        return usage;
+    }
+
     private async Task SaveCategoryAsync(Category category, CancellationToken cancellationToken)
     {
         try

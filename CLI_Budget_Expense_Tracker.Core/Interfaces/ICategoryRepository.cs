@@ -11,4 +11,10 @@ public interface ICategoryRepository
     Task UpdateAsync(Category category, CancellationToken cancellationToken = default);
     /// <summary>Deletes an unused category; throws if any expense or budget references it.</summary>
     Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<CategoryUsage> GetUsageAsync(Guid id, CancellationToken cancellationToken = default);
+    /// <summary>
+    /// Moves expenses and recurring schedules to another category, removes the budget limits
+    /// of the old one, then deletes it. Returns what the old category held.
+    /// </summary>
+    Task<CategoryUsage> MoveAndDeleteAsync(Guid id, Guid targetId, CancellationToken cancellationToken = default);
 }
