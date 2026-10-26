@@ -47,3 +47,4 @@ data/
 # Exported files
 exports/
 backups/
+logs/

@@ -17,6 +17,12 @@ public partial class App : MauiWinUIApplication
 	public App()
 	{
 		this.InitializeComponent();
+
+		this.UnhandledException += (_, e) =>
+		{
+			e.Handled = true;
+			ExpenseTracker.App.Services.GlobalErrorHandler.HandleUiException(e.Exception);
+		};
 	}
 
 	protected override MauiApp CreateMauiApp() => MauiProgram.CreateMauiApp();

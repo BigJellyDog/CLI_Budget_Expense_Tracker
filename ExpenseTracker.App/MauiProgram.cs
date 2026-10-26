@@ -63,7 +63,18 @@ public static class MauiProgram
         builder.Logging.AddDebug();
 #endif
 
-        return builder.Build();
+        var logDirectory = Path.Combine(
+            Path.GetDirectoryName(databasePath)!, "logs");
+
+        builder.Services.AddSingleton(new LogLocation(logDirectory));
+        builder.Logging.AddProvider(
+            new FileLoggerProvider(logDirectory, TimeProvider.System));
+
+        var app = builder.Build();
+
+        GlobalErrorHandler.Register(app.Services);
+
+        return app;
     }
 
     private static string ResolveDatabasePath(string dataDirectory)
