@@ -1,7 +1,6 @@
 namespace ExpenseTracker.App.ViewModels;
 
 using System.Text;
-using System.Text.Json;
 using CLI_Budget_Expense_Tracker.Core.Interfaces;
 using CLI_Budget_Expense_Tracker.Core.Models;
 using CLI_Budget_Expense_Tracker.Core.Services;
@@ -22,24 +21,27 @@ public sealed class BankImportViewModel : ObservableObject
     private readonly AppInitializer _initializer;
     private readonly ILogger<BankImportViewModel> _logger;
 
-    private const string SavedProfileKey = "custom-csv-profile";
+    private readonly AppSettings _settings;
 
     private bool _loaded;
     private bool _imported;
     private Category? _selectedCategory;
     private ImportFormatOption _selectedFormat;
     private byte[]? _customBytes;
-    private string _currency = "EUR";
+    private string _currency;
 
     public BankImportViewModel(
         IBankStatementReader reader,
         IBankStatementClassifier classifier,
         GenericCsvReader genericReader,
         GenericStatementClassifier genericClassifier,
+        AppSettings settings,
         IServiceScopeFactory scopeFactory,
         AppInitializer initializer,
         ILogger<BankImportViewModel> logger)
     {
+        _settings = settings;
+        _currency = settings.Currency;
         _reader = reader;
         _classifier = classifier;
         _genericReader = genericReader;
@@ -80,7 +82,7 @@ public sealed class BankImportViewModel : ObservableObject
 
     public string FormatHint => IsCustomFormat
         ? "Choose a CSV file, tell the app how it is written, then press Show preview."
-        : "Revolut CSV with German column names · EUR";
+        : $"Revolut CSV with German column names · {_settings.Currency}";
 
     public IReadOnlyList<BankImportListItem> Items { get; private set; } = [];
 
@@ -154,7 +156,7 @@ public sealed class BankImportViewModel : ObservableObject
                 return await Task.Run(() => _reader.Read(stream));
             },
             _classifier,
-            "EUR");
+            _settings.Currency);
 
     /// <summary>Opens a CSV of another bank and offers its columns for mapping.</summary>
     public async Task LoadCustomFileAsync(
@@ -192,8 +194,11 @@ public sealed class BankImportViewModel : ObservableObject
             Custom.UseDelimiter(found.Delimiter);
             Custom.SetHeaders(found.Headers);
 
-            if (LoadSavedProfile() is { } saved)
+            if (_settings.LastCsvProfile is { } saved)
                 Custom.ApplySaved(saved);
+
+            // Amounts are labeled with the app currency unless the file has its own column.
+            Custom.DefaultCurrency = _settings.Currency;
         }
         catch (Exception exception)
         {
@@ -241,7 +246,15 @@ public sealed class BankImportViewModel : ObservableObject
             return;
         }
 
-        SaveProfile(profile);
+        try
+        {
+            _settings.SetLastCsvProfile(profile);
+        }
+        catch (Exception exception)
+        {
+            // Remembering the last choices is a convenience only.
+            _logger.LogWarning(exception, "Could not remember the CSV column choices.");
+        }
 
         await LoadCoreAsync(
             FileName,
@@ -337,35 +350,6 @@ public sealed class BankImportViewModel : ObservableObject
         {
             IsBusy = false;
             NotifyState();
-        }
-    }
-
-    private static CsvImportProfile? LoadSavedProfile()
-    {
-        try
-        {
-            var json = Preferences.Default.Get(SavedProfileKey, "");
-
-            return json.Length == 0
-                ? null
-                : JsonSerializer.Deserialize<CsvImportProfile>(json);
-        }
-        catch
-        {
-            // Remembering the last choices is a convenience only.
-            return null;
-        }
-    }
-
-    private static void SaveProfile(CsvImportProfile profile)
-    {
-        try
-        {
-            Preferences.Default.Set(SavedProfileKey, JsonSerializer.Serialize(profile));
-        }
-        catch
-        {
-            // Remembering the last choices is a convenience only.
         }
     }
 

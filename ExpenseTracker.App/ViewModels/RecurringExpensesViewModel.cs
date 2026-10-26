@@ -17,6 +17,8 @@ public sealed class RecurringExpensesViewModel : ObservableObject
     private readonly TimeProvider _timeProvider;
     private readonly ILogger<RecurringExpensesViewModel> _logger;
 
+    private readonly AppSettings _settings;
+
     private bool _loaded;
     private Guid? _editingScheduleId;
 
@@ -24,8 +26,10 @@ public sealed class RecurringExpensesViewModel : ObservableObject
         IServiceScopeFactory scopeFactory,
         AppInitializer initializer,
         TimeProvider timeProvider,
+        AppSettings settings,
         ILogger<RecurringExpensesViewModel> logger)
     {
+        _settings = settings;
         _scopeFactory = scopeFactory;
         _initializer = initializer;
         _timeProvider = timeProvider;
@@ -523,7 +527,8 @@ public sealed class RecurringExpensesViewModel : ObservableObject
                     x.IsActive,
                     x.Description,
                     x.CategoryId,
-                    x.EndDate))
+                    x.EndDate,
+                    _settings.Currency))
                 .ToArray();
 
             return (Categories: categories, Items: rows);

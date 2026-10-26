@@ -7,11 +7,12 @@ public sealed record CategoryReportItem(
     decimal Total,
     decimal PreviousTotal,
     decimal? ChangePercent,
-    double Share)
+    double Share,
+    string Currency = "")
 {
-    public string TotalText => $"{Total:N2}";
+    public string TotalText => $"{Total:N2} {Currency}".TrimEnd();
 
-    public string PreviousText => $"Previous month: {PreviousTotal:N2}";
+    public string PreviousText => $"Previous month: {PreviousTotal:N2} {Currency}".TrimEnd();
 
     public string ChangeText => ReportFormat.Change(ChangePercent, Total, PreviousTotal);
 }
@@ -20,11 +21,12 @@ public sealed record TopExpenseItem(
     DateOnly Date,
     string CategoryName,
     string Description,
-    decimal Amount)
+    decimal Amount,
+    string Currency = "")
 {
     public string DateText => Date.ToString("dd.MM.yyyy", CultureInfo.InvariantCulture);
 
-    public string AmountText => $"{Amount:N2}";
+    public string AmountText => $"{Amount:N2} {Currency}".TrimEnd();
 
     public string Title => Description.Length > 0
         ? $"{CategoryName} · {Description}"

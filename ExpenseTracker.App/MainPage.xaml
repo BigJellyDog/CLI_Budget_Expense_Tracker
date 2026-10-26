@@ -28,6 +28,9 @@
             Text="Export Markdown"
             Clicked="OnExportMarkdownClicked" />
         <ToolbarItem
+            Text="Settings"
+            Clicked="OnSettingsClicked" />
+        <ToolbarItem
             Text="Backup"
             Clicked="OnBackupClicked" />
         <ToolbarItem
@@ -214,7 +217,7 @@
 
                             <Label
                                 Grid.Column="1"
-                                Text="{Binding Amount, StringFormat='{0:N2}'}"
+                                Text="{Binding AmountText}"
                                 FontAttributes="Bold"
                                 HorizontalTextAlignment="End" />
 

@@ -12,7 +12,8 @@ public sealed record RecurringExpenseListItem(
     bool IsActive,
     string Description,
     Guid CategoryId,
-    DateOnly? EndDate)
+    DateOnly? EndDate,
+    string Currency = "")
 {
     public bool HasEndDate => EndDate.HasValue;
 
@@ -20,7 +21,7 @@ public sealed record RecurringExpenseListItem(
 
     public bool IsInactive => !IsActive;
 
-    public string Summary => $"{Amount:N2} · {Frequency}";
+    public string Summary => $"{Amount:N2} {Currency}".TrimEnd() + $" · {Frequency}";
 
     public string NextDueText => IsActive
         ? $"Next due: {NextDueDate:dd.MM.yyyy}"

@@ -16,6 +16,8 @@ public sealed class BudgetsViewModel : ObservableObject
     private readonly ILogger<BudgetsViewModel> _logger;
 
     private DateOnly _month;
+    private readonly AppSettings _settings;
+
     private Category? _selectedCategory;
     private bool _loaded;
 
@@ -23,8 +25,10 @@ public sealed class BudgetsViewModel : ObservableObject
         IServiceScopeFactory scopeFactory,
         AppInitializer initializer,
         TimeProvider timeProvider,
+        AppSettings settings,
         ILogger<BudgetsViewModel> logger)
     {
+        _settings = settings;
         _scopeFactory = scopeFactory;
         _initializer = initializer;
         _logger = logger;
@@ -237,7 +241,8 @@ public sealed class BudgetsViewModel : ObservableObject
                     names.GetValueOrDefault(
                         x.CategoryId, "Unknown category"),
                     x.Limit!.Value,
-                    x.Spent))
+                    x.Spent,
+                    _settings.Currency))
                 .OrderBy(x => x.CategoryName)
                 .ToArray();
 

@@ -18,6 +18,7 @@ public sealed class ExpensesViewModel : ObservableObject
     private readonly AppInitializer _initializer;
     private readonly ExportLocation _exportLocation;
     private readonly DatabaseBackupService _backups;
+    private readonly AppSettings _settings;
     private readonly ILogger<ExpensesViewModel> _logger;
 
     private DateOnly _month;
@@ -30,8 +31,10 @@ public sealed class ExpensesViewModel : ObservableObject
         TimeProvider timeProvider,
         ExportLocation exportLocation,
         DatabaseBackupService backups,
+        AppSettings settings,
         ILogger<ExpensesViewModel> logger)
     {
+        this._settings = settings;
         this._backups = backups;
         this._exportLocation = exportLocation;
         this._scopeFactory = scopeFactory;
@@ -116,7 +119,7 @@ public sealed class ExpensesViewModel : ObservableObject
     };
 
     public string Summary =>
-        $"Expenses: {Items.Count} · Total: {_total:N2}";
+        $"Expenses: {Items.Count} · Total: {_total:N2} {_settings.Currency}";
 
     public string ErrorMessage { get; private set; } = "";
 
@@ -185,7 +188,8 @@ public sealed class ExpensesViewModel : ObservableObject
                         x.Amount,
                         names.GetValueOrDefault(
                             x.CategoryId, "Unknown category"),
-                        x.Description))
+                        x.Description,
+                        _settings.Currency))
                     .ToArray();
 
                 return (

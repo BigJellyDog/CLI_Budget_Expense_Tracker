@@ -48,3 +48,4 @@ appsettings.Local.json
 exports/
 backups/
 logs/
+settings.json

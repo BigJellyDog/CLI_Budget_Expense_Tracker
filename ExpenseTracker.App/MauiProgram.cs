@@ -35,6 +35,9 @@ public static class MauiProgram
             ForeignKeys = true
         }.ToString();
 
+        builder.Services.AddSingleton(new AppSettings(
+            Path.Combine(Path.GetDirectoryName(databasePath)!, "settings.json")));
+
         builder.Services.AddSingleton(new ExportLocation(
             Path.Combine(Path.GetDirectoryName(databasePath)!, "exports")));
 
@@ -60,6 +63,8 @@ public static class MauiProgram
         builder.Services.AddTransient<BankImportPage>();
         builder.Services.AddTransient<RulesViewModel>();
         builder.Services.AddTransient<RulesPage>();
+        builder.Services.AddTransient<SettingsViewModel>();
+        builder.Services.AddTransient<SettingsPage>();
 
 #if DEBUG
         builder.Logging.AddDebug();
@@ -71,6 +76,10 @@ public static class MauiProgram
         builder.Services.AddSingleton(new LogLocation(logDirectory));
         builder.Logging.AddProvider(
             new FileLoggerProvider(logDirectory, TimeProvider.System));
+
+        // Every SQL command would otherwise bury the real problems in the log file.
+        builder.Logging.AddFilter<FileLoggerProvider>(
+            "Microsoft.EntityFrameworkCore", LogLevel.Warning);
 
         var app = builder.Build();
 

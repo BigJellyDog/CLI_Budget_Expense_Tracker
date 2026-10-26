@@ -14,6 +14,8 @@ public sealed class ReportsViewModel : ObservableObject
     private readonly AppInitializer _initializer;
     private readonly ILogger<ReportsViewModel> _logger;
 
+    private readonly AppSettings _settings;
+
     private DateOnly _month;
     private bool _loaded;
 
@@ -21,8 +23,10 @@ public sealed class ReportsViewModel : ObservableObject
         IServiceScopeFactory scopeFactory,
         AppInitializer initializer,
         TimeProvider timeProvider,
+        AppSettings settings,
         ILogger<ReportsViewModel> logger)
     {
+        _settings = settings;
         _scopeFactory = scopeFactory;
         _initializer = initializer;
         _logger = logger;
@@ -142,26 +146,29 @@ public sealed class ReportsViewModel : ObservableObject
                 x.Total,
                 x.PreviousTotal,
                 x.ChangePercent,
-                max > 0 ? (double)(x.Total / max) : 0d))
+                max > 0 ? (double)(x.Total / max) : 0d,
+                _settings.Currency))
             .ToArray();
 
         TopExpenses = report.TopExpenses
             .Select(x => new TopExpenseItem(
-                x.Date, Name(x.CategoryId), x.Description, x.Amount))
+                x.Date, Name(x.CategoryId), x.Description, x.Amount, _settings.Currency))
             .ToArray();
 
-        TotalText = $"Total: {report.Total:N2}";
+        var currency = _settings.Currency;
+
+        TotalText = $"Total: {report.Total:N2} {currency}";
 
         ComparisonText =
-            $"Previous month: {report.PreviousTotal:N2} · Change: " +
+            $"Previous month: {report.PreviousTotal:N2} {currency} · Change: " +
             ReportFormat.Change(report.ChangePercent, report.Total, report.PreviousTotal);
 
         AverageText = report.DaysElapsed == 0
             ? "Average per day: no days have passed yet"
-            : $"Average per day: {report.AveragePerDay:N2} (over {report.DaysElapsed} days)";
+            : $"Average per day: {report.AveragePerDay:N2} {currency} (over {report.DaysElapsed} days)";
 
         ForecastText = report.Forecast is { } forecast
-            ? $"Forecast for the whole month: {forecast:N2}"
+            ? $"Forecast for the whole month: {forecast:N2} {currency}"
             : "";
     }
 

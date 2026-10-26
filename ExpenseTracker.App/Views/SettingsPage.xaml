@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:ExpenseTracker.App.ViewModels"
+    x:Class="ExpenseTracker.App.Views.SettingsPage"
+    x:DataType="vm:SettingsViewModel"
+    Title="Settings"
+    BackgroundColor="{AppThemeBinding Light=#F5F6FA, Dark=#151821}">
+
+    <ScrollView>
+        <VerticalStackLayout
+            Padding="24"
+            Spacing="16"
+            MaximumWidthRequest="640"
+            HorizontalOptions="Start">
+
+            <Label
+                Text="Settings"
+                FontSize="24"
+                FontAttributes="Bold" />
+
+            <VerticalStackLayout Spacing="8">
+                <Label Text="Currency" FontAttributes="Bold" />
+
+                <Label
+                    Text="Three-letter code shown next to amounts, for example EUR, USD or CHF. Changing it does not convert amounts that are already saved."
+                    FontSize="12" />
+
+                <Grid ColumnDefinitions="140,Auto" ColumnSpacing="12">
+                    <Entry
+                        Placeholder="EUR"
+                        MaxLength="3"
+                        Text="{Binding CurrencyText, Mode=TwoWay}" />
+
+                    <Button
+                        Grid.Column="1"
+                        Text="Save"
+                        Clicked="OnSaveClicked" />
+                </Grid>
+
+                <Label
+                    Text="{Binding ErrorMessage}"
+                    IsVisible="{Binding HasError}"
+                    TextColor="{AppThemeBinding Light=#B42318, Dark=#FFB4AB}" />
+
+                <Label
+                    Text="{Binding SuccessMessage}"
+                    IsVisible="{Binding HasSuccess}"
+                    TextColor="{AppThemeBinding Light=#18794E, Dark=#75D6A6}" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="8">
+                <Label Text="Where your data is" FontAttributes="Bold" />
+
+                <Label
+                    Text="The database, backups, exports, logs and these settings are in one folder:"
+                    FontSize="12" />
+
+                <Label
+                    Text="{Binding DataFolder}"
+                    LineBreakMode="MiddleTruncation" />
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

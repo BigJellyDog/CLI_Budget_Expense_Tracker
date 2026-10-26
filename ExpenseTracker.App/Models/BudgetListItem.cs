@@ -4,16 +4,19 @@ public sealed record BudgetListItem(
     Guid CategoryId,
     string CategoryName,
     decimal Limit,
-    decimal Spent)
+    decimal Spent,
+    string Currency = "")
 {
     public bool IsOverBudget => Spent > Limit;
 
     public string Summary =>
-        $"Spent: {Spent:N2} / Limit: {Limit:N2}";
+        $"Spent: {Money(Spent)} / Limit: {Money(Limit)}";
 
     public string BalanceText => IsOverBudget
-        ? $"Over budget: {Spent - Limit:N2}"
-        : $"Remaining: {Limit - Spent:N2}";
+        ? $"Over budget: {Money(Spent - Limit)}"
+        : $"Remaining: {Money(Limit - Spent)}";
+
+    private string Money(decimal amount) => $"{amount:N2} {Currency}".TrimEnd();
 
     public double Progress => Spent >= Limit
         ? (Spent > 0 ? 1d : 0d)

@@ -50,6 +50,9 @@ public partial class MainPage : ContentPage
     private async void OnCategoriesClicked(object? sender, EventArgs e) =>
         await OpenPageAsync<CategoriesPage>();
     
+    private async void OnSettingsClicked(object? sender, EventArgs e) =>
+        await OpenPageAsync<SettingsPage>();
+
     private async void OnReportsClicked(object? sender, EventArgs e) =>
         await OpenPageAsync<ReportsPage>();
 
