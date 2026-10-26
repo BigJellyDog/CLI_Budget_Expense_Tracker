@@ -27,8 +27,7 @@ public static class MauiProgram
 
         var connectionString = new SqliteConnectionStringBuilder
         {
-            DataSource = Path.Combine(
-                dataDirectory, "expense-tracker.db"),
+            DataSource = ResolveDatabasePath(dataDirectory),
             ForeignKeys = true
         }.ToString();
 
@@ -58,5 +57,21 @@ public static class MauiProgram
 #endif
 
         return builder.Build();
+    }
+
+    private static string ResolveDatabasePath(string dataDirectory)
+    {
+        const string fileName = "expense-tracker.db";
+
+        // Keep the database next to the solution file so code and data live in one folder.
+        for (var dir = new DirectoryInfo(AppContext.BaseDirectory); dir is not null; dir = dir.Parent)
+        {
+            if (dir.GetFiles("*.sln*").Length > 0)
+            {
+                return Path.Combine(dir.FullName, fileName);
+            }
+        }
+
+        return Path.Combine(dataDirectory, fileName);
     }
 }
