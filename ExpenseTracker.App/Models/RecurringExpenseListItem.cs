@@ -12,6 +12,8 @@ public sealed record RecurringExpenseListItem(
     bool IsActive,
     string Description)
 {
+    public bool IsInactive => !IsActive;
+
     public string Summary => $"{Amount:N2} · {Frequency}";
 
     public string NextDueText => IsActive

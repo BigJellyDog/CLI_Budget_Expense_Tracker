@@ -36,6 +36,41 @@ public partial class RecurringExpensesPage : ContentPage
     private void OnAddAnotherClicked(object? sender, EventArgs e) =>
         _viewModel.StartNewSchedule();
     
+    private async void OnReactivateClicked(object? sender, EventArgs e)
+    {
+        if (!_viewModel.ShowResults
+            || sender is not Button
+            {
+                BindingContext: RecurringExpenseListItem item
+            })
+        {
+            return;
+        }
+
+        await _viewModel.ReactivateAsync(item.Id);
+    }
+
+    private async void OnDeleteClicked(object? sender, EventArgs e)
+    {
+        if (!_viewModel.ShowResults
+            || sender is not Button
+            {
+                BindingContext: RecurringExpenseListItem item
+            })
+        {
+            return;
+        }
+
+        await _viewModel.DeleteAsync(
+            item.Id,
+            () => DisplayAlertAsync(
+                "Delete schedule?",
+                $"{item.CategoryName}\n{item.Summary}\n{item.Description}\n\n"
+                + "Delete this schedule? Expenses it already created will be kept.",
+                "Delete",
+                "Cancel"));
+    }
+
     private async void OnDeactivateClicked(object? sender, EventArgs e)
     {
         if (!_viewModel.ShowResults

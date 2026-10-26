@@ -219,6 +219,64 @@ public sealed class RecurringExpensesViewModel : ObservableObject
         }, () => "Could not deactivate the schedule. Try Refresh.");
     }
     
+    public async Task ReactivateAsync(Guid scheduleId)
+    {
+        if (!ShowResults
+            || !Items.Any(x => x.Id == scheduleId && !x.IsActive))
+        {
+            return;
+        }
+
+        var today = DateOnly.FromDateTime(
+            _timeProvider.GetLocalNow().DateTime);
+
+        await RunAsync(async () =>
+        {
+            await Task.Run(async () =>
+            {
+                await using var scope = _scopeFactory.CreateAsyncScope();
+
+                await scope.ServiceProvider
+                    .GetRequiredService<RecurringExpenseService>()
+                    .ReactivateAsync(scheduleId, today);
+            });
+
+            SuccessMessage = "Schedule reactivated.";
+
+            await ReloadAsync();
+        }, () => "Could not reactivate the schedule. Try Refresh.");
+    }
+
+    public async Task DeleteAsync(
+        Guid scheduleId,
+        Func<Task<bool>> confirmDeletion)
+    {
+        if (!ShowResults
+            || !Items.Any(x => x.Id == scheduleId && !x.IsActive))
+        {
+            return;
+        }
+
+        await RunAsync(async () =>
+        {
+            if (!await confirmDeletion())
+                return;
+
+            await Task.Run(async () =>
+            {
+                await using var scope = _scopeFactory.CreateAsyncScope();
+
+                await scope.ServiceProvider
+                    .GetRequiredService<RecurringExpenseService>()
+                    .DeleteAsync(scheduleId);
+            });
+
+            Items = Items.Where(x => x.Id != scheduleId).ToArray();
+
+            SuccessMessage = "Schedule deleted. Its expenses were kept.";
+        }, () => "Could not delete the schedule. Try Refresh.");
+    }
+
     public void StartNewSchedule()
     {
         if (!CanStartNew) return;

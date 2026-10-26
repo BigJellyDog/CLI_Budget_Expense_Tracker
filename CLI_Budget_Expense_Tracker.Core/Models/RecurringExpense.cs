@@ -68,6 +68,20 @@ public sealed class RecurringExpense
     }
     
     /// <summary>
+    /// Resumes the schedule. Occurrences missed while it was inactive are skipped,
+    /// so the next due date is the first one on or after <paramref name="today"/>.
+    /// </summary>
+    public void Reactivate(DateOnly today)
+    {
+        IsActive = true;
+
+        while (IsActive && NextDueDate < today)
+        {
+            AdvanceNextDueDate();
+        }
+    }
+
+    /// <summary>
     /// Advances the schedule after the current occurrence is generated.
     /// Deactivates the schedule if the next date exceeds DateOnly's range.
     /// </summary>

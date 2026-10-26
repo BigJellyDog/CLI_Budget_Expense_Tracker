@@ -28,4 +28,11 @@ public interface IRecurringExpenseRepository
     Task UpdateAsync(
         RecurringExpense recurringExpense,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Deletes a schedule. Expenses it generated are kept but no longer linked to it.
+    /// </summary>
+    Task<bool> DeleteAsync(
+        Guid id,
+        CancellationToken cancellationToken = default);
 }

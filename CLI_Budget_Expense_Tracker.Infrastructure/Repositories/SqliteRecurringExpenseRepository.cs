@@ -58,4 +58,28 @@ public sealed class SqliteRecurringExpenseRepository(
         context.RecurringExpenses.Update(recurringExpense);
         await context.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task<bool> DeleteAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
+    {
+        await using var transaction = await context.Database
+            .BeginTransactionAsync(cancellationToken);
+
+        // Deleted expenses are included so the foreign key never blocks the delete.
+        await context.Expenses
+            .IgnoreQueryFilters()
+            .Where(x => x.RecurringExpenseId == id)
+            .ExecuteUpdateAsync(
+                x => x.SetProperty(e => e.RecurringExpenseId, (Guid?)null),
+                cancellationToken);
+
+        var deleted = await context.RecurringExpenses
+            .Where(x => x.Id == id)
+            .ExecuteDeleteAsync(cancellationToken);
+
+        await transaction.CommitAsync(cancellationToken);
+
+        return deleted > 0;
+    }
 }
