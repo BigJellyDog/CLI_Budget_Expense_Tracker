@@ -42,7 +42,7 @@ appsettings.Local.json
 
 
 # Optional data directory selected via --data-dir
-data/
+/data/
 
 # Exported files
 exports/
