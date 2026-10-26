@@ -30,6 +30,11 @@
                 IsVisible="{Binding IsSaved}"
                 TextColor="{AppThemeBinding Light=#18794E, Dark=#75D6A6}" />
 
+            <Label
+                Text="{Binding LimitWarning}"
+                IsVisible="{Binding HasLimitWarning}"
+                TextColor="{AppThemeBinding Light=#B54708, Dark=#FEC84B}" />
+
             <Button
                 Text="Add another expense"
                 Clicked="OnAddAnotherClicked"

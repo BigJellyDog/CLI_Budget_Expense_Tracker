@@ -64,6 +64,10 @@ public sealed class ExpenseEditorViewModel : ObservableObject
 
     public bool IsSaved { get; private set; }
 
+    public string LimitWarning { get; private set; } = "";
+
+    public bool HasLimitWarning => IsSaved && LimitWarning.Length > 0;
+
     public bool HasError => ErrorMessage.Length > 0;
 
     public bool CanGoBack => !IsBusy;
@@ -236,30 +240,29 @@ public sealed class ExpenseEditorViewModel : ObservableObject
 
         return await RunAsync(async () =>
         {
-            var saved = await Task.Run(async () =>
+            var (saved, warning) = await Task.Run(async () =>
             {
                 await using var scope = _scopeFactory.CreateAsyncScope();
 
                 var service = scope.ServiceProvider
                     .GetRequiredService<ExpenseService>();
 
-                if (original is not null)
-                {
-                    return await service.UpdateAsync(
+                var ok = original is null
+                    ? await service.AddAsync(
+                        amount,
+                        categoryId,
+                        date,
+                        description) is not null
+                    : await service.UpdateAsync(
                         original,
                         amount,
                         categoryId,
                         date,
                         description);
-                }
 
-                await service.AddAsync(
-                    amount,
-                    categoryId,
-                    date,
-                    description);
-
-                return true;
+                return (ok, ok
+                    ? await GetLimitWarningAsync(scope, categoryId, date)
+                    : "");
             });
 
             if (!saved)
@@ -268,6 +271,7 @@ public sealed class ExpenseEditorViewModel : ObservableObject
                     "This expense was changed or deleted. Reopen it from the list to load its current values.");
             }
 
+            LimitWarning = warning;
             IsSaved = true;
             return true;
         }, "Could not save the expense. Check the category and try again.");
@@ -278,6 +282,7 @@ public sealed class ExpenseEditorViewModel : ObservableObject
         if (IsBusy || !IsSaved || IsEditing) return;
 
         IsSaved = false;
+        LimitWarning = "";
         AmountText = "";
         Description = "";
         NewCategoryName = "";
@@ -299,6 +304,34 @@ public sealed class ExpenseEditorViewModel : ObservableObject
             x => x.Id == selectedId);
 
         OnPropertyChanged(nameof(SelectedCategory));
+    }
+
+    private async Task<string> GetLimitWarningAsync(
+        AsyncServiceScope scope,
+        Guid categoryId,
+        DateOnly date)
+    {
+        // The expense is already saved, so a failed check must not report a save error.
+        try
+        {
+            var status = await scope.ServiceProvider
+                .GetRequiredService<BudgetService>()
+                .GetStatusAsync(categoryId, date);
+
+            if (status.Limit is not { } limit || status.Overspend <= 0)
+                return "";
+
+            return string.Create(
+                CultureInfo.InvariantCulture,
+                $"Over budget for {date:MMMM yyyy}: spent {status.Spent:0.00} of {limit:0.00} (over by {status.Overspend:0.00}).");
+        }
+        catch (Exception exception)
+        {
+            _logger.LogWarning(
+                exception,
+                "Could not check the monthly limit.");
+            return "";
+        }
     }
 
     private async Task<bool> RunAsync(
@@ -355,6 +388,8 @@ public sealed class ExpenseEditorViewModel : ObservableObject
         OnPropertyChanged(nameof(SavedMessage));
         OnPropertyChanged(nameof(ErrorMessage));
         OnPropertyChanged(nameof(HasError));
+        OnPropertyChanged(nameof(LimitWarning));
+        OnPropertyChanged(nameof(HasLimitWarning));
         OnPropertyChanged(nameof(IsBusy));
         OnPropertyChanged(nameof(IsSaved));
         OnPropertyChanged(nameof(CanGoBack));
