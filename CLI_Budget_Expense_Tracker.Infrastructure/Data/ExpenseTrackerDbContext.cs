@@ -16,6 +16,7 @@ public sealed class ExpenseTrackerDbContext(
     public DbSet<BudgetLimit> BudgetLimits => Set<BudgetLimit>();
     public DbSet<RecurringExpense> RecurringExpenses =>
         Set<RecurringExpense>();
+    public DbSet<CategoryRule> CategoryRules => Set<CategoryRule>();
 
     /// <summary>
     /// Configures tables, relationships, constraints, and money conversion.
@@ -165,6 +166,23 @@ public sealed class ExpenseTrackerDbContext(
 
         budget.HasIndex(x => new { x.CategoryId, x.Month })
             .IsUnique();
+
+        // Rules that pick a category for imported bank records.
+        var rule = modelBuilder.Entity<CategoryRule>();
+
+        rule.ToTable("CategoryRules");
+        rule.HasKey(x => x.Id);
+        rule.Property(x => x.Id).ValueGeneratedNever();
+
+        rule.Property(x => x.Pattern).IsRequired();
+        rule.Property(x => x.NormalizedPattern).IsRequired();
+
+        rule.HasIndex(x => x.NormalizedPattern).IsUnique();
+
+        rule.HasOne<Category>()
+            .WithMany()
+            .HasForeignKey(x => x.CategoryId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
     
 

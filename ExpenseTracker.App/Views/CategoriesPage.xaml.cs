@@ -1,6 +1,7 @@
 namespace ExpenseTracker.App.Views;
 
 using CLI_Budget_Expense_Tracker.Core.Models;
+using Microsoft.Extensions.DependencyInjection;
 using ViewModels;
 
 public partial class CategoriesPage : ContentPage
@@ -11,12 +12,22 @@ public partial class CategoriesPage : ContentPage
 
     private bool _choosingDeleteAction;
 
-    public CategoriesPage(CategoriesViewModel viewModel)
+    private readonly IServiceProvider _services;
+
+    public CategoriesPage(CategoriesViewModel viewModel, IServiceProvider services)
     {
         InitializeComponent();
 
         _viewModel = viewModel;
+        _services = services;
         BindingContext = viewModel;
+    }
+
+    private async void OnRulesClicked(object? sender, EventArgs e)
+    {
+        if (!_viewModel.CanEdit) return;
+
+        await Navigation.PushAsync(_services.GetRequiredService<RulesPage>());
     }
 
     protected override async void OnAppearing()

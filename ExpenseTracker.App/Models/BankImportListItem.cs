@@ -48,8 +48,34 @@ public sealed class BankImportListItem : ObservableObject
             if (value is null || !SetProperty(ref _category, value)) return;
 
             _categoryChosen = true;
+            ClearRuleNote();
             _selectionChanged();
         }
+    }
+
+    /// <summary>Says which rule picked the category, until the user picks another one.</summary>
+    public string RuleNote { get; private set; } = "";
+
+    public bool HasRuleNote => RuleNote.Length > 0;
+
+    /// <summary>Uses the category of a matching auto-categorization rule.</summary>
+    public void ApplyRule(Category category, string pattern)
+    {
+        SetProperty(ref _category, category, nameof(Category));
+        _categoryChosen = true;
+
+        RuleNote = $"Category set by rule: contains \"{pattern}\"";
+        OnPropertyChanged(nameof(RuleNote));
+        OnPropertyChanged(nameof(HasRuleNote));
+    }
+
+    private void ClearRuleNote()
+    {
+        if (RuleNote.Length == 0) return;
+
+        RuleNote = "";
+        OnPropertyChanged(nameof(RuleNote));
+        OnPropertyChanged(nameof(HasRuleNote));
     }
 
     /// <summary>Follows the default category unless this record already has its own.</summary>

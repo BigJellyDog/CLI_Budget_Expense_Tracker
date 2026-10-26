@@ -119,8 +119,9 @@ public sealed class BankImportViewModel : ObservableObject
                 var hashes = BankImportHasher.ComputeAll(source);
 
                 var categories = await LoadCategoriesAsync();
+                var rules = await LoadRulesAsync();
 
-                return (Entries: entries, Hashes: hashes, Categories: categories);
+                return (Entries: entries, Hashes: hashes, Categories: categories, Rules: rules);
             });
 
             var entries = result.Entries;
@@ -133,6 +134,21 @@ public sealed class BankImportViewModel : ObservableObject
                     NotifySelection))
                 .ToArray();
 
+            var categoriesById = result.Categories.ToDictionary(x => x.Id);
+            var matched = 0;
+
+            foreach (var item in Items.Where(x => x.CanSelect))
+            {
+                var rule = CategoryRuleMatcher.FindMatch(result.Rules, item.Description);
+
+                if (rule is not null
+                    && categoriesById.TryGetValue(rule.CategoryId, out var ruleCategory))
+                {
+                    item.ApplyRule(ruleCategory, rule.Pattern);
+                    matched++;
+                }
+            }
+
             CandidateTotal = entries
                 .Where(x => x.Kind == BankEntryKind.ExpenseCandidate)
                 .Sum(x => -x.Source.Amount);
@@ -143,7 +159,8 @@ public sealed class BankImportViewModel : ObservableObject
             Summary =
                 $"Records: {entries.Count} · Expense candidates: {Count(BankEntryKind.ExpenseCandidate)}\n" +
                 $"Incoming: {Count(BankEntryKind.Incoming)} · Internal transfers: {Count(BankEntryKind.InternalTransfer)}\n" +
-                $"Needs review: {Count(BankEntryKind.NeedsReview)} · Ignored: {Count(BankEntryKind.Ignored)}";
+                $"Needs review: {Count(BankEntryKind.NeedsReview)} · Ignored: {Count(BankEntryKind.Ignored)}\n" +
+                $"Category set by rules: {matched}";
 
             SetCategories(result.Categories);
             _loaded = true;
@@ -248,6 +265,15 @@ public sealed class BankImportViewModel : ObservableObject
 
         return await scope.ServiceProvider
             .GetRequiredService<CategoryService>()
+            .GetAllAsync();
+    }
+
+    private async Task<IReadOnlyList<CategoryRule>> LoadRulesAsync()
+    {
+        await using var scope = _scopeFactory.CreateAsyncScope();
+
+        return await scope.ServiceProvider
+            .GetRequiredService<CategoryRuleService>()
             .GetAllAsync();
     }
 

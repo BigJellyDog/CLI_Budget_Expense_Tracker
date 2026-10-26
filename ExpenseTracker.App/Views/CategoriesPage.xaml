@@ -15,7 +15,7 @@
         RowDefinitions="Auto,Auto,Auto,*"
         RowSpacing="16">
 
-        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
             <Label
                 Text="Categories"
                 FontSize="24"
@@ -24,6 +24,12 @@
 
             <Button
                 Grid.Column="1"
+                Text="Auto-categorization rules"
+                Clicked="OnRulesClicked"
+                IsEnabled="{Binding CanRefresh}" />
+
+            <Button
+                Grid.Column="2"
                 Text="Refresh"
                 Clicked="OnRefreshClicked"
                 IsEnabled="{Binding CanRefresh}" />

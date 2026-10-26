@@ -52,6 +52,8 @@ public static class SqliteServiceCollectionExtensions
         services.AddScoped<ICategoryRepository, SqliteCategoryRepository>();
         services.AddScoped<IExpenseRepository, SqliteExpenseRepository>();
         services.AddScoped<IBudgetRepository, SqliteBudgetRepository>();
+        services.AddScoped<ICategoryRuleRepository, SqliteCategoryRuleRepository>();
+        services.AddScoped<CategoryRuleService>();
         services.AddScoped<CategoryService>();
         services.AddScoped<ExpenseService>();
         services.AddScoped<BudgetService>();

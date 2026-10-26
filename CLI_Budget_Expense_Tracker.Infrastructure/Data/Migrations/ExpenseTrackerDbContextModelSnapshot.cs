@@ -66,6 +66,32 @@ namespace CLI_Budget_Expense_Tracker.Infrastructure.Data.Migrations
                     b.ToTable("Categories", (string)null);
                 });
 
+            modelBuilder.Entity("CLI_Budget_Expense_Tracker.Core.Models.CategoryRule", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("NormalizedPattern")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Pattern")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("NormalizedPattern")
+                        .IsUnique();
+
+                    b.ToTable("CategoryRules", (string)null);
+                });
+
             modelBuilder.Entity("CLI_Budget_Expense_Tracker.Core.Models.Expense", b =>
                 {
                     b.Property<Guid>("Id")
@@ -166,6 +192,15 @@ namespace CLI_Budget_Expense_Tracker.Infrastructure.Data.Migrations
                         .WithMany()
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("CLI_Budget_Expense_Tracker.Core.Models.CategoryRule", b =>
+                {
+                    b.HasOne("CLI_Budget_Expense_Tracker.Core.Models.Category", null)
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 

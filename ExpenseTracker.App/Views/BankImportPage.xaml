@@ -17,11 +17,17 @@
         RowSpacing="16">
 
         <VerticalStackLayout Spacing="8">
-            <Button
-                Text="Choose CSV"
-                Clicked="OnChooseFileClicked"
-                IsEnabled="{Binding IsIdle}"
-                HorizontalOptions="Start" />
+            <HorizontalStackLayout Spacing="12">
+                <Button
+                    Text="Choose CSV"
+                    Clicked="OnChooseFileClicked"
+                    IsEnabled="{Binding IsIdle}" />
+
+                <Button
+                    Text="Auto-categorization rules"
+                    Clicked="OnEditRulesClicked"
+                    IsEnabled="{Binding IsIdle}" />
+            </HorizontalStackLayout>
 
             <Label Text="Revolut CSV with German column names · EUR" />
 
@@ -106,7 +112,7 @@
 
                         <Grid
                             ColumnDefinitions="Auto,*,Auto"
-                            RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
+                            RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto"
                             ColumnSpacing="16"
                             RowSpacing="6">
 
@@ -163,6 +169,14 @@
                                 SelectedItem="{Binding Category, Mode=TwoWay}"
                                 IsVisible="{Binding CanSelect}"
                                 IsEnabled="{Binding CanSelect}" />
+
+                            <Label
+                                Grid.Row="6"
+                                Grid.Column="1"
+                                Grid.ColumnSpan="2"
+                                Text="{Binding RuleNote}"
+                                IsVisible="{Binding HasRuleNote}"
+                                FontSize="12" />
                         </Grid>
                     </Border>
                 </DataTemplate>

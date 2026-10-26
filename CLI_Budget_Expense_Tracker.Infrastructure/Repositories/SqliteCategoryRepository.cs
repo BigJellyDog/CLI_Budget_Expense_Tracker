@@ -78,6 +78,10 @@ public sealed class SqliteCategoryRepository(ExpenseTrackerDbContext context) : 
             .Where(x => x.CategoryId == id)
             .ExecuteUpdateAsync(x => x.SetProperty(e => e.CategoryId, targetId), cancellationToken);
 
+        await context.CategoryRules
+            .Where(x => x.CategoryId == id)
+            .ExecuteUpdateAsync(x => x.SetProperty(e => e.CategoryId, targetId), cancellationToken);
+
         // The target may already have a limit for the same month, so the old limits are dropped.
         await context.BudgetLimits
             .Where(x => x.CategoryId == id)
@@ -113,6 +117,10 @@ public sealed class SqliteCategoryRepository(ExpenseTrackerDbContext context) : 
             .ExecuteUpdateAsync(x => x.SetProperty(e => e.RecurringExpenseId, (Guid?)null), cancellationToken);
 
         await context.RecurringExpenses
+            .Where(x => x.CategoryId == id)
+            .ExecuteDeleteAsync(cancellationToken);
+
+        await context.CategoryRules
             .Where(x => x.CategoryId == id)
             .ExecuteDeleteAsync(cancellationToken);
 

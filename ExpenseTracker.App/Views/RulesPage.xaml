@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:ExpenseTracker.App.ViewModels"
+    xmlns:models="clr-namespace:ExpenseTracker.App.Models"
+    xmlns:core="clr-namespace:CLI_Budget_Expense_Tracker.Core.Models;assembly=CLI_Budget_Expense_Tracker.Core"
+    x:Class="ExpenseTracker.App.Views.RulesPage"
+    x:DataType="vm:RulesViewModel"
+    Title="Auto-categorization rules"
+    NavigationPage.HasBackButton="{Binding CanGoBack}"
+    BackgroundColor="{AppThemeBinding Light=#F5F6FA, Dark=#151821}">
+
+    <Grid
+        Padding="24"
+        RowDefinitions="Auto,Auto,Auto,*"
+        RowSpacing="16">
+
+        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+            <Label
+                Text="Auto-categorization rules"
+                FontSize="24"
+                FontAttributes="Bold"
+                VerticalOptions="Center" />
+
+            <Button
+                Grid.Column="1"
+                Text="Refresh"
+                Clicked="OnRefreshClicked"
+                IsEnabled="{Binding CanRefresh}" />
+        </Grid>
+
+        <VerticalStackLayout
+            Grid.Row="1"
+            Spacing="8"
+            IsEnabled="{Binding CanEdit}">
+
+            <Label
+                Text="When the description of a bank record contains the text, the CSV import preview puts it into the chosen category. Upper and lower case do not matter. If several rules fit, the longest text wins."
+                FontSize="12" />
+
+            <Label
+                Text="Create a category on the Categories screen first."
+                IsVisible="{Binding ShowNoCategories}" />
+
+            <Grid
+                ColumnDefinitions="*,*,Auto"
+                ColumnSpacing="12">
+
+                <Entry
+                    Placeholder="Contains, e.g. LIDL"
+                    Text="{Binding PatternText, Mode=TwoWay}" />
+
+                <Picker
+                    Grid.Column="1"
+                    Title="Category"
+                    ItemsSource="{Binding Categories}"
+                    ItemDisplayBinding="{Binding Name, x:DataType=core:Category}"
+                    SelectedItem="{Binding SelectedCategory, Mode=TwoWay}" />
+
+                <Button
+                    Grid.Column="2"
+                    Text="Add rule"
+                    Clicked="OnAddClicked" />
+            </Grid>
+        </VerticalStackLayout>
+
+        <VerticalStackLayout Grid.Row="2" Spacing="8">
+            <ActivityIndicator
+                IsRunning="{Binding IsBusy}"
+                IsVisible="{Binding IsBusy}" />
+
+            <Label
+                Text="{Binding ErrorMessage}"
+                IsVisible="{Binding HasError}"
+                TextColor="{AppThemeBinding Light=#B42318, Dark=#FFB4AB}" />
+
+            <Label
+                Text="{Binding SuccessMessage}"
+                IsVisible="{Binding HasSuccess}"
+                TextColor="{AppThemeBinding Light=#18794E, Dark=#75D6A6}" />
+        </VerticalStackLayout>
+
+        <CollectionView
+            Grid.Row="3"
+            ItemsSource="{Binding Items}"
+            IsVisible="{Binding ShowResults}"
+            SelectionMode="None">
+
+            <CollectionView.EmptyView>
+                <Label
+                    Text="No rules yet. Add your first rule above."
+                    Margin="24"
+                    HorizontalTextAlignment="Center" />
+            </CollectionView.EmptyView>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:RuleListItem">
+                    <Border
+                        Padding="16"
+                        Margin="0,0,0,8"
+                        StrokeShape="RoundRectangle 10"
+                        Stroke="{AppThemeBinding Light=#D8DDE8, Dark=#384054}"
+                        BackgroundColor="{AppThemeBinding Light=White, Dark=#202532}">
+
+                        <Grid
+                            ColumnDefinitions="*,*,Auto"
+                            ColumnSpacing="12">
+
+                            <Label
+                                Text="{Binding Pattern, StringFormat='contains &quot;{0}&quot;'}"
+                                FontAttributes="Bold"
+                                VerticalOptions="Center"
+                                LineBreakMode="TailTruncation" />
+
+                            <Label
+                                Grid.Column="1"
+                                Text="{Binding CategoryName, StringFormat='→ {0}'}"
+                                VerticalOptions="Center"
+                                LineBreakMode="TailTruncation" />
+
+                            <Button
+                                Grid.Column="2"
+                                Text="Delete"
+                                Clicked="OnDeleteClicked"
+                                BackgroundColor="{AppThemeBinding Light=#B42318, Dark=#A32A25}"
+                                TextColor="White" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>

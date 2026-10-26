@@ -1,5 +1,6 @@
 namespace ExpenseTracker.App.Views;
 
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Maui.Devices;
 using Microsoft.Maui.Storage;
 using ViewModels;
@@ -7,14 +8,23 @@ using ViewModels;
 public partial class BankImportPage : ContentPage
 {
     private readonly BankImportViewModel _viewModel;
+    private readonly IServiceProvider _services;
 
     private bool _pickingFile;
 
-    public BankImportPage(BankImportViewModel viewModel)
+    public BankImportPage(BankImportViewModel viewModel, IServiceProvider services)
     {
         InitializeComponent();
         _viewModel = viewModel;
+        _services = services;
         BindingContext = viewModel;
+    }
+
+    private async void OnEditRulesClicked(object? sender, EventArgs e)
+    {
+        if (_pickingFile || _viewModel.IsBusy) return;
+
+        await Navigation.PushAsync(_services.GetRequiredService<RulesPage>());
     }
 
     protected override bool OnBackButtonPressed() =>
