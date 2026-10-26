@@ -157,6 +157,16 @@ namespace CLI_Budget_Expense_Tracker.Infrastructure.Data.Migrations
                         });
                 });
 
+            modelBuilder.Entity("CLI_Budget_Expense_Tracker.Infrastructure.Data.RemovedImportHash", b =>
+                {
+                    b.Property<string>("Hash")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Hash");
+
+                    b.ToTable("RemovedImportHashes");
+                });
+
             modelBuilder.Entity("CLI_Budget_Expense_Tracker.Core.Models.BudgetLimit", b =>
                 {
                     b.HasOne("CLI_Budget_Expense_Tracker.Core.Models.Category", null)

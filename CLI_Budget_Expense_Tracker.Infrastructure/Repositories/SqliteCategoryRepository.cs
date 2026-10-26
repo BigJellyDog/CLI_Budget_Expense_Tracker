@@ -98,6 +98,26 @@ public sealed class SqliteCategoryRepository(ExpenseTrackerDbContext context) : 
 
         var usage = await GetUsageAsync(id, cancellationToken);
 
+        // Keep the bank hashes, so importing the same statement again skips these records.
+        var importHashes = await context.Expenses.IgnoreQueryFilters()
+            .Where(x => x.CategoryId == id && x.ImportHash != null)
+            .Select(x => x.ImportHash!)
+            .ToListAsync(cancellationToken);
+
+        foreach (var chunk in importHashes.Chunk(500))
+        {
+            var known = await context.RemovedImportHashes
+                .Where(x => chunk.Contains(x.Hash))
+                .Select(x => x.Hash)
+                .ToListAsync(cancellationToken);
+
+            context.RemovedImportHashes.AddRange(chunk
+                .Except(known)
+                .Select(x => new RemovedImportHash { Hash = x }));
+        }
+
+        await context.SaveChangesAsync(cancellationToken);
+
         await context.Expenses.IgnoreQueryFilters()
             .Where(x => x.CategoryId == id)
             .ExecuteDeleteAsync(cancellationToken);

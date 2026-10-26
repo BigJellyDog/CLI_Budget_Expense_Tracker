@@ -16,6 +16,8 @@ public sealed class ExpenseTrackerDbContext(
     public DbSet<BudgetLimit> BudgetLimits => Set<BudgetLimit>();
     public DbSet<RecurringExpense> RecurringExpenses =>
         Set<RecurringExpense>();
+    public DbSet<RemovedImportHash> RemovedImportHashes =>
+        Set<RemovedImportHash>();
 
     /// <summary>
     /// Configures tables, relationships, constraints, and money conversion.
@@ -165,6 +167,9 @@ public sealed class ExpenseTrackerDbContext(
 
         budget.HasIndex(x => new { x.CategoryId, x.Month })
             .IsUnique();
+
+        modelBuilder.Entity<RemovedImportHash>()
+            .HasKey(x => x.Hash);
     }
     
 

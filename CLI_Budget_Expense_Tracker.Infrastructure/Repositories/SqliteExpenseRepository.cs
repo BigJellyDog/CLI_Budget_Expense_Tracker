@@ -93,6 +93,12 @@ public sealed class SqliteExpenseRepository(ExpenseTrackerDbContext context) : I
                 .Where(x => x.ImportHash != null && chunk.Contains(x.ImportHash))
                 .Select(x => x.ImportHash!)
                 .ToListAsync(cancellationToken));
+
+            // Permanently deleted expenses leave their hash behind.
+            found.UnionWith(await context.RemovedImportHashes
+                .Where(x => chunk.Contains(x.Hash))
+                .Select(x => x.Hash)
+                .ToListAsync(cancellationToken));
         }
 
         return found;
