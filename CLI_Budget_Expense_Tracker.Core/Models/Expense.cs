@@ -13,14 +13,25 @@ public sealed class Expense
     public bool IsDeleted { get; private set; }
     public Guid? RecurringExpenseId { get; private set; }
 
+    /// <summary>Identifies the bank record this expense was imported from.</summary>
+    public string? ImportHash { get; private set; }
+
     public Expense(
         Guid id,
         decimal amount,
         Guid categoryId,
         DateOnly date,
         string description = "",
-        Guid? recurringExpenseId = null)
+        Guid? recurringExpenseId = null,
+        string? importHash = null)
     {
+        if (importHash is not null && string.IsNullOrWhiteSpace(importHash))
+        {
+            throw new ArgumentException(
+                "Import hash must not be blank.",
+                nameof(importHash));
+        }
+
         if (recurringExpenseId == Guid.Empty)
         {
             throw new ArgumentException(
@@ -48,6 +59,7 @@ public sealed class Expense
         Date = date;
         Description = description;
         RecurringExpenseId = recurringExpenseId;
+        ImportHash = importHash;
     }
 
     /// <summary>

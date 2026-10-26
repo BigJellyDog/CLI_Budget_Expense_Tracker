@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:vm="clr-namespace:ExpenseTracker.App.ViewModels"
     xmlns:models="clr-namespace:ExpenseTracker.App.Models"
+    xmlns:core="clr-namespace:CLI_Budget_Expense_Tracker.Core.Models;assembly=CLI_Budget_Expense_Tracker.Core"
     x:Class="ExpenseTracker.App.Views.BankImportPage"
     x:DataType="vm:BankImportViewModel"
     Title="Revolut CSV preview"
@@ -24,7 +25,7 @@
 
             <Label Text="Revolut CSV with German column names · EUR" />
 
-            <Label Text="Preview only. No expenses are saved." />
+            <Label Text="Choose a file, pick the records to import and a category, then press Import selected. Records already imported are skipped." />
 
             <Label
                 Text="{Binding FileName}"
@@ -43,6 +44,26 @@
                 Text="{Binding TotalText}"
                 FontSize="18"
                 FontAttributes="Bold" />
+
+            <Label
+                Text="Create a category on the Categories screen first, then choose the file again."
+                IsVisible="{Binding NeedsCategory}" />
+
+            <Picker
+                Title="Category for imported expenses"
+                ItemsSource="{Binding Categories}"
+                ItemDisplayBinding="{Binding Name, x:DataType=core:Category}"
+                SelectedItem="{Binding SelectedCategory, Mode=TwoWay}" />
+
+            <Label
+                Text="{Binding SelectionText}"
+                FontAttributes="Bold" />
+
+            <Button
+                Text="Import selected"
+                Clicked="OnImportClicked"
+                IsEnabled="{Binding CanImport}"
+                HorizontalOptions="Start" />
         </VerticalStackLayout>
 
         <VerticalStackLayout Grid.Row="2" Spacing="8">
@@ -54,6 +75,11 @@
                 Text="{Binding ErrorMessage}"
                 IsVisible="{Binding HasError}"
                 TextColor="{AppThemeBinding Light=#B42318, Dark=#FFB4AB}" />
+
+            <Label
+                Text="{Binding ResultMessage}"
+                IsVisible="{Binding HasResult}"
+                TextColor="{AppThemeBinding Light=#18794E, Dark=#75D6A6}" />
         </VerticalStackLayout>
 
         <CollectionView
@@ -79,39 +105,50 @@
                         BackgroundColor="{AppThemeBinding Light=White, Dark=#202532}">
 
                         <Grid
-                            ColumnDefinitions="*,Auto"
+                            ColumnDefinitions="Auto,*,Auto"
                             RowDefinitions="Auto,Auto,Auto,Auto,Auto"
                             ColumnSpacing="16"
                             RowSpacing="6">
 
+                            <CheckBox
+                                Grid.RowSpan="2"
+                                IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                IsEnabled="{Binding CanSelect}"
+                                VerticalOptions="Start" />
+
                             <Label
+                                Grid.Column="1"
                                 Text="{Binding Kind}"
                                 FontAttributes="Bold" />
 
                             <Label
-                                Grid.Column="1"
+                                Grid.Column="2"
                                 Text="{Binding Amount}"
                                 FontAttributes="Bold"
                                 HorizontalTextAlignment="End" />
 
                             <Label
                                 Grid.Row="1"
+                                Grid.Column="1"
                                 Grid.ColumnSpan="2"
                                 Text="{Binding Description}" />
 
                             <Label
                                 Grid.Row="2"
+                                Grid.Column="1"
                                 Grid.ColumnSpan="2"
                                 Text="{Binding Date}" />
 
                             <Label
                                 Grid.Row="3"
+                                Grid.Column="1"
                                 Grid.ColumnSpan="2"
                                 Text="{Binding Details}"
                                 FontSize="12" />
 
                             <Label
                                 Grid.Row="4"
+                                Grid.Column="1"
                                 Grid.ColumnSpan="2"
                                 Text="{Binding Reason}"
                                 FontSize="12" />

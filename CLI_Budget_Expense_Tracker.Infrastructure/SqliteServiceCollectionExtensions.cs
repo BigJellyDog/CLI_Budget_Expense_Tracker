@@ -43,6 +43,7 @@ public static class SqliteServiceCollectionExtensions
         services.AddScoped<CategoryService>();
         services.AddScoped<ExpenseService>();
         services.AddScoped<BudgetService>();
+        services.AddScoped<BankImportService>();
         services.AddSingleton<CsvExpenseExporter>();
         
 

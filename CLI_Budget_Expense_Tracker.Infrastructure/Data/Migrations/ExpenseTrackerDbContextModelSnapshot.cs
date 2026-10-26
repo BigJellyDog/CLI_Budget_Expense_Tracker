@@ -85,6 +85,9 @@ namespace CLI_Budget_Expense_Tracker.Infrastructure.Data.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("ImportHash")
+                        .HasColumnType("TEXT");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("INTEGER");
 
@@ -94,6 +97,10 @@ namespace CLI_Budget_Expense_Tracker.Infrastructure.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Date");
+
+                    b.HasIndex("ImportHash")
+                        .IsUnique()
+                        .HasFilter("\"ImportHash\" IS NOT NULL");
 
                     b.HasIndex("CategoryId", "Date");
 

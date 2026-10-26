@@ -22,5 +22,17 @@ public interface IExpenseRepository
         DateOnly? start = null, DateOnly? end = null, Guid? categoryId = null,
         CancellationToken cancellationToken = default);
     Task AddAsync(Expense expense, CancellationToken cancellationToken = default);
+
+    /// <summary>Saves all expenses in one transaction.</summary>
+    Task AddRangeAsync(
+        IReadOnlyCollection<Expense> expenses,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Returns the given hashes that already exist, including deleted expenses.
+    /// </summary>
+    Task<IReadOnlySet<string>> GetExistingImportHashesAsync(
+        IReadOnlyCollection<string> hashes,
+        CancellationToken cancellationToken = default);
     Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
 }

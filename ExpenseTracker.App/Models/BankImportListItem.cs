@@ -1,9 +1,50 @@
 namespace ExpenseTracker.App.Models;
 
 using CLI_Budget_Expense_Tracker.Core.Models;
+using CommunityToolkit.Mvvm.ComponentModel;
 
-public sealed record BankImportListItem(ClassifiedBankEntry Entry)
+public sealed class BankImportListItem : ObservableObject
 {
+    private readonly Action _selectionChanged;
+    private bool _isSelected;
+
+    public BankImportListItem(
+        ClassifiedBankEntry entry,
+        string hash,
+        Action selectionChanged)
+    {
+        Entry = entry;
+        Hash = hash;
+        _selectionChanged = selectionChanged;
+
+        // Only outgoing payments can become expenses.
+        CanSelect = entry.Source.Amount < 0
+            && entry.Kind is BankEntryKind.ExpenseCandidate
+                or BankEntryKind.NeedsReview;
+
+        _isSelected = entry.Kind == BankEntryKind.ExpenseCandidate
+            && CanSelect;
+    }
+
+    public ClassifiedBankEntry Entry { get; }
+
+    public string Hash { get; }
+
+    public bool CanSelect { get; }
+
+    public bool IsSelected
+    {
+        get => _isSelected;
+        set
+        {
+            if (!CanSelect || _isSelected == value) return;
+
+            _isSelected = value;
+            OnPropertyChanged();
+            _selectionChanged();
+        }
+    }
+
     public string Kind => Entry.Kind switch
     {
         BankEntryKind.ExpenseCandidate => "Expense candidate",

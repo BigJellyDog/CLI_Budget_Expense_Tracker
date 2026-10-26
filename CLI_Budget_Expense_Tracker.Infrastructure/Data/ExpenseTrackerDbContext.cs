@@ -68,6 +68,11 @@ public sealed class ExpenseTrackerDbContext(
         expense.HasIndex(x => x.Date);
         expense.HasIndex(x => new { x.CategoryId, x.Date });
 
+        // Deleted expenses keep their hash, so a re-import cannot bring them back.
+        expense.HasIndex(x => x.ImportHash)
+            .IsUnique()
+            .HasFilter("\"ImportHash\" IS NOT NULL");
+
         expense.HasQueryFilter(x => !x.IsDeleted);
         
         expense.HasOne<RecurringExpense>()

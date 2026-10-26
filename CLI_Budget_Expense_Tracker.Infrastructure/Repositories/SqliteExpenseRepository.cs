@@ -71,6 +71,33 @@ public sealed class SqliteExpenseRepository(ExpenseTrackerDbContext context) : I
         await context.SaveChangesAsync(cancellationToken);
     }
 
+    public async Task AddRangeAsync(
+        IReadOnlyCollection<Expense> expenses,
+        CancellationToken cancellationToken = default)
+    {
+        context.Expenses.AddRange(expenses);
+        await context.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlySet<string>> GetExistingImportHashesAsync(
+        IReadOnlyCollection<string> hashes,
+        CancellationToken cancellationToken = default)
+    {
+        var found = new HashSet<string>();
+
+        // Chunked to stay below SQLite's parameter limit.
+        foreach (var chunk in hashes.Distinct().Chunk(500))
+        {
+            found.UnionWith(await context.Expenses
+                .IgnoreQueryFilters()
+                .Where(x => x.ImportHash != null && chunk.Contains(x.ImportHash))
+                .Select(x => x.ImportHash!)
+                .ToListAsync(cancellationToken));
+        }
+
+        return found;
+    }
+
     public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var expense = await context.Expenses.SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
