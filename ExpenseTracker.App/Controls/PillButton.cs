@@ -11,8 +11,9 @@ public sealed class PillButton : Border
         propertyChanged: (b, _, v) =>
         {
             var button = (PillButton)b;
-            button._label.Text = (string)v;
-            button._label.IsVisible = ((string)v).Length > 0;
+            var text = (string?)v ?? "";
+            button._label.Text = text;
+            button._label.IsVisible = text.Length > 0;
         });
 
     public static readonly BindableProperty IconProperty = BindableProperty.Create(

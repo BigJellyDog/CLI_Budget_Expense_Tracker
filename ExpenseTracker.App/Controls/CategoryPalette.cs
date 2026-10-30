@@ -8,10 +8,16 @@ using ExpenseTracker.App.Services;
 /// </summary>
 public static class CategoryPalette
 {
-    public const int Count = 6;
+    public const int Count = 14;
 
-    // The order of the swatches in the "new category" row of the design.
+    // The first six follow the theme; the rest are fixed colors that read well on every theme.
     private static readonly string[] Keys = ["CatFood", "CatFun", "CatPets", "CatHealth", "CatMove", "CatShop"];
+
+    private static readonly Color[] Extra =
+    [
+        Color.FromArgb("#ff8a65"), Color.FromArgb("#8f9cff"), Color.FromArgb("#5cc8f0"), Color.FromArgb("#f5d76e"),
+        Color.FromArgb("#d9b99b"), Color.FromArgb("#d59ce8"), Color.FromArgb("#a3b1c2"), Color.FromArgb("#7fd88a")
+    ];
 
     private static Dictionary<string, int> _slots = new();
     private static AppSettings? _settings;
@@ -51,10 +57,17 @@ public static class CategoryPalette
         return (hash & int.MaxValue) % Count;
     }
 
-    public static Color ColorOfSlot(int slot) =>
-        Application.Current?.Resources.TryGetValue(Keys[slot % Count], out var value) == true && value is Color color
+    public static Color ColorOfSlot(int slot)
+    {
+        slot = Math.Abs(slot) % Count;
+
+        if (slot >= Keys.Length)
+            return Extra[slot - Keys.Length];
+
+        return Application.Current?.Resources.TryGetValue(Keys[slot], out var value) == true && value is Color color
             ? color
             : Colors.Gray;
+    }
 
     public static Color ColorFor(string categoryName) =>
         CustomColorOf(categoryName) ?? ColorOfSlot(SlotOf(categoryName));

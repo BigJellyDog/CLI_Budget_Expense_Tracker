@@ -104,15 +104,22 @@ text wins.
 
 ![Categories](../images/en/categories.png)
 
-Each category is a tile with its color, the number of entries this month, the amount and its share of the month.
+The screen has two parts. On the left is a compact list with a search field: categories with spending in the
+month first (largest first), then the unused ones. Arrows or a click on the month at the top change the month. On
+the right is everything about the category you chose.
 
-- **New category**: type a name, pick a color and press **Create category**. The row offers six palette
-  colors and a **+** swatch that opens a color picker for a color of your own. Names must be unique
-  (case-insensitive).
-- **Rename** with the pencil icon: the form switches to rename mode; you can change the color too.
-- **Delete** with the trash icon. If the category is not used, it is deleted after a confirmation. If it is used,
-  you can either **move its expenses and schedules to another category**, or **delete the category together
-  with all its data**. The second option makes a backup first and asks for a second confirmation.
+- **Numbers of the month**: amount, share of the month, number of entries and average per entry.
+  **Show entries** opens Expenses for this category and month.
+- **New category** (top right): type a name; the category gets the next free color automatically.
+  Names must be unique (case-insensitive).
+- **Rename** (button in the detail card).
+- **Color**: 14 palette colors, and a **+** swatch that opens a color picker for a color of your own. The color
+  is applied at once.
+- **Linked**: the monthly limit of the category (**Set limit** / **Open budgets** go to Budgets) and the
+  auto-categorization rules that assign entries to it.
+- **Delete** in the red area at the bottom. If the category is not used, it is deleted after a confirmation. If it
+  is used, you can either **move its expenses and schedules to another category**, or **delete the category
+  together with all its data**. The second option makes a backup first and asks for a second confirmation.
 
 Category colors are the same on every screen (lists, donut chart, budgets, reports).
 

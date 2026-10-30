@@ -114,17 +114,23 @@ Kleinschreibung spielt keine Rolle. Passen mehrere Regeln, gewinnt der längste 
 
 ![Kategorien](../images/de/categories.png)
 
-Jede Kategorie ist eine Kachel mit ihrer Farbe, der Anzahl der Einträge in diesem Monat, dem Betrag und ihrem
-Anteil am Monat.
+Der Bildschirm hat zwei Teile. Links steht eine kompakte Liste mit Suchfeld: zuerst Kategorien mit Ausgaben im
+Monat (größte zuerst), danach die ungenutzten. Die Pfeile oder ein Klick auf den Monat oben wechseln den Monat.
+Rechts steht alles zur gewählten Kategorie.
 
-- **Neue Kategorie**: Name eingeben, Farbe wählen und **Kategorie erstellen**. Die Zeile bietet sechs Farben der
-  Palette und ein **+**, das eine Farbauswahl für eine eigene Farbe öffnet. Namen müssen eindeutig sein (ohne
-  Beachtung der Groß- und Kleinschreibung).
-- **Umbenennen** mit dem Stift: Das Formular wechselt in den Umbenennen-Modus; auch die Farbe lässt sich ändern.
-- **Löschen** mit dem Papierkorb. Wird die Kategorie nicht verwendet, wird sie nach einer Bestätigung gelöscht.
-  Wird sie verwendet, können Sie entweder **die Ausgaben und Pläne in eine andere Kategorie verschieben** oder
-  **die Kategorie samt allen Daten löschen**. Die zweite Möglichkeit erstellt zuerst eine Sicherung und fragt ein
-  zweites Mal nach.
+- **Zahlen des Monats**: Betrag, Anteil am Monat, Anzahl der Einträge und Durchschnitt pro Eintrag.
+  **Einträge anzeigen** öffnet die Ausgaben für diese Kategorie und diesen Monat.
+- **Neue Kategorie** (oben rechts): Namen eingeben; die Kategorie erhält automatisch die nächste freie Farbe.
+  Namen müssen eindeutig sein (ohne Beachtung der Groß- und Kleinschreibung).
+- **Umbenennen** (Schaltfläche in der Detailkarte).
+- **Farbe**: 14 Farben der Palette und ein **+**, das eine Farbauswahl für eine eigene Farbe öffnet. Die Farbe
+  gilt sofort.
+- **Verknüpft**: das Monatslimit der Kategorie (**Limit festlegen** / **Budgets öffnen** führen zu den Budgets)
+  und die Regeln zur automatischen Kategorisierung, die ihr Einträge zuordnen.
+- **Löschen** im roten Bereich unten. Wird die Kategorie nicht verwendet, wird sie nach einer Bestätigung
+  gelöscht. Wird sie verwendet, können Sie entweder **die Ausgaben und Pläne in eine andere Kategorie
+  verschieben** oder **die Kategorie samt allen Daten löschen**. Die zweite Möglichkeit erstellt zuerst eine
+  Sicherung und fragt ein zweites Mal nach.
 
 Die Kategoriefarben sind auf jedem Bildschirm gleich (Listen, Ringdiagramm, Budgets, Berichte).
 

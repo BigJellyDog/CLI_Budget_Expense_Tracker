@@ -17,12 +17,16 @@ public sealed class CategoriesViewModel : ObservableObject
     private readonly DatabaseBackupService _backups;
     private readonly ILogger<CategoriesViewModel> _logger;
 
-    private readonly TimeProvider _timeProvider;
     private readonly AppSettings _settings;
 
     private Guid? _editingCategoryId;
+    private Guid? _selectedId;
+    private DateOnly _month;
+    private string _searchText = "";
     private bool _loaded;
     private Dictionary<Guid, (int Count, decimal Amount)> _stats = new();
+    private Dictionary<Guid, decimal> _limits = new();
+    private Dictionary<Guid, int> _ruleCounts = new();
 
     public CategoriesViewModel(
         IServiceScopeFactory scopeFactory,
@@ -32,7 +36,8 @@ public sealed class CategoriesViewModel : ObservableObject
         AppSettings settings,
         ILogger<CategoriesViewModel> logger)
     {
-        _timeProvider = timeProvider;
+        var today = DateOnly.FromDateTime(timeProvider.GetLocalNow().DateTime);
+        _month = new DateOnly(today.Year, today.Month, 1);
         _settings = settings;
         _backups = backups;
         _scopeFactory = scopeFactory;
@@ -44,15 +49,60 @@ public sealed class CategoriesViewModel : ObservableObject
 
     public IReadOnlyList<CategoryTile> Tiles { get; private set; } = [];
 
+    /// <summary>Categories with spending in the month that match the search.</summary>
+    public IReadOnlyList<CategoryTile> UsedRows { get; private set; } = [];
+
+    /// <summary>Categories without spending in the month that match the search.</summary>
+    public IReadOnlyList<CategoryTile> UnusedRows { get; private set; } = [];
+
     public IReadOnlyList<SwatchItem> Swatches { get; private set; } = [];
 
-    /// <summary>The palette slot picked in the form, or -1 while a custom color is picked.</summary>
+    /// <summary>The palette slot of the category being created or renamed, or -1 for a custom color.</summary>
     public int SelectedSlot { get; private set; }
 
-    /// <summary>The custom color picked in the form, if any.</summary>
+    /// <summary>The custom color of the category being created or renamed, if any.</summary>
     public Color? CustomColor { get; private set; }
 
-    public string Subtitle => Loc.F("{0} categories · colors are used in lists, charts and budgets", Items.Count);
+    public CategoryTile? Selected { get; private set; }
+
+    public bool HasSelection => Selected is not null;
+
+    public bool IsEmpty => ShowResults && Items.Count == 0;
+
+    public bool HasUsed => UsedRows.Count > 0;
+
+    public bool HasUnused => UnusedRows.Count > 0;
+
+    public bool NothingFound => ShowResults && Items.Count > 0 && UsedRows.Count + UnusedRows.Count == 0;
+
+    public string UsedCaption => Loc.F("Used this month · {0}", UsedRows.Count);
+
+    public string UnusedCaption => Loc.F("Unused · {0}", UnusedRows.Count);
+
+    public string SearchPlaceholder => Loc.F("Search {0} categories", Items.Count);
+
+    public string SearchText
+    {
+        get => _searchText;
+        set
+        {
+            if (!SetProperty(ref _searchText, value ?? "")) return;
+
+            BuildTiles();
+            NotifyLists();
+        }
+    }
+
+    public DateTime Month => _month.ToDateTime(TimeOnly.MinValue);
+
+    public string MonthTitle => _month.ToString("MMMM yyyy");
+
+    public bool CanPreviousMonth => !IsBusy && _month > DateOnly.MinValue;
+
+    public bool CanNextMonth => !IsBusy && _month < new DateOnly(9999, 12, 1);
+
+    public string Subtitle => Loc.F("{0} categories · {1} in {2}",
+        Items.Count, $"{_stats.Values.Sum(x => x.Amount):N2} {_settings.Currency}".TrimEnd(), _month.ToString("MMMM"));
 
     public string NameText { get; set; } = ""; 
 
@@ -61,14 +111,6 @@ public sealed class CategoriesViewModel : ObservableObject
     public string SuccessMessage { get; private set; } = "";
 
     public bool IsBusy { get; private set; }
-
-    public bool IsEditing => _editingCategoryId.HasValue;
-
-    public string FormTitle =>
-        IsEditing ? Loc.T("Rename category") : Loc.T("New category");
-
-    public string SaveButtonText =>
-        IsEditing ? Loc.T("Save changes") : Loc.T("Create category");
 
     public bool HasError => ErrorMessage.Length > 0;
 
@@ -88,9 +130,11 @@ public sealed class CategoriesViewModel : ObservableObject
         Items = await ReadCategoriesAsync();
         _loaded = true;
 
-        if (!IsEditing)
+        if (_editingCategoryId is null)
+        {
             CustomColor = null;
-        SelectedSlot = CategoryPalette.LeastUsedSlot(Items.Select(x => x.Name));
+            SelectedSlot = CategoryPalette.LeastUsedSlot(Items.Select(x => x.Name));
+        }
 
         if (_editingCategoryId is { } id
             && Items.All(x => x.Id != id))
@@ -131,22 +175,65 @@ public sealed class CategoriesViewModel : ObservableObject
         NotifyState();
     }
 
-    public void SelectSlot(int slot)
+    public void Select(Guid categoryId)
     {
-        if (!CanEdit) return;
+        if (IsBusy) return;
 
-        SelectedSlot = slot;
+        _selectedId = categoryId;
+        BuildTiles();
+        NotifyLists();
+    }
+
+    /// <summary>Gives the selected category a color of the palette.</summary>
+    public void SetSelectedColor(int slot)
+    {
+        if (!CanEdit || Selected is not { } tile) return;
+
+        SaveSelectedColor(() => _settings.SetCategoryColor(tile.Name, slot));
+    }
+
+    /// <summary>Gives the selected category a color of the person's own.</summary>
+    public void SetSelectedCustomColor(Color color)
+    {
+        if (!CanEdit || Selected is not { } tile) return;
+
+        SaveSelectedColor(() => _settings.SetCategoryCustomColor(tile.Name, ToHex(color)));
+    }
+
+    public async Task SetMonthAsync(DateTime month)
+    {
+        if (IsBusy) return;
+
+        _month = new DateOnly(month.Year, month.Month, 1);
+        await LoadAsync();
+    }
+
+    public async Task MoveMonthAsync(int offset)
+    {
+        if ((offset < 0 && !CanPreviousMonth) || (offset > 0 && !CanNextMonth)) return;
+
+        _month = _month.AddMonths(offset);
+        await LoadAsync();
+    }
+
+    private void SaveSelectedColor(Action save)
+    {
+        try
+        {
+            save();
+        }
+        catch (Exception exception)
+        {
+            _logger.LogWarning(exception, "Could not save the color of a category.");
+            ShowError(Loc.T("Could not save the color."));
+            return;
+        }
+
         NotifyState();
     }
 
-    public void SelectCustomColor(Color color)
-    {
-        if (!CanEdit) return;
-
-        CustomColor = color;
-        SelectedSlot = -1;
-        NotifyState();
-    }
+    private static string ToHex(Color color) =>
+        $"#{(int)Math.Round(color.Red * 255):X2}{(int)Math.Round(color.Green * 255):X2}{(int)Math.Round(color.Blue * 255):X2}";
 
     public async Task SaveAsync()
     {
@@ -205,8 +292,9 @@ public sealed class CategoriesViewModel : ObservableObject
             _loaded = false;
             Items = await ReadCategoriesAsync();
             _loaded = true;
+            _selectedId = Items.FirstOrDefault(x => x.NormalizedName == normalizedName)?.Id ?? _selectedId;
             CustomColor = null;
-        SelectedSlot = CategoryPalette.LeastUsedSlot(Items.Select(x => x.Name));
+            SelectedSlot = CategoryPalette.LeastUsedSlot(Items.Select(x => x.Name));
         }, () => saved
             ? Loc.T("The category was saved, but the list could not be reloaded. Click Refresh.")
             : Loc.T("Could not save the category. Click Refresh and try again."));
@@ -398,12 +486,11 @@ public sealed class CategoriesViewModel : ObservableObject
         }, () => Loc.T("Could not delete the category. Nothing was changed. Try Refresh."));
     }
 
-    /// <summary>Loads the categories and what was spent in each this month.</summary>
+    /// <summary>Loads the categories and, for the month, what was spent in each, their limits and rules.</summary>
     private async Task<IReadOnlyList<Category>> ReadCategoriesAsync()
     {
-        var today = DateOnly.FromDateTime(_timeProvider.GetLocalNow().DateTime);
-        var start = new DateOnly(today.Year, today.Month, 1);
-        var end = new DateOnly(today.Year, today.Month, DateTime.DaysInMonth(today.Year, today.Month));
+        var start = _month;
+        var end = new DateOnly(start.Year, start.Month, DateTime.DaysInMonth(start.Year, start.Month));
 
         var result = await Task.Run(async () =>
         {
@@ -422,10 +509,20 @@ public sealed class CategoriesViewModel : ObservableObject
                 .GroupBy(x => x.CategoryId)
                 .ToDictionary(g => g.Key, g => (g.Count(), g.Sum(x => x.Amount)));
 
-            return (Categories: categories, Stats: stats);
+            var limits = (await services.GetRequiredService<BudgetService>().GetMonthlyStatusesAsync(start))
+                .Where(x => x.Limit.HasValue)
+                .ToDictionary(x => x.CategoryId, x => x.Limit!.Value);
+
+            var rules = (await services.GetRequiredService<CategoryRuleService>().GetAllAsync())
+                .GroupBy(x => x.CategoryId)
+                .ToDictionary(g => g.Key, g => g.Count());
+
+            return (Categories: categories, Stats: stats, Limits: limits, Rules: rules);
         });
 
         _stats = result.Stats;
+        _limits = result.Limits;
+        _ruleCounts = result.Rules;
 
         // Colors come from the theme, which belongs to the UI thread.
         CategoryPalette.Assign(result.Categories.Select(x => x.Name));
@@ -442,7 +539,7 @@ public sealed class CategoriesViewModel : ObservableObject
                 _settings.RenameCategoryColor(old.Name, name);
 
             if (SelectedSlot < 0 && CustomColor is { } custom)
-                _settings.SetCategoryCustomColor(name, $"#{(int)Math.Round(custom.Red * 255):X2}{(int)Math.Round(custom.Green * 255):X2}{(int)Math.Round(custom.Blue * 255):X2}");
+                _settings.SetCategoryCustomColor(name, ToHex(custom));
             else
                 _settings.SetCategoryColor(name, Math.Max(0, SelectedSlot));
         }
@@ -456,6 +553,9 @@ public sealed class CategoriesViewModel : ObservableObject
     {
         var total = _stats.Values.Sum(x => x.Amount);
 
+        if (_selectedId is null || Items.All(x => x.Id != _selectedId))
+            _selectedId = Items.OrderByDescending(x => _stats.GetValueOrDefault(x.Id).Amount).FirstOrDefault()?.Id;
+
         Tiles = Items
             .Select(c =>
             {
@@ -467,15 +567,37 @@ public sealed class CategoriesViewModel : ObservableObject
                     amount,
                     total > 0 ? amount / total : 0,
                     _settings.Currency,
-                    CategoryPalette.ColorFor(c.Name));
+                    CategoryPalette.ColorFor(c.Name),
+                    _limits.TryGetValue(c.Id, out var limit) ? limit : null,
+                    _ruleCounts.GetValueOrDefault(c.Id),
+                    c.Id == _selectedId);
             })
             .ToArray();
+
+        Selected = Tiles.FirstOrDefault(x => x.IsSelected);
+
+        var query = SearchText.Trim();
+        var shown = Tiles
+            .Where(x => query.Length == 0 || x.Name.Contains(query, StringComparison.CurrentCultureIgnoreCase))
+            .ToArray();
+
+        UsedRows = shown.Where(x => !x.IsUnused).OrderByDescending(x => x.Amount).ThenBy(x => x.Name).ToArray();
+        UnusedRows = shown.Where(x => x.IsUnused).OrderBy(x => x.Name).ToArray();
+
+        var current = Selected is null
+            ? -2
+            : CategoryPalette.CustomColorOf(Selected.Name) is null ? CategoryPalette.SlotOf(Selected.Name) : -1;
 
         Swatches =
         [
             .. Enumerable.Range(0, CategoryPalette.Count)
-                .Select(slot => new SwatchItem(slot, CategoryPalette.ColorOfSlot(slot), slot == SelectedSlot)),
-            new SwatchItem(-1, CustomColor ?? Colors.Gray, SelectedSlot < 0, IsCustom: true, ShowPlus: CustomColor is null)
+                .Select(slot => new SwatchItem(slot, CategoryPalette.ColorOfSlot(slot), slot == current)),
+            new SwatchItem(
+                -1,
+                Selected is null ? Colors.Gray : CategoryPalette.CustomColorOf(Selected.Name) ?? Colors.Gray,
+                current == -1,
+                IsCustom: true,
+                ShowPlus: current != -1)
         ];
     }
 
@@ -520,14 +642,14 @@ public sealed class CategoriesViewModel : ObservableObject
     {
         BuildTiles();
 
-        OnPropertyChanged(nameof(Tiles));
-        OnPropertyChanged(nameof(Swatches));
-        OnPropertyChanged(nameof(Subtitle));
         OnPropertyChanged(nameof(Items));
         OnPropertyChanged(nameof(NameText));
-        OnPropertyChanged(nameof(IsEditing));
-        OnPropertyChanged(nameof(FormTitle));
-        OnPropertyChanged(nameof(SaveButtonText));
+        OnPropertyChanged(nameof(Subtitle));
+        OnPropertyChanged(nameof(SearchPlaceholder));
+        OnPropertyChanged(nameof(Month));
+        OnPropertyChanged(nameof(MonthTitle));
+        OnPropertyChanged(nameof(CanPreviousMonth));
+        OnPropertyChanged(nameof(CanNextMonth));
         OnPropertyChanged(nameof(ErrorMessage));
         OnPropertyChanged(nameof(SuccessMessage));
         OnPropertyChanged(nameof(HasError));
@@ -537,5 +659,22 @@ public sealed class CategoriesViewModel : ObservableObject
         OnPropertyChanged(nameof(CanGoBack));
         OnPropertyChanged(nameof(CanEdit));
         OnPropertyChanged(nameof(ShowResults));
+        NotifyLists();
+    }
+
+    private void NotifyLists()
+    {
+        OnPropertyChanged(nameof(Tiles));
+        OnPropertyChanged(nameof(UsedRows));
+        OnPropertyChanged(nameof(UnusedRows));
+        OnPropertyChanged(nameof(UsedCaption));
+        OnPropertyChanged(nameof(UnusedCaption));
+        OnPropertyChanged(nameof(HasUsed));
+        OnPropertyChanged(nameof(HasUnused));
+        OnPropertyChanged(nameof(NothingFound));
+        OnPropertyChanged(nameof(IsEmpty));
+        OnPropertyChanged(nameof(Selected));
+        OnPropertyChanged(nameof(HasSelection));
+        OnPropertyChanged(nameof(Swatches));
     }
 }

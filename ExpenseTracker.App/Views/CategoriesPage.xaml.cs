@@ -43,10 +43,19 @@ public partial class CategoriesPage : ContentPage
     protected override bool OnBackButtonPressed() =>
         _viewModel.IsBusy || base.OnBackButtonPressed();
 
-    private void OnTilesSizeChanged(object? sender, EventArgs e)
+    private async void OnPreviousClicked(object? sender, EventArgs e) =>
+        await _viewModel.MoveMonthAsync(-1);
+
+    private async void OnNextClicked(object? sender, EventArgs e) =>
+        await _viewModel.MoveMonthAsync(1);
+
+    private async void OnMonthPicked(object? sender, DateTime month) =>
+        await _viewModel.SetMonthAsync(month);
+
+    private void OnRowTapped(object? sender, TappedEventArgs e)
     {
-        if (Tiles.ItemsLayout is GridItemsLayout layout && Tiles.Width > 0)
-            layout.Span = Math.Max(1, (int)((Tiles.Width + 16) / (400 + 16)));
+        if (sender is BindableObject { BindingContext: CategoryTile tile })
+            _viewModel.Select(tile.Category.Id);
     }
 
     private void OnSwatchTapped(object? sender, TappedEventArgs e)
@@ -56,54 +65,88 @@ public partial class CategoriesPage : ContentPage
 
         if (!swatch.IsCustom)
         {
-            _viewModel.SelectSlot(swatch.Slot);
+            _viewModel.SetSelectedColor(swatch.Slot);
             return;
         }
 
         // The last swatch opens a color picker for a color of the person's own.
-        ColorPickerPopup.Show(view, _viewModel.CustomColor, _viewModel.SelectCustomColor);
+        ColorPickerPopup.Show(view, _viewModel.Selected?.Color, _viewModel.SetSelectedCustomColor);
     }
 
-    private static void ShowTileActions(object? sender, bool visible)
+    private static void ShowRowHover(object? sender, bool hovered)
     {
-        if (sender is not Grid tile) return;
+        if (sender is not Border { BindingContext: CategoryTile { IsSelected: false } } row) return;
 
-        if (visible)
-            tile.SetDynamicResource(BackgroundColorProperty, "Surface2");
+        if (hovered)
+            row.SetDynamicResource(BackgroundColorProperty, "Surface2");
         else
-            tile.BackgroundColor = Colors.Transparent;
+            row.BackgroundColor = Colors.Transparent;
     }
 
-    private void OnTilePointerEntered(object? sender, PointerEventArgs e) => ShowTileActions(sender, true);
+    private void OnRowPointerEntered(object? sender, PointerEventArgs e) => ShowRowHover(sender, true);
 
-    private void OnTilePointerExited(object? sender, PointerEventArgs e) => ShowTileActions(sender, false);
+    private void OnRowPointerExited(object? sender, PointerEventArgs e) => ShowRowHover(sender, false);
 
-    private async void OnRefreshClicked(object? sender, EventArgs e) =>
-        await _viewModel.LoadAsync();
+    private async void OnNewClicked(object? sender, EventArgs e)
+    {
+        if (!_viewModel.CanEdit) return;
 
-    private async void OnSaveClicked(object? sender, EventArgs e) =>
-        await _viewModel.SaveAsync();
-
-    private void OnCancelClicked(object? sender, EventArgs e) =>
         _viewModel.CancelEdit();
 
-    private void OnRenameClicked(object? sender, EventArgs e)
+        var name = await DisplayPromptAsync(
+            Loc.T("New category"),
+            Loc.T("Category name"),
+            Loc.T("Create category"),
+            Loc.T("Cancel"),
+            Loc.T("Category name"));
+
+        if (string.IsNullOrWhiteSpace(name)) return;
+
+        _viewModel.NameText = name;
+        await _viewModel.SaveAsync();
+    }
+
+    private async void OnRenameClicked(object? sender, EventArgs e)
     {
-        if (!_viewModel.CanEdit
-            || sender is not BindableObject { BindingContext: CategoryTile { Category: { } category } })
+        if (!_viewModel.CanEdit || _viewModel.Selected?.Category is not { } category) return;
+
+        _viewModel.StartRename(category);
+
+        var name = await DisplayPromptAsync(
+            Loc.T("Rename category"),
+            Loc.T("Category name"),
+            Loc.T("Save changes"),
+            Loc.T("Cancel"),
+            Loc.T("Category name"),
+            initialValue: category.Name);
+
+        if (string.IsNullOrWhiteSpace(name) || name.Trim() == category.Name)
         {
+            _viewModel.CancelEdit();
             return;
         }
 
-        _viewModel.StartRename(category);
-        CategoryNameEntry.Focus();
+        _viewModel.NameText = name;
+        await _viewModel.SaveAsync();
+        _viewModel.CancelEdit();
     }
-    
+
+    private async void OnShowEntriesClicked(object? sender, EventArgs e)
+    {
+        if (_viewModel.Selected?.Category is not { } category) return;
+
+        _services.GetRequiredService<ExpenseFilterRequest>().Set(category.Id, _viewModel.Month);
+        await Shell.Current.GoToAsync("//expenses");
+    }
+
+    private async void OnBudgetClicked(object? sender, EventArgs e) =>
+        await Shell.Current.GoToAsync("//budgets");
+
     private async void OnDeleteClicked(object? sender, EventArgs e)
     {
         if (_choosingDeleteAction
             || !_viewModel.CanEdit
-            || sender is not BindableObject { BindingContext: CategoryTile { Category: { } category } })
+            || _viewModel.Selected?.Category is not { } category)
         {
             return;
         }
