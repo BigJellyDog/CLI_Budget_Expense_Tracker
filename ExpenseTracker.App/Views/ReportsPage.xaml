@@ -2,6 +2,7 @@
 <ContentPage
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:ExpenseTracker.App.Controls"
     xmlns:loc="clr-namespace:ExpenseTracker.App.Services"
     xmlns:vm="clr-namespace:ExpenseTracker.App.ViewModels"
     xmlns:models="clr-namespace:ExpenseTracker.App.Models"
@@ -12,154 +13,389 @@
     NavigationPage.HasBackButton="{Binding CanGoBack}"
     BackgroundColor="{DynamicResource Bg}">
 
-    <Grid RowDefinitions="Auto,*">
+    <ScrollView>
+        <controls:CenteredContainer Padding="40,28,40,24">
+            <VerticalStackLayout Spacing="20">
 
-        <Label
-            Text="{loc:Tr Key='Reports'}"
-            FontSize="26"
-            FontFamily="ManropeExtraBold"
-            Padding="24,24,24,0" />
+                <!-- Title, month, refresh -->
+                <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
+                    <VerticalStackLayout VerticalOptions="Center" Spacing="2">
+                        <Label
+                            Text="{loc:Tr Key='Reports'}"
+                            FontSize="28"
+                            FontFamily="ManropeExtraBold" />
+                        <Label
+                            Text="{Binding Subtitle}"
+                            FontSize="13"
+                            TextColor="{DynamicResource InkMuted}" />
+                    </VerticalStackLayout>
 
-        <ScrollView Grid.Row="1">
-            <VerticalStackLayout
-                Padding="12,8,24,24"
-                Spacing="16"
-                MaximumWidthRequest="800">
-
-                <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="12">
-                    <Button
-                        Text="{loc:Tr Key='Previous'}"
-                        Clicked="OnPreviousClicked"
-                        IsEnabled="{Binding CanPreviousMonth}" />
-
-                    <Label
+                    <controls:MonthSwitch
                         Grid.Column="1"
-                        Text="{Binding MonthTitle}"
-                        FontSize="20"
-                        FontAttributes="Bold"
-                        HorizontalTextAlignment="Center"
-                        VerticalOptions="Center" />
+                        Title="{Binding MonthTitle}"
+                        Month="{Binding Month}"
+                        CanGoPrevious="{Binding CanPreviousMonth}"
+                        CanGoNext="{Binding CanNextMonth}"
+                        PreviousClicked="OnPreviousClicked"
+                        NextClicked="OnNextClicked"
+                        MonthPicked="OnMonthPicked" />
 
-                    <Button
+                    <controls:IconButton
                         Grid.Column="2"
-                        Text="{loc:Tr Key='Next'}"
-                        Clicked="OnNextClicked"
-                        IsEnabled="{Binding CanNextMonth}" />
-
-                    <Button
-                        Grid.Column="3"
-                        Text="{loc:Tr Key='Refresh'}"
+                        Filled="True"
+                        Icon="{x:Static controls:Icons.Refresh}"
                         Clicked="OnRefreshClicked"
                         IsEnabled="{Binding CanNavigate}" />
                 </Grid>
 
-                <ActivityIndicator
-                    IsRunning="{Binding IsBusy}"
-                    IsVisible="{Binding IsBusy}" />
+                <VerticalStackLayout Spacing="6">
+                    <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+                    <Label
+                        Text="{Binding ErrorMessage}"
+                        IsVisible="{Binding HasError}"
+                        TextColor="{DynamicResource Danger}" />
+                </VerticalStackLayout>
+
+                <!-- Four numbers -->
+                <Grid
+                    ColumnDefinitions="*,*,*,*"
+                    ColumnSpacing="16"
+                    IsVisible="{Binding ShowResults}">
+
+                    <Border Padding="20,18">
+                        <VerticalStackLayout Spacing="4">
+                            <Label
+                                Text="{loc:Tr Key='Total spent'}"
+                                FontSize="12"
+                                FontFamily="ManropeSemiBold"
+                                TextColor="{DynamicResource InkMuted}" />
+                            <Label Text="{Binding TotalText}" FontSize="26" FontFamily="ManropeExtraBold" />
+                            <Label
+                                Text="{Binding TotalDeltaText}"
+                                FontSize="12"
+                                FontFamily="ManropeSemiBold"
+                                TextColor="{DynamicResource InkMuted}">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding TotalDeltaTone}" Value="Danger">
+                                        <Setter Property="TextColor" Value="{DynamicResource Danger}" />
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Label" Binding="{Binding TotalDeltaTone}" Value="Success">
+                                        <Setter Property="TextColor" Value="{DynamicResource Success}" />
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border Grid.Column="1" Padding="20,18">
+                        <VerticalStackLayout Spacing="4">
+                            <Label
+                                Text="{loc:Tr Key='Average per day'}"
+                                FontSize="12"
+                                FontFamily="ManropeSemiBold"
+                                TextColor="{DynamicResource InkMuted}" />
+                            <Label Text="{Binding AverageText}" FontSize="26" FontFamily="ManropeExtraBold" />
+                            <Label
+                                Text="{Binding AverageCaption}"
+                                FontSize="12"
+                                FontFamily="ManropeSemiBold"
+                                TextColor="{DynamicResource InkMuted}" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border Grid.Column="2" Padding="20,18">
+                        <VerticalStackLayout Spacing="4">
+                            <Label
+                                Text="{Binding ForecastTitle}"
+                                FontSize="12"
+                                FontFamily="ManropeSemiBold"
+                                TextColor="{DynamicResource InkMuted}" />
+                            <Label Text="{Binding ForecastText}" FontSize="26" FontFamily="ManropeExtraBold" />
+                            <Label
+                                Text="{Binding ForecastCaption}"
+                                FontSize="12"
+                                FontFamily="ManropeSemiBold"
+                                TextColor="{DynamicResource InkMuted}" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border Grid.Column="3" Padding="20,18">
+                        <VerticalStackLayout Spacing="4">
+                            <Label
+                                Text="{loc:Tr Key='Top category'}"
+                                FontSize="12"
+                                FontFamily="ManropeSemiBold"
+                                TextColor="{DynamicResource InkMuted}" />
+                            <Label
+                                Text="{Binding TopCategoryText}"
+                                FontSize="26"
+                                FontFamily="ManropeExtraBold"
+                                LineBreakMode="TailTruncation" />
+                            <Label
+                                Text="{Binding TopCategoryCaption}"
+                                FontSize="12"
+                                FontFamily="ManropeSemiBold"
+                                TextColor="{DynamicResource InkMuted}" />
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
 
                 <Label
-                    Text="{Binding ErrorMessage}"
-                    IsVisible="{Binding HasError}"
-                    TextColor="{DynamicResource Danger}" />
+                    Text="{loc:Tr Key='No expenses this month.'}"
+                    IsVisible="{Binding ShowEmpty}"
+                    TextColor="{DynamicResource InkMuted}"
+                    HorizontalTextAlignment="Center"
+                    Margin="24" />
 
-                <VerticalStackLayout Spacing="16" IsVisible="{Binding ShowResults}">
+                <Grid
+                    ColumnDefinitions="*,360"
+                    ColumnSpacing="20"
+                    IsVisible="{Binding HasData}">
 
-                    <VerticalStackLayout Spacing="4">
-                        <Label
-                            Text="{Binding TotalText}"
-                            FontSize="22"
-                            FontAttributes="Bold" />
-                        <Label Text="{Binding ComparisonText}" />
-                        <Label Text="{Binding AverageText}" />
-                        <Label
-                            Text="{Binding ForecastText}"
-                            IsVisible="{Binding HasForecast}" />
-                    </VerticalStackLayout>
+                    <!-- By category -->
+                    <Border Padding="20" VerticalOptions="Start">
+                        <VerticalStackLayout Spacing="8">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label
+                                    Text="{loc:Tr Key='By category'}"
+                                    FontSize="15"
+                                    FontFamily="ManropeBold"
+                                    VerticalOptions="Center" />
 
-                    <Label
-                        Text="{loc:Tr Key='No expenses for this month or the month before.'}"
-                        IsVisible="{Binding ShowEmpty}" />
-
-                    <Label
-                        Text="{loc:Tr Key='By category'}"
-                        FontSize="18"
-                        FontAttributes="Bold" />
-
-                    <VerticalStackLayout
-                        BindableLayout.ItemsSource="{Binding Categories}"
-                        Spacing="8">
-                        <BindableLayout.ItemTemplate>
-                            <DataTemplate x:DataType="models:CategoryReportItem">
                                 <Border
-                                    Padding="16"
-                                    StrokeShape="RoundRectangle 18"
-                                    Stroke="{DynamicResource Border}"
-                                    BackgroundColor="{DynamicResource Surface}">
-                                    <Grid
-                                        ColumnDefinitions="*,Auto,Auto"
-                                        RowDefinitions="Auto,Auto,Auto"
-                                        ColumnSpacing="16"
-                                        RowSpacing="6">
-                                        <Label
-                                            Text="{Binding CategoryName}"
-                                            FontAttributes="Bold" />
-                                        <Label
-                                            Grid.Column="1"
-                                            Text="{Binding TotalText}"
-                                            FontAttributes="Bold" />
-                                        <Label
-                                            Grid.Column="2"
-                                            Text="{Binding ChangeText}"
-                                            MinimumWidthRequest="56"
-                                            HorizontalTextAlignment="End" />
-                                        <ProgressBar
-                                            Grid.Row="1"
-                                            Grid.ColumnSpan="3"
-                                            Progress="{Binding Share}" />
-                                        <Label
-                                            Grid.Row="2"
-                                            Grid.ColumnSpan="3"
-                                            Text="{Binding PreviousText}"
-                                            FontSize="12" />
-                                    </Grid>
+                                    Grid.Column="1"
+                                    Padding="3"
+                                    StrokeShape="RoundRectangle 16"
+                                    StrokeThickness="1"
+                                    BackgroundColor="{DynamicResource Bg}">
+                                    <HorizontalStackLayout Spacing="0">
+                                        <Border
+                                            Padding="12,5"
+                                            StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 14"
+                                            BackgroundColor="Transparent">
+                                            <Border.Triggers>
+                                                <DataTrigger TargetType="Border" Binding="{Binding ShowAmount}" Value="True">
+                                                    <Setter Property="BackgroundColor" Value="{DynamicResource Surface2}" />
+                                                </DataTrigger>
+                                            </Border.Triggers>
+                                            <Label
+                                                Text="{loc:Tr Key='Amount'}"
+                                                FontSize="12"
+                                                FontFamily="ManropeBold"
+                                                TextColor="{DynamicResource InkMuted}" />
+                                            <Border.GestureRecognizers>
+                                                <TapGestureRecognizer Tapped="OnAmountTapped" />
+                                            </Border.GestureRecognizers>
+                                        </Border>
+                                        <Border
+                                            Padding="12,5"
+                                            StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 14"
+                                            BackgroundColor="Transparent">
+                                            <Border.Triggers>
+                                                <DataTrigger TargetType="Border" Binding="{Binding ShowShare}" Value="True">
+                                                    <Setter Property="BackgroundColor" Value="{DynamicResource Surface2}" />
+                                                </DataTrigger>
+                                            </Border.Triggers>
+                                            <Label
+                                                Text="{loc:Tr Key='Share'}"
+                                                FontSize="12"
+                                                FontFamily="ManropeBold"
+                                                TextColor="{DynamicResource InkMuted}" />
+                                            <Border.GestureRecognizers>
+                                                <TapGestureRecognizer Tapped="OnShareTapped" />
+                                            </Border.GestureRecognizers>
+                                        </Border>
+                                    </HorizontalStackLayout>
                                 </Border>
-                            </DataTemplate>
-                        </BindableLayout.ItemTemplate>
-                    </VerticalStackLayout>
+                            </Grid>
 
-                    <Label
-                        Text="{loc:Tr Key='Largest expenses'}"
-                        FontSize="18"
-                        FontAttributes="Bold" />
+                            <Grid ColumnDefinitions="170,*,110,110,100" ColumnSpacing="16" Padding="4,10">
+                                <Label Text="{loc:Tr Key='Category'}" Style="{StaticResource TableHead}" />
+                                <Label Grid.Column="1" Text="{Binding ComparisonTitle}" Style="{StaticResource TableHead}" />
+                                <Label
+                                    Grid.Column="2"
+                                    Text="{Binding CurrentMonthName}"
+                                    Style="{StaticResource TableHead}"
+                                    HorizontalTextAlignment="End" />
+                                <Label
+                                    Grid.Column="3"
+                                    Text="{Binding PreviousMonthName}"
+                                    Style="{StaticResource TableHead}"
+                                    HorizontalTextAlignment="End" />
+                                <Label
+                                    Grid.Column="4"
+                                    Text="{loc:Tr Key='Change'}"
+                                    Style="{StaticResource TableHead}"
+                                    HorizontalTextAlignment="End" />
+                            </Grid>
 
-                    <VerticalStackLayout
-                        BindableLayout.ItemsSource="{Binding TopExpenses}"
-                        Spacing="8">
-                        <BindableLayout.ItemTemplate>
-                            <DataTemplate x:DataType="models:TopExpenseItem">
-                                <Border
-                                    Padding="16"
-                                    StrokeShape="RoundRectangle 18"
-                                    Stroke="{DynamicResource Border}"
-                                    BackgroundColor="{DynamicResource Surface}">
-                                    <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
-                                        <Label Text="{Binding Title}" FontAttributes="Bold" />
+                            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Categories}">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="models:CategoryReportItem">
+                                        <VerticalStackLayout>
+                                            <BoxView HeightRequest="1" Color="{DynamicResource Border}" />
+                                            <Grid ColumnDefinitions="170,*,110,110,100" ColumnSpacing="16" Padding="4,14">
+                                                <Grid.GestureRecognizers>
+                                                    <TapGestureRecognizer Tapped="OnCategoryTapped" />
+                                                </Grid.GestureRecognizers>
+
+                                                <HorizontalStackLayout Spacing="10" VerticalOptions="Center">
+                                                    <BoxView
+                                                        WidthRequest="10"
+                                                        HeightRequest="10"
+                                                        CornerRadius="5"
+                                                        VerticalOptions="Center"
+                                                        Color="{Binding Color}" />
+                                                    <Label
+                                                        Text="{Binding CategoryName}"
+                                                        FontFamily="ManropeBold"
+                                                        LineBreakMode="TailTruncation"
+                                                        VerticalOptions="Center" />
+                                                </HorizontalStackLayout>
+
+                                                <controls:ComparisonBar
+                                                    Grid.Column="1"
+                                                    Value="{Binding BarValue}"
+                                                    Marker="{Binding MarkerValue}"
+                                                    FillColor="{Binding Color}" />
+
+                                                <Label
+                                                    Grid.Column="2"
+                                                    Text="{Binding TotalText}"
+                                                    FontFamily="ManropeExtraBold"
+                                                    HorizontalTextAlignment="End"
+                                                    VerticalOptions="Center" />
+
+                                                <Label
+                                                    Grid.Column="3"
+                                                    Text="{Binding PreviousText}"
+                                                    TextColor="{DynamicResource InkMuted}"
+                                                    HorizontalTextAlignment="End"
+                                                    VerticalOptions="Center" />
+
+                                                <controls:Chip
+                                                    Grid.Column="4"
+                                                    Text="{Binding ChangeText}"
+                                                    Icon="{Binding ChangeIcon}"
+                                                    ToneKey="{Binding ChangeTone}"
+                                                    HorizontalOptions="End" />
+                                            </Grid>
+                                        </VerticalStackLayout>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
+
+                            <Label
+                                Text="{loc:Tr Key='Red: spent more · Green: spent less'}"
+                                FontSize="12"
+                                TextColor="{DynamicResource InkMuted}"
+                                Margin="0,8,0,0" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Share of the total and the biggest expenses -->
+                    <VerticalStackLayout Grid.Column="1" Spacing="20">
+                        <Border Padding="20">
+                            <VerticalStackLayout Spacing="12">
+                                <Label
+                                    Text="{loc:Tr Key='Share of total'}"
+                                    FontSize="15"
+                                    FontFamily="ManropeBold" />
+
+                                <Grid HorizontalOptions="Center">
+                                    <controls:DonutChart
+                                        Segments="{Binding DonutSegments}"
+                                        SegmentTapped="OnDonutSegmentTapped" />
+
+                                    <VerticalStackLayout
+                                        InputTransparent="True"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Center">
                                         <Label
-                                            Grid.Column="1"
-                                            Text="{Binding AmountText}"
-                                            FontAttributes="Bold" />
+                                            Text="{Binding DonutTotalTitle}"
+                                            FontSize="12"
+                                            FontFamily="ManropeSemiBold"
+                                            TextColor="{DynamicResource InkMuted}"
+                                            HorizontalTextAlignment="Center" />
                                         <Label
-                                            Grid.Row="1"
-                                            Grid.ColumnSpan="2"
-                                            Text="{Binding DateText}"
-                                            FontSize="12" />
-                                    </Grid>
-                                </Border>
-                            </DataTemplate>
-                        </BindableLayout.ItemTemplate>
+                                            Text="{Binding DonutTotalText}"
+                                            FontSize="20"
+                                            FontFamily="ManropeExtraBold"
+                                            HorizontalTextAlignment="Center" />
+                                    </VerticalStackLayout>
+                                </Grid>
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Border Padding="20">
+                            <VerticalStackLayout Spacing="8">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label
+                                        Text="{loc:Tr Key='Largest expenses'}"
+                                        FontSize="15"
+                                        FontFamily="ManropeBold" />
+                                    <Label
+                                        Grid.Column="1"
+                                        Text="{loc:Tr Key='Top 5'}"
+                                        FontSize="12"
+                                        TextColor="{DynamicResource InkMuted}" />
+                                </Grid>
+
+                                <VerticalStackLayout BindableLayout.ItemsSource="{Binding TopExpenses}">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate x:DataType="models:TopExpenseItem">
+                                            <VerticalStackLayout>
+                                                <BoxView HeightRequest="1" Color="{DynamicResource Border}" />
+                                                <Grid ColumnDefinitions="22,38,*,Auto" ColumnSpacing="12" Padding="0,10">
+                                                    <Label
+                                                        Text="{Binding RankText}"
+                                                        FontFamily="ManropeBold"
+                                                        FontSize="13"
+                                                        TextColor="{DynamicResource InkMuted}"
+                                                        VerticalOptions="Center" />
+                                                    <Border
+                                                        Grid.Column="1"
+                                                        WidthRequest="38"
+                                                        HeightRequest="38"
+                                                        StrokeThickness="0"
+                                                        StrokeShape="RoundRectangle 11"
+                                                        BackgroundColor="{Binding Tint}">
+                                                        <BoxView
+                                                            WidthRequest="10"
+                                                            HeightRequest="10"
+                                                            CornerRadius="5"
+                                                            HorizontalOptions="Center"
+                                                            VerticalOptions="Center"
+                                                            Color="{Binding Color}" />
+                                                    </Border>
+                                                    <VerticalStackLayout Grid.Column="2" VerticalOptions="Center">
+                                                        <Label
+                                                            Text="{Binding Title}"
+                                                            FontFamily="ManropeBold"
+                                                            LineBreakMode="TailTruncation" />
+                                                        <Label
+                                                            Text="{Binding Subtitle}"
+                                                            FontSize="12"
+                                                            TextColor="{DynamicResource InkMuted}"
+                                                            LineBreakMode="TailTruncation" />
+                                                    </VerticalStackLayout>
+                                                    <Label
+                                                        Grid.Column="3"
+                                                        Text="{Binding AmountText}"
+                                                        FontFamily="ManropeExtraBold"
+                                                        VerticalOptions="Center" />
+                                                </Grid>
+                                            </VerticalStackLayout>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </VerticalStackLayout>
+                            </VerticalStackLayout>
+                        </Border>
                     </VerticalStackLayout>
-                </VerticalStackLayout>
+                </Grid>
             </VerticalStackLayout>
-        </ScrollView>
-    </Grid>
+        </controls:CenteredContainer>
+    </ScrollView>
 </ContentPage>
