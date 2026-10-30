@@ -7,9 +7,9 @@
 The solution has three projects with one-way dependencies:
 
 ```
-ExpenseTracker.App  ──►  Infrastructure  ──►  Core
-        │                                       ▲
-        └───────────────────────────────────────┘
+ExpenseTracker.App  -->  Infrastructure  -->  Core
+        |                                       ^
+        +---------------------------------------+
 ```
 
 | Project | Responsibility | Depends on |
@@ -92,15 +92,15 @@ generated expense to its schedule; a unique index on schedule and date makes the
 
 ```
 ExpenseTracker.App/
-├── AppShell.xaml        Shell with a locked flyout (the sidebar) and one route per screen
-├── MainPage.xaml        the Expenses screen
-├── Views/               the other screens (XAML + code-behind)
-├── ViewModels/          one view model per screen (MVVM, CommunityToolkit.Mvvm)
-├── Models/              list items and display records for the UI
-├── Controls/            reusable controls (see 4.4)
-├── Services/            app services (see 4.2)
-├── Platforms/Windows/   native Windows code: theming of native controls, popups
-└── Resources/           styles, color tokens, Manrope fonts
++-- AppShell.xaml        Shell with a locked flyout (the sidebar) and one route per screen
++-- MainPage.xaml        the Expenses screen
++-- Views/               the other screens (XAML + code-behind)
++-- ViewModels/          one view model per screen (MVVM, CommunityToolkit.Mvvm)
++-- Models/              list items and display records for the UI
++-- Controls/            reusable controls (see 4.4)
++-- Services/            app services (see 4.2)
++-- Platforms/Windows/   native Windows code: theming of native controls, popups
++-- Resources/           styles, color tokens, Manrope fonts
 ```
 
 The pattern is **MVVM**. A view model holds the state and the commands of a screen, reads and writes through

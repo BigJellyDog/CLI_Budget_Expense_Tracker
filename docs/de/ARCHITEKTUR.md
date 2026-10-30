@@ -7,9 +7,9 @@
 Die Lösung besteht aus drei Projekten mit Abhängigkeiten in nur einer Richtung:
 
 ```
-ExpenseTracker.App  ──►  Infrastructure  ──►  Core
-        │                                       ▲
-        └───────────────────────────────────────┘
+ExpenseTracker.App  -->  Infrastructure  -->  Core
+        |                                       ^
+        +---------------------------------------+
 ```
 
 | Projekt | Verantwortung | Hängt ab von |
@@ -93,15 +93,15 @@ jede erzeugte Ausgabe mit ihrem Plan; ein eindeutiger Index auf Plan und Datum m
 
 ```
 ExpenseTracker.App/
-├── AppShell.xaml        Shell mit festem Flyout (das Menü) und einer Route je Bildschirm
-├── MainPage.xaml        der Bildschirm „Ausgaben“
-├── Views/               die übrigen Bildschirme (XAML + Code-Behind)
-├── ViewModels/          ein ViewModel je Bildschirm (MVVM, CommunityToolkit.Mvvm)
-├── Models/              Listeneinträge und Anzeige-Records für die Oberfläche
-├── Controls/            wiederverwendbare Steuerelemente (siehe 4.4)
-├── Services/            App-Dienste (siehe 4.2)
-├── Platforms/Windows/   native Windows-Teile: Gestaltung nativer Steuerelemente, Popups
-└── Resources/           Stile, Farb-Token, Manrope-Schriften
++-- AppShell.xaml        Shell mit festem Flyout (das Menü) und einer Route je Bildschirm
++-- MainPage.xaml        der Bildschirm „Ausgaben“
++-- Views/               die übrigen Bildschirme (XAML + Code-Behind)
++-- ViewModels/          ein ViewModel je Bildschirm (MVVM, CommunityToolkit.Mvvm)
++-- Models/              Listeneinträge und Anzeige-Records für die Oberfläche
++-- Controls/            wiederverwendbare Steuerelemente (siehe 4.4)
++-- Services/            App-Dienste (siehe 4.2)
++-- Platforms/Windows/   native Windows-Teile: Gestaltung nativer Steuerelemente, Popups
++-- Resources/           Stile, Farb-Token, Manrope-Schriften
 ```
 
 Das Muster ist **MVVM**. Ein ViewModel hält Zustand und Befehle eines Bildschirms, liest und schreibt über

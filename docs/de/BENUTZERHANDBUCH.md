@@ -139,7 +139,7 @@ Ein Ausgabenlimit pro Kategorie und Monat.
   dass für diese Kategorie nichts eingeplant ist. Erneutes Speichern ändert das Limit.
 - Jede Kategorie mit Limit ist eine Karte: ausgegebener Betrag, Limit, Fortschrittsbalken und der Restbetrag oder
   die Überschreitung. Der Status ist **Im Rahmen**, **Fast erreicht** (ab 90 %) oder **Überschritten**.
-- Der **Stift** übernimmt die Kategorie ins Formular; das Menü **⋮** entfernt das Limit (Ihre Ausgaben bleiben).
+- Der **Stift** übernimmt die Kategorie ins Formular; das **Drei-Punkte-Menü** entfernt das Limit (Ihre Ausgaben bleiben).
 - Kategorien ohne Limit erscheinen als gestrichelte Karten mit dem Knopf **Limit festlegen**.
 
 Limits gehören zu einem Monat; jeder Monat hat also eigene Limits.

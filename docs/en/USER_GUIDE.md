@@ -127,7 +127,7 @@ A monthly spending limit per category.
   nothing is planned for this category. Saving again changes the limit.
 - Each category with a limit is a card: the amount spent, the limit, a progress bar and the remaining amount or
   the overspend. The status is **Within limit**, **Almost reached** (from 90 %) or **Over limit**.
-- The **pencil** puts the category into the form; the **⋮** menu removes the limit (your expenses are kept).
+- The **pencil** puts the category into the form; the **three-dot** menu removes the limit (your expenses are kept).
 - Categories without a limit are shown as dashed cards with a **Set limit** button.
 
 Limits belong to a month, so every month has its own limits.
