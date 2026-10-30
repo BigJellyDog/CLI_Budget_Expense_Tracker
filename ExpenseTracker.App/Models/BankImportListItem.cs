@@ -1,5 +1,7 @@
 namespace ExpenseTracker.App.Models;
 
+using ExpenseTracker.App.Services;
+
 using CLI_Budget_Expense_Tracker.Core.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 
@@ -64,7 +66,7 @@ public sealed class BankImportListItem : ObservableObject
         SetProperty(ref _category, category, nameof(Category));
         _categoryChosen = true;
 
-        RuleNote = $"Category set by rule: contains \"{pattern}\"";
+        RuleNote = Loc.F("Category set by rule: contains \"{0}\"", pattern);
         OnPropertyChanged(nameof(RuleNote));
         OnPropertyChanged(nameof(HasRuleNote));
     }
@@ -101,11 +103,11 @@ public sealed class BankImportListItem : ObservableObject
 
     public string Kind => Entry.Kind switch
     {
-        BankEntryKind.ExpenseCandidate => "Expense candidate",
+        BankEntryKind.ExpenseCandidate => Loc.T("Expense candidate"),
         BankEntryKind.Incoming => "Incoming",
-        BankEntryKind.InternalTransfer => "Internal transfer",
+        BankEntryKind.InternalTransfer => Loc.T("Internal transfer"),
         BankEntryKind.Ignored => "Ignored",
-        _ => "Needs review"
+        _ => Loc.T("Needs review")
     };
 
     public string Description => Entry.Source.Description;
@@ -114,13 +116,13 @@ public sealed class BankImportListItem : ObservableObject
         $"{Entry.Source.Amount:N2} {Entry.Source.Currency}";
 
     public string Date => Entry.Source.CompletedAt is { } completedAt
-        ? $"Completed: {completedAt:dd.MM.yyyy HH:mm}"
-        : "Not completed";
+        ? Loc.F("Completed: {0:dd.MM.yyyy HH:mm}", completedAt)
+        : Loc.T("Not completed");
 
     public string Details =>
-        $"Row {Entry.Source.RowNumber} · {Entry.Source.Type} · " +
-        $"{Entry.Source.Product} · {Entry.Source.Status} · " +
-        $"Fee: {Entry.Source.Fee:N2} {Entry.Source.Currency}";
+        Loc.F("Row {0} · {1} · {2} · {3} · Fee: {4:N2} {5}",
+            Entry.Source.RowNumber, Entry.Source.Type, Entry.Source.Product, Entry.Source.Status,
+            Entry.Source.Fee, Entry.Source.Currency);
 
     public string Reason => Entry.Reason;
 }

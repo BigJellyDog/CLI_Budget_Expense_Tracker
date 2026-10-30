@@ -50,13 +50,13 @@ public sealed class ExpenseEditorViewModel : ObservableObject
     public bool IsEditing => _expenseId.HasValue;
 
     public string PageTitle =>
-        IsEditing ? "Edit expense" : "Add expense";
+        IsEditing ? Loc.T("Edit expense") : Loc.T("Add expense");
 
     public string SaveButtonText =>
-        IsEditing ? "Save changes" : "Save expense";
+        IsEditing ? Loc.T("Save changes") : Loc.T("Save expense");
 
     public string SavedMessage =>
-        IsEditing ? "Changes saved." : "Expense saved.";
+        IsEditing ? Loc.T("Changes saved.") : Loc.T("Expense saved.");
 
     public string ErrorMessage { get; private set; } = "";
 
@@ -134,7 +134,7 @@ public sealed class ExpenseEditorViewModel : ObservableObject
             if (result.Expense is null)
             {
                 return SetError(
-                    "This expense no longer exists. Return to the expense list.");
+                    Loc.T("This expense no longer exists. Return to the expense list."));
             }
 
             _originalExpense = result.Expense;
@@ -153,7 +153,7 @@ public sealed class ExpenseEditorViewModel : ObservableObject
 
         _loaded = true;
         return true;
-    }, "Could not load the form. Try Reload categories.");
+    }, Loc.T("Could not load the form. Try Reload categories."));
 
     public async Task<bool> AddCategoryAsync()
     {
@@ -162,12 +162,12 @@ public sealed class ExpenseEditorViewModel : ObservableObject
         var name = NewCategoryName.Trim();
 
         if (name.Length == 0)
-            return SetError("Enter a category name.");
+            return SetError(Loc.T("Enter a category name."));
 
         if (Categories.Any(
                 x => x.NormalizedName == name.ToUpperInvariant()))
         {
-            return SetError("A category with this name already exists.");
+            return SetError(Loc.T("A category with this name already exists."));
         }
 
         return await RunAsync(async () =>
@@ -192,7 +192,7 @@ public sealed class ExpenseEditorViewModel : ObservableObject
             OnPropertyChanged(nameof(NewCategoryName));
 
             return true;
-        }, "Could not create the category. Try Reload categories.");
+        }, Loc.T("Could not create the category. Try Reload categories."));
     }
 
     public async Task<bool> SaveAsync()
@@ -200,7 +200,7 @@ public sealed class ExpenseEditorViewModel : ObservableObject
         if (!CanEdit) return false;
 
         if (SelectedCategory is null)
-            return SetError("Choose a category.");
+            return SetError(Loc.T("Choose a category."));
 
         var text = AmountText.Trim().Replace(',', '.');
         var separator = text.IndexOf('.');
@@ -215,23 +215,23 @@ public sealed class ExpenseEditorViewModel : ObservableObject
             || amount > long.MaxValue / 100m)
         {
             return SetError(
-                "Enter a positive amount with up to 2 decimal places, for example 12.50.");
+                Loc.T("Enter a positive amount with up to 2 decimal places, for example 12.50."));
         }
 
         if (SelectedDate is not { } selectedDate)
-            return SetError("Choose a date.");
+            return SetError(Loc.T("Choose a date."));
 
         var date = DateOnly.FromDateTime(selectedDate);
         var today = DateOnly.FromDateTime(
             _timeProvider.GetLocalNow().DateTime);
 
         if (date > today)
-            return SetError("Expense date cannot be in the future.");
+            return SetError(Loc.T("Expense date cannot be in the future."));
 
         if (HasFixedDate && date != _originalExpense!.Date)
         {
             return SetError(
-                "The date of an automatically generated expense is fixed.");
+                Loc.T("The date of an automatically generated expense is fixed."));
         }
 
         var categoryId = SelectedCategory.Id;
@@ -268,13 +268,13 @@ public sealed class ExpenseEditorViewModel : ObservableObject
             if (!saved)
             {
                 return SetError(
-                    "This expense was changed or deleted. Reopen it from the list to load its current values.");
+                    Loc.T("This expense was changed or deleted. Reopen it from the list to load its current values."));
             }
 
             LimitWarning = warning;
             IsSaved = true;
             return true;
-        }, "Could not save the expense. Check the category and try again.");
+        }, Loc.T("Could not save the expense. Check the category and try again."));
     }
 
     public void StartNewExpense()
@@ -321,15 +321,13 @@ public sealed class ExpenseEditorViewModel : ObservableObject
             if (status.Limit is not { } limit || status.Overspend <= 0)
                 return "";
 
-            return string.Create(
-                CultureInfo.InvariantCulture,
-                $"Over budget for {date:MMMM yyyy}: spent {status.Spent:0.00} of {limit:0.00} (over by {status.Overspend:0.00}).");
+            return Loc.F("Over budget for {0:MMMM yyyy}: spent {1:0.00} of {2:0.00} (over by {3:0.00}).", date, status.Spent, limit, status.Overspend);
         }
         catch (Exception exception)
         {
             _logger.LogWarning(
                 exception,
-                "Could not check the monthly limit.");
+                Loc.T("Could not check the monthly limit."));
             return "";
         }
     }

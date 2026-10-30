@@ -13,6 +13,34 @@ public sealed class SettingsViewModel(
 
     public IReadOnlyList<string> AccentOptions => ThemeService.Accents;
 
+    public IReadOnlyList<LanguageOption> LanguageOptions => Loc.Languages;
+
+    public LanguageOption SelectedLanguage { get; set; } =
+        Loc.Languages.First(x => x.Code == settings.Language);
+
+    /// <summary>Saves the language. True when it changed and the screens must be rebuilt.</summary>
+    public bool ApplyLanguage()
+    {
+        if (SelectedLanguage.Code == settings.Language)
+            return false;
+
+        try
+        {
+            settings.SetLanguage(SelectedLanguage.Code);
+            Loc.SetLanguage(SelectedLanguage.Code);
+            return true;
+        }
+        catch (Exception exception)
+        {
+            logger.LogError(exception, "Failed to save the language.");
+
+            ErrorMessage = Loc.T("Could not save the settings. Try again.");
+            SuccessMessage = "";
+            NotifyState();
+            return false;
+        }
+    }
+
     public ThemeMode SelectedMode { get; set; } = settings.ThemeMode;
 
     public string SelectedAccent { get; set; } = settings.Accent;
@@ -34,7 +62,7 @@ public sealed class SettingsViewModel(
         {
             logger.LogError(exception, "Failed to save the appearance.");
 
-            ErrorMessage = "Could not save the appearance. Try again.";
+            ErrorMessage = Loc.T("Could not save the appearance. Try again.");
             SuccessMessage = "";
             NotifyState();
         }
@@ -56,11 +84,13 @@ public sealed class SettingsViewModel(
         CurrencyText = settings.Currency;
         SelectedMode = settings.ThemeMode;
         SelectedAccent = settings.Accent;
+        SelectedLanguage = Loc.Languages.First(x => x.Code == settings.Language);
         ErrorMessage = "";
         SuccessMessage = "";
 
         OnPropertyChanged(nameof(SelectedMode));
         OnPropertyChanged(nameof(SelectedAccent));
+        OnPropertyChanged(nameof(SelectedLanguage));
         NotifyState();
     }
 
@@ -70,7 +100,7 @@ public sealed class SettingsViewModel(
 
         if (!AppSettings.IsValidCurrency(code))
         {
-            ErrorMessage = "Enter the currency as three letters, for example EUR.";
+            ErrorMessage = Loc.T("Enter the currency as three letters, for example EUR.");
             SuccessMessage = "";
             NotifyState();
             return;
@@ -83,13 +113,13 @@ public sealed class SettingsViewModel(
             CurrencyText = code;
             ErrorMessage = "";
             SuccessMessage =
-                $"Saved. Amounts are shown in {code}. Amounts already saved are not converted.";
+                Loc.F("Saved. Amounts are shown in {0}. Amounts already saved are not converted.", code);
         }
         catch (Exception exception)
         {
             logger.LogError(exception, "Failed to save the settings.");
 
-            ErrorMessage = "Could not save the settings. Try again.";
+            ErrorMessage = Loc.T("Could not save the settings. Try again.");
             SuccessMessage = "";
         }
 

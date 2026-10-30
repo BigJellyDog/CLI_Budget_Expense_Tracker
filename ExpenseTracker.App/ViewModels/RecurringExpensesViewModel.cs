@@ -63,9 +63,9 @@ public sealed class RecurringExpensesViewModel : ObservableObject
 
     public bool IsEditing => _editingScheduleId.HasValue;
 
-    public string FormTitle => IsEditing ? "Edit schedule" : "New schedule";
+    public string FormTitle => IsEditing ? Loc.T("Edit schedule") : Loc.T("New schedule");
 
-    public string SaveButtonText => IsEditing ? "Save changes" : "Create schedule";
+    public string SaveButtonText => IsEditing ? Loc.T("Save changes") : Loc.T("Create schedule");
 
     public bool CanChangeStartDate => !IsEditing;
 
@@ -96,7 +96,7 @@ public sealed class RecurringExpensesViewModel : ObservableObject
 
     public Task LoadAsync() => RunAsync(
         ReloadAsync,
-        () => "Could not load recurring expenses. Try Refresh.");
+        () => Loc.T("Could not load recurring expenses. Try Refresh."));
 
     public async Task SaveAsync()
     {
@@ -118,7 +118,7 @@ public sealed class RecurringExpensesViewModel : ObservableObject
 
         if (SelectedStartDate is not { } selectedDate)
         {
-            ShowError("Choose a start date.");
+            ShowError(Loc.T("Choose a start date."));
             return;
         }
 
@@ -150,20 +150,20 @@ public sealed class RecurringExpensesViewModel : ObservableObject
             saved = true;
             IsSaved = true;
             _loaded = false;
-            SuccessMessage = "Schedule created.";
+            SuccessMessage = Loc.T("Schedule created.");
 
             var count = await GenerateCoreAsync();
 
             generated = true;
             SuccessMessage =
-                $"Schedule created. Due expenses added: {count}.";
+                Loc.F("Schedule created. Due expenses added: {0}.", count);
 
             await ReloadAsync();
         }, () => !saved
-            ? "Could not create the schedule. Check the category and try again."
+            ? Loc.T("Could not create the schedule. Check the category and try again.")
             : !generated
-                ? "The schedule was saved, but due expenses could not be generated. Click Generate due expenses to retry."
-                : "The schedule was saved and generation completed, but the list could not be reloaded. Try Refresh.");
+                ? Loc.T("The schedule was saved, but due expenses could not be generated. Click Generate due expenses to retry.")
+                : Loc.T("The schedule was saved and generation completed, but the list could not be reloaded. Try Refresh."));
     }
 
     private async Task UpdateAsync(Guid scheduleId)
@@ -193,12 +193,12 @@ public sealed class RecurringExpensesViewModel : ObservableObject
 
             saved = true;
             ResetForm();
-            SuccessMessage = "Schedule updated. Expenses created earlier were not changed.";
+            SuccessMessage = Loc.T("Schedule updated. Expenses created earlier were not changed.");
 
             await ReloadAsync();
         }, () => saved
-            ? "The schedule was updated, but the list could not be reloaded. Try Refresh."
-            : "Could not update the schedule. Check the values and try again.");
+            ? Loc.T("The schedule was updated, but the list could not be reloaded. Try Refresh.")
+            : Loc.T("Could not update the schedule. Check the values and try again."));
     }
 
     public void StartEdit(Guid scheduleId)
@@ -247,7 +247,7 @@ public sealed class RecurringExpensesViewModel : ObservableObject
 
         if (SelectedCategory is not { } category)
         {
-            ShowError("Choose a category.");
+            ShowError(Loc.T("Choose a category."));
             return false;
         }
 
@@ -264,7 +264,7 @@ public sealed class RecurringExpensesViewModel : ObservableObject
             || amount > long.MaxValue / 100m)
         {
             ShowError(
-                "Enter a positive amount with up to 2 decimal places.");
+                Loc.T("Enter a positive amount with up to 2 decimal places."));
 
             return false;
         }
@@ -272,7 +272,7 @@ public sealed class RecurringExpensesViewModel : ObservableObject
         if (SelectedFrequency is not { } frequency
             || !Enum.IsDefined(frequency))
         {
-            ShowError("Choose a frequency.");
+            ShowError(Loc.T("Choose a frequency."));
             return false;
         }
 
@@ -282,7 +282,7 @@ public sealed class RecurringExpensesViewModel : ObservableObject
         {
             if (SelectedEndDate is not { } selectedEnd)
             {
-                ShowError("Choose an end date.");
+                ShowError(Loc.T("Choose an end date."));
                 return false;
             }
 
@@ -301,7 +301,7 @@ public sealed class RecurringExpensesViewModel : ObservableObject
 
             if (start is { } startDate && endDate < startDate)
             {
-                ShowError("End date cannot be before the start date.");
+                ShowError(Loc.T("End date cannot be before the start date."));
                 return false;
             }
         }
@@ -354,12 +354,12 @@ public sealed class RecurringExpensesViewModel : ObservableObject
             var count = await GenerateCoreAsync();
 
             generated = true;
-            SuccessMessage = $"Due expenses added: {count}.";
+            SuccessMessage = Loc.F("Due expenses added: {0}.", count);
 
             await ReloadAsync();
         }, () => generated
-            ? "Generation completed, but the list could not be reloaded. Try Refresh."
-            : "Could not generate due expenses. Try again.");
+            ? Loc.T("Generation completed, but the list could not be reloaded. Try Refresh.")
+            : Loc.T("Could not generate due expenses. Try again."));
     }
 
     public async Task DeactivateAsync(
@@ -395,8 +395,8 @@ public sealed class RecurringExpensesViewModel : ObservableObject
                 .ThenBy(x => x.Id)
                 .ToArray();
 
-            SuccessMessage = "Schedule deactivated.";
-        }, () => "Could not deactivate the schedule. Try Refresh.");
+            SuccessMessage = Loc.T("Schedule deactivated.");
+        }, () => Loc.T("Could not deactivate the schedule. Try Refresh."));
     }
     
     public async Task ReactivateAsync(Guid scheduleId)
@@ -434,10 +434,10 @@ public sealed class RecurringExpensesViewModel : ObservableObject
                 return;
             }
 
-            SuccessMessage = "Schedule reactivated.";
+            SuccessMessage = Loc.T("Schedule reactivated.");
 
             await ReloadAsync();
-        }, () => "Could not reactivate the schedule. Try Refresh.");
+        }, () => Loc.T("Could not reactivate the schedule. Try Refresh."));
     }
 
     public async Task DeleteAsync(
@@ -466,8 +466,8 @@ public sealed class RecurringExpensesViewModel : ObservableObject
 
             Items = Items.Where(x => x.Id != scheduleId).ToArray();
 
-            SuccessMessage = "Schedule deleted. Its expenses were kept.";
-        }, () => "Could not delete the schedule. Try Refresh.");
+            SuccessMessage = Loc.T("Schedule deleted. Its expenses were kept.");
+        }, () => Loc.T("Could not delete the schedule. Try Refresh."));
     }
 
     public void StartNewSchedule()
@@ -519,7 +519,7 @@ public sealed class RecurringExpensesViewModel : ObservableObject
                 .Select(x => new RecurringExpenseListItem(
                     x.Id,
                     names.GetValueOrDefault(
-                        x.CategoryId, "Unknown category"),
+                        x.CategoryId, Loc.T("Unknown category")),
                     x.Amount,
                     x.Frequency,
                     x.StartDate,

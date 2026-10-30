@@ -1,5 +1,7 @@
 namespace ExpenseTracker.App.Views;
 
+using ExpenseTracker.App.Services;
+
 using ViewModels;
 using Models;
 
@@ -81,11 +83,11 @@ public partial class RecurringExpensesPage : ContentPage
         await _viewModel.DeleteAsync(
             item.Id,
             () => DisplayAlertAsync(
-                "Delete schedule?",
+                Loc.T("Delete schedule?"),
                 $"{item.CategoryName}\n{item.Summary}\n{item.Description}\n\n"
-                + "Delete this schedule? Expenses it already created will be kept.",
-                "Delete",
-                "Cancel"));
+                + Loc.T("Delete this schedule? Expenses it already created will be kept."),
+                Loc.T("Delete"),
+                Loc.T("Cancel")));
     }
 
     private async void OnDeactivateClicked(object? sender, EventArgs e)
@@ -102,10 +104,10 @@ public partial class RecurringExpensesPage : ContentPage
         await _viewModel.DeactivateAsync(
             item.Id,
             () => DisplayAlertAsync(
-                "Deactivate schedule?",
+                Loc.T("Deactivate schedule?"),
                 $"{item.CategoryName}\n{item.Summary}\n{item.Description}\n\n"
-                + "Stop generating expenses for this schedule? Existing expenses will be kept.",
-                "Deactivate",
-                "Cancel"));
+                + Loc.T("Stop generating expenses for this schedule? Existing expenses will be kept."),
+                Loc.T("Deactivate"),
+                Loc.T("Cancel")));
     }
 }

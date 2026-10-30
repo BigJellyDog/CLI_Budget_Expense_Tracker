@@ -1,5 +1,7 @@
 namespace ExpenseTracker.App.Views;
 
+using ExpenseTracker.App.Services;
+
 using Models;
 using ViewModels;
 
@@ -59,11 +61,11 @@ public partial class BudgetsPage : ContentPage
         await _viewModel.RemoveLimitAsync(
             item.CategoryId,
             () => DisplayAlertAsync(
-                "Remove budget limit?",
+                Loc.T("Remove budget limit?"),
                 $"{item.CategoryName}\n{_viewModel.MonthTitle}\n\n"
-                + "Remove the limit for this month? Your expenses will be kept.",
-                "Remove",
-                "Cancel"));
+                + Loc.T("Remove the limit for this month? Your expenses will be kept."),
+                Loc.T("Remove"),
+                Loc.T("Cancel")));
     }
     
     

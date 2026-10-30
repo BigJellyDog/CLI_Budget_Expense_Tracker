@@ -1,5 +1,7 @@
 namespace ExpenseTracker.App.Controls;
 
+using ExpenseTracker.App.Services;
+
 using Microsoft.Maui.Controls.Shapes;
 
 /// <summary>The left menu, shown on every screen. Highlights the section that is open.</summary>
@@ -13,14 +15,14 @@ public sealed class Sidebar : ContentView
 
         void Add(string route, string text, string icon, Layout target)
         {
-            var item = new NavItem { Text = text, Icon = icon };
+            var item = new NavItem { Text = Loc.T(text), Icon = icon };
             item.Clicked += async (_, _) => await Shell.Current.GoToAsync($"//{route}");
             _items[route] = item;
             target.Add(item);
         }
 
         Add("expenses", "Expenses", Icons.List, items);
-        Add("import", "Import CSV", Icons.Upload, items);
+        Add("import", Loc.T("Import CSV"), Icons.Upload, items);
         Add("categories", "Categories", Icons.Tag, items);
         Add("budgets", "Budgets", Icons.Wallet, items);
         Add("reports", "Reports", Icons.Chart, items);
@@ -48,7 +50,7 @@ public sealed class Sidebar : ContentView
 
         var title = new Label
         {
-            Text = "Expenses",
+            Text = Loc.T("Expenses"),
             FontSize = 16,
             FontFamily = "ManropeExtraBold",
             VerticalOptions = LayoutOptions.Center

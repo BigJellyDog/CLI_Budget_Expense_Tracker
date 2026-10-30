@@ -125,7 +125,7 @@ public sealed class ReportsViewModel : ObservableObject
             _loaded = false;
 
             _logger.LogError(exception, "Failed to build the monthly report.");
-            ErrorMessage = "Could not build the report. Try again.";
+            ErrorMessage = Loc.T("Could not build the report. Try again.");
         }
         finally
         {
@@ -136,7 +136,7 @@ public sealed class ReportsViewModel : ObservableObject
 
     private void Apply(PeriodReport report, Dictionary<Guid, string> names)
     {
-        string Name(Guid id) => names.GetValueOrDefault(id, "Unknown category");
+        string Name(Guid id) => names.GetValueOrDefault(id, Loc.T("Unknown category"));
 
         var max = report.Categories.Select(x => x.Total).DefaultIfEmpty(0).Max();
 
@@ -157,18 +157,18 @@ public sealed class ReportsViewModel : ObservableObject
 
         var currency = _settings.Currency;
 
-        TotalText = $"Total: {report.Total:N2} {currency}";
+        TotalText = Loc.F("Total: {0:N2} {1}", report.Total, currency);
 
         ComparisonText =
-            $"Previous month: {report.PreviousTotal:N2} {currency} · Change: " +
+            Loc.F("Previous month: {0:N2} {1}", report.PreviousTotal, currency) + $" · {Loc.T("Change")}: " +
             ReportFormat.Change(report.ChangePercent, report.Total, report.PreviousTotal);
 
         AverageText = report.DaysElapsed == 0
-            ? "Average per day: no days have passed yet"
-            : $"Average per day: {report.AveragePerDay:N2} {currency} (over {report.DaysElapsed} days)";
+            ? Loc.T("Average per day: no days have passed yet")
+            : Loc.F("Average per day: {0:N2} {1} (over {2} days)", report.AveragePerDay, currency, report.DaysElapsed);
 
         ForecastText = report.Forecast is { } forecast
-            ? $"Forecast for the whole month: {forecast:N2} {currency}"
+            ? Loc.F("Forecast for the whole month: {0:N2} {1}", forecast, currency)
             : "";
     }
 

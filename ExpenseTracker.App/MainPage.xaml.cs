@@ -76,7 +76,7 @@ private async void OnRecurringExpensesClicked(object? sender, EventArgs e) =>
         var path = await _viewModel.ExportAsync(format);
 
         if (path is not null)
-            await DisplayAlertAsync("Export done", path, "OK");
+            await DisplayAlertAsync(Loc.T("Export done"), path, Loc.T("OK"));
     }
 
     private async void OnBackupClicked(object? sender, EventArgs e)
@@ -89,20 +89,20 @@ private async void OnRecurringExpensesClicked(object? sender, EventArgs e) =>
         try
         {
             var choice = await DisplayActionSheetAsync(
-                "Backup",
-                "Cancel",
+                Loc.T("Backup"),
+                Loc.T("Cancel"),
                 null,
-                "Create backup",
-                "Restore from backup");
+                Loc.T("Create backup"),
+                Loc.T("Restore from backup"));
 
-            if (choice == "Create backup")
+            if (choice == Loc.T("Create backup"))
             {
                 var path = await _viewModel.CreateBackupAsync();
 
                 if (path is not null)
-                    await DisplayAlertAsync("Backup created", path, "OK");
+                    await DisplayAlertAsync(Loc.T("Backup created"), path, Loc.T("OK"));
             }
-            else if (choice == "Restore from backup")
+            else if (choice == Loc.T("Restore from backup"))
             {
                 await RestoreAsync();
             }
@@ -122,13 +122,13 @@ private async void OnRecurringExpensesClicked(object? sender, EventArgs e) =>
 
         if (names.Length == 0)
         {
-            await DisplayAlertAsync("No backups", "Create a backup first.", "OK");
+            await DisplayAlertAsync(Loc.T("No backups"), Loc.T("Create a backup first."), Loc.T("OK"));
             return;
         }
 
         var picked = await DisplayActionSheetAsync(
-            "Choose a backup (newest first)",
-            "Cancel",
+            Loc.T("Choose a backup (newest first)"),
+            Loc.T("Cancel"),
             null,
             names);
 
@@ -136,13 +136,13 @@ private async void OnRecurringExpensesClicked(object? sender, EventArgs e) =>
             return;
 
         var confirmed = await DisplayAlertAsync(
-            "Restore backup?",
+            Loc.T("Restore backup?"),
             $"{picked}\n\nCurrent data will be replaced. A copy of the current database is saved first.",
-            "Restore",
-            "Cancel");
+            Loc.T("Restore"),
+            Loc.T("Cancel"));
 
         if (confirmed && await _viewModel.RestoreBackupAsync(picked))
-            await DisplayAlertAsync("Restored", picked, "OK");
+            await DisplayAlertAsync(Loc.T("Restored"), picked, Loc.T("OK"));
     }
 
     private async void OnCategoryFilterChanged(object? sender, EventArgs e)
@@ -213,10 +213,10 @@ private async void OnRecurringExpensesClicked(object? sender, EventArgs e) =>
         try
         {
             var confirmed = await DisplayAlertAsync(
-                "Delete expense?",
+                Loc.T("Delete expense?"),
                 $"{expense.CategoryName}\n{expense.Amount:N2} · {expense.Date:dd.MM.yyyy}",
-                "Delete",
-                "Cancel");
+                Loc.T("Delete"),
+                Loc.T("Cancel"));
 
             if (confirmed)
                 await _viewModel.DeleteAsync(expense.Id);

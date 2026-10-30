@@ -1,5 +1,7 @@
 namespace ExpenseTracker.App.Models;
 
+using ExpenseTracker.App.Services;
+
 using System.Globalization;
 
 public sealed record CategoryReportItem(
@@ -12,7 +14,7 @@ public sealed record CategoryReportItem(
 {
     public string TotalText => $"{Total:N2} {Currency}".TrimEnd();
 
-    public string PreviousText => $"Previous month: {PreviousTotal:N2} {Currency}".TrimEnd();
+    public string PreviousText => Loc.F("Previous month: {0:N2} {1}", PreviousTotal, Currency).TrimEnd();
 
     public string ChangeText => ReportFormat.Change(ChangePercent, Total, PreviousTotal);
 }
@@ -40,6 +42,6 @@ public static class ReportFormat
         if (percent is { } value)
             return $"{(value > 0 ? "+" : "")}{value.ToString("0.#", CultureInfo.InvariantCulture)}%";
 
-        return current > 0 && previous == 0 ? "new" : "—";
+        return current > 0 && previous == 0 ? Loc.T("new") : "—";
     }
 }

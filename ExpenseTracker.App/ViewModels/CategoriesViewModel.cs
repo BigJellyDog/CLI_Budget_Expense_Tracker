@@ -43,10 +43,10 @@ public sealed class CategoriesViewModel : ObservableObject
     public bool IsEditing => _editingCategoryId.HasValue;
 
     public string FormTitle =>
-        IsEditing ? "Rename category" : "New category";
+        IsEditing ? Loc.T("Rename category") : Loc.T("New category");
 
     public string SaveButtonText =>
-        IsEditing ? "Save changes" : "Create category";
+        IsEditing ? Loc.T("Save changes") : Loc.T("Create category");
 
     public bool HasError => ErrorMessage.Length > 0;
 
@@ -73,9 +73,9 @@ public sealed class CategoriesViewModel : ObservableObject
             NameText = "";
 
             ErrorMessage =
-                "The category being edited no longer exists.";
+                Loc.T("The category being edited no longer exists.");
         }
-    }, () => "Could not load categories. Try Refresh.");
+    }, () => Loc.T("Could not load categories. Try Refresh."));
 
     public void StartRename(Category category)
     {
@@ -109,7 +109,7 @@ public sealed class CategoriesViewModel : ObservableObject
 
         if (name.Length == 0)
         {
-            ShowError("Enter a category name.");
+            ShowError(Loc.T("Enter a category name."));
             return;
         }
 
@@ -120,7 +120,7 @@ public sealed class CategoriesViewModel : ObservableObject
                 x.Id != categoryId
                 && x.NormalizedName == normalizedName))
         {
-            ShowError("A category with this name already exists.");
+            ShowError(Loc.T("A category with this name already exists."));
             return;
         }
 
@@ -150,16 +150,16 @@ public sealed class CategoriesViewModel : ObservableObject
             NameText = "";
 
             SuccessMessage = categoryId.HasValue
-                ? "Category renamed."
-                : "Category created.";
+                ? Loc.T("Category renamed.")
+                : Loc.T("Category created.");
 
             // Saving succeeded; a reload failure must not look like a save failure.
             _loaded = false;
             Items = await ReadCategoriesAsync();
             _loaded = true;
         }, () => saved
-            ? "The category was saved, but the list could not be reloaded. Click Refresh."
-            : "Could not save the category. Click Refresh and try again.");
+            ? Loc.T("The category was saved, but the list could not be reloaded. Click Refresh.")
+            : Loc.T("Could not save the category. Click Refresh and try again."));
     }
 
     public async Task DeleteAsync(
@@ -209,9 +209,9 @@ public sealed class CategoriesViewModel : ObservableObject
             }
 
             SuccessMessage = deleted
-                ? "Category deleted."
-                : "The category was already deleted. The list has been updated.";
-        }, () => "Could not delete the category. Try Refresh.");
+                ? Loc.T("Category deleted.")
+                : Loc.T("The category was already deleted. The list has been updated.");
+        }, () => Loc.T("Could not delete the category. Try Refresh."));
     }
     
     /// <summary>Counts the records that use a category. Returns null if it could not be read.</summary>
@@ -237,7 +237,7 @@ public sealed class CategoriesViewModel : ObservableObject
                 "Failed to read usage of category {CategoryId}.",
                 categoryId);
 
-            ShowError("Could not check where the category is used. Try Refresh.");
+            ShowError(Loc.T("Could not check where the category is used. Try Refresh."));
             return null;
         }
     }
@@ -289,9 +289,9 @@ public sealed class CategoriesViewModel : ObservableObject
             }
 
             SuccessMessage =
-                $"Category deleted. Moved: {moved.ActiveExpenses + moved.DeletedExpenses} expenses, "
-                + $"{moved.RecurringExpenses} schedules. Budget limits removed: {moved.BudgetLimits}.";
-        }, () => "Could not move and delete the category. Nothing was changed. Try Refresh.");
+                Loc.F("Category deleted. Moved: {0} expenses, {1} schedules. Budget limits removed: {2}.",
+                    moved.ActiveExpenses + moved.DeletedExpenses, moved.RecurringExpenses, moved.BudgetLimits);
+        }, () => Loc.T("Could not move and delete the category. Nothing was changed. Try Refresh."));
     }
 
     public async Task DeleteWithDataAsync(
@@ -343,10 +343,9 @@ public sealed class CategoriesViewModel : ObservableObject
             }
 
             SuccessMessage =
-                $"Category deleted with {deleted.ActiveExpenses + deleted.DeletedExpenses} expenses, "
-                + $"{deleted.RecurringExpenses} schedules and {deleted.BudgetLimits} budget limits. "
-                + "A backup was saved first.";
-        }, () => "Could not delete the category. Nothing was changed. Try Refresh.");
+                Loc.F("Category deleted with {0} expenses, {1} schedules and {2} budget limits. A backup was saved first.",
+                    deleted.ActiveExpenses + deleted.DeletedExpenses, deleted.RecurringExpenses, deleted.BudgetLimits);
+        }, () => Loc.T("Could not delete the category. Nothing was changed. Try Refresh."));
     }
 
     private Task<IReadOnlyList<Category>> ReadCategoriesAsync() =>

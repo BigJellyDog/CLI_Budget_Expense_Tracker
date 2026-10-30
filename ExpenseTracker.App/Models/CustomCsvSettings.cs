@@ -1,5 +1,7 @@
 namespace ExpenseTracker.App.Models;
 
+using ExpenseTracker.App.Services;
+
 using CLI_Budget_Expense_Tracker.Core.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 
@@ -43,22 +45,22 @@ public sealed class CustomCsvSettings : ObservableObject
 
     public IReadOnlyList<DelimiterOption> DelimiterOptions { get; } =
     [
-        new(',', "Comma ,"),
-        new(';', "Semicolon ;"),
+        new(',', Loc.T("Comma ,")),
+        new(';', Loc.T("Semicolon ;")),
         new('\t', "Tab")
     ];
 
     public IReadOnlyList<CultureOption> CultureOptions { get; } =
     [
-        new("en-US", "Numbers: 1,234.56"),
-        new("de-DE", "Numbers: 1.234,56"),
-        new("ru-RU", "Numbers: 1 234,56")
+        new("en-US", Loc.T("Numbers: 1,234.56")),
+        new("de-DE", Loc.T("Numbers: 1.234,56")),
+        new("ru-RU", Loc.T("Numbers: 1 234,56"))
     ];
 
     public IReadOnlyList<SignOption> SignOptions { get; } =
     [
-        new(true, "Money spent is a negative number"),
-        new(false, "Money spent is a positive number")
+        new(true, Loc.T("Money spent is a negative number")),
+        new(false, Loc.T("Money spent is a positive number"))
     ];
 
     public DelimiterOption SelectedDelimiter
@@ -182,7 +184,7 @@ public sealed class CustomCsvSettings : ObservableObject
 
         if (string.IsNullOrWhiteSpace(DateFormat))
         {
-            error = "Enter the date format, for example yyyy-MM-dd.";
+            error = Loc.T("Enter the date format, for example yyyy-MM-dd.");
             return false;
         }
 
@@ -190,13 +192,13 @@ public sealed class CustomCsvSettings : ObservableObject
             || SelectedDescriptionColumn is not { } description
             || SelectedAmountColumn is not { } amount)
         {
-            error = "Choose the date, description and amount columns.";
+            error = Loc.T("Choose the date, description and amount columns.");
             return false;
         }
 
         if (new[] { date, description, amount }.Distinct().Count() < 3)
         {
-            error = "Choose three different columns for date, description and amount.";
+            error = Loc.T("Choose three different columns for date, description and amount.");
             return false;
         }
 
@@ -204,7 +206,7 @@ public sealed class CustomCsvSettings : ObservableObject
 
         if (currency.Length != 3 || !currency.All(char.IsLetter))
         {
-            error = "Enter the currency as three letters, for example EUR.";
+            error = Loc.T("Enter the currency as three letters, for example EUR.");
             return false;
         }
 

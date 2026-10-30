@@ -56,7 +56,7 @@ public sealed class RulesViewModel : ObservableObject
 
     public Task LoadAsync() => RunAsync(
         ReloadAsync,
-        () => "Could not load the rules. Try Refresh.");
+        () => Loc.T("Could not load the rules. Try Refresh."));
 
     public async Task AddAsync()
     {
@@ -66,20 +66,20 @@ public sealed class RulesViewModel : ObservableObject
 
         if (pattern.Length == 0)
         {
-            ShowError("Enter the text to look for.");
+            ShowError(Loc.T("Enter the text to look for."));
             return;
         }
 
         if (SelectedCategory is not { } category)
         {
-            ShowError("Choose a category.");
+            ShowError(Loc.T("Choose a category."));
             return;
         }
 
         if (Items.Any(x => string.Equals(
                 x.Pattern, pattern, StringComparison.OrdinalIgnoreCase)))
         {
-            ShowError("A rule with this text already exists.");
+            ShowError(Loc.T("A rule with this text already exists."));
             return;
         }
 
@@ -108,12 +108,12 @@ public sealed class RulesViewModel : ObservableObject
 
             saved = true;
             PatternText = "";
-            SuccessMessage = "Rule added.";
+            SuccessMessage = Loc.T("Rule added.");
 
             await ReloadAsync();
         }, () => saved
-            ? "The rule was added, but the list could not be reloaded. Click Refresh."
-            : "Could not add the rule. Try again.");
+            ? Loc.T("The rule was added, but the list could not be reloaded. Click Refresh.")
+            : Loc.T("Could not add the rule. Try again."));
     }
 
     public async Task DeleteAsync(
@@ -138,8 +138,8 @@ public sealed class RulesViewModel : ObservableObject
 
             Items = Items.Where(x => x.Id != ruleId).ToArray();
 
-            SuccessMessage = "Rule deleted.";
-        }, () => "Could not delete the rule. Try Refresh.");
+            SuccessMessage = Loc.T("Rule deleted.");
+        }, () => Loc.T("Could not delete the rule. Try Refresh."));
     }
 
     private async Task ReloadAsync()
@@ -169,7 +169,7 @@ public sealed class RulesViewModel : ObservableObject
                 .Select(x => new RuleListItem(
                     x.Id,
                     x.Pattern,
-                    names.GetValueOrDefault(x.CategoryId, "Unknown category")))
+                    names.GetValueOrDefault(x.CategoryId, Loc.T("Unknown category"))))
                 .ToArray();
 
             return (Categories: categories, Items: rows);

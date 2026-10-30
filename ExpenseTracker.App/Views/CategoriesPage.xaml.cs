@@ -1,5 +1,7 @@
 namespace ExpenseTracker.App.Views;
 
+using ExpenseTracker.App.Services;
+
 using CLI_Budget_Expense_Tracker.Core.Models;
 using Microsoft.Extensions.DependencyInjection;
 using ViewModels;
@@ -8,7 +10,7 @@ public partial class CategoriesPage : ContentPage
 {
     private readonly CategoriesViewModel _viewModel;
 
-    private const string DeleteWithDataText = "Delete category and all its data";
+    private static string DeleteWithDataText => Loc.T("Delete category and all its data");
 
     private bool _choosingDeleteAction;
 
@@ -83,10 +85,10 @@ public partial class CategoriesPage : ContentPage
                 await _viewModel.DeleteAsync(
                     category.Id,
                     () => DisplayAlertAsync(
-                        "Delete category?",
+                        Loc.T("Delete category?"),
                         $"Delete \"{category.Name}\"?",
-                        "Delete",
-                        "Cancel"));
+                        Loc.T("Delete"),
+                        Loc.T("Cancel")));
 
                 return;
             }
@@ -106,16 +108,16 @@ public partial class CategoriesPage : ContentPage
             .ToArray();
 
         var history = usage.DeletedExpenses > 0
-            ? $" (+{usage.DeletedExpenses} deleted, kept in history)"
+            ? Loc.F(" (+{0} deleted, kept in history)", usage.DeletedExpenses)
             : "";
 
         var picked = await DisplayActionSheetAsync(
-            $"\"{category.Name}\" is used by {usage.ActiveExpenses} expenses{history}, "
-            + $"{usage.RecurringExpenses} schedules and {usage.BudgetLimits} budget limits. "
+            Loc.F("\"{0}\" is used by {1} expenses{2}, {3} schedules and {4} budget limits. ",
+                category.Name, usage.ActiveExpenses, history, usage.RecurringExpenses, usage.BudgetLimits)
             + (targets.Length > 0
-                ? "Move expenses and schedules to another category, or delete everything:"
-                : "There is no other category to move them to. You can delete everything:"),
-            "Cancel",
+                ? Loc.T("Move expenses and schedules to another category, or delete everything:")
+                : Loc.T("There is no other category to move them to. You can delete everything:")),
+            Loc.T("Cancel"),
             DeleteWithDataText,
             targets.Select(x => x.Name).ToArray());
 
@@ -124,13 +126,13 @@ public partial class CategoriesPage : ContentPage
             await _viewModel.DeleteWithDataAsync(
                 category.Id,
                 () => DisplayAlertAsync(
-                    "Delete everything?",
-                    $"Permanently delete \"{category.Name}\" together with "
-                    + $"{usage.ActiveExpenses} expenses{history}, "
-                    + $"{usage.RecurringExpenses} schedules and {usage.BudgetLimits} budget limits?\n\n"
-                    + "A backup is saved first, so you can undo this with Backup > Restore.",
-                    "Delete everything",
-                    "Cancel"));
+                    Loc.T("Delete everything?"),
+                    Loc.F("Permanently delete \"{0}\" together with {1} expenses{2}, {3} schedules and {4} budget limits?",
+                        category.Name, usage.ActiveExpenses, history, usage.RecurringExpenses, usage.BudgetLimits)
+                    + "\n\n"
+                    + Loc.T("A backup is saved first, so you can undo this with Backup > Restore."),
+                    Loc.T("Delete everything"),
+                    Loc.T("Cancel")));
 
             return;
         }
@@ -144,13 +146,14 @@ public partial class CategoriesPage : ContentPage
             category.Id,
             target.Id,
             () => DisplayAlertAsync(
-                "Move and delete?",
-                $"Move the data of \"{category.Name}\" to \"{target.Name}\" and delete \"{category.Name}\"?\n\n"
+                Loc.T("Move and delete?"),
+                Loc.F("Move the data of \"{0}\" to \"{1}\" and delete \"{0}\"?", category.Name, target.Name)
+                + "\n\n"
                 + (usage.BudgetLimits > 0
-                    ? $"Its {usage.BudgetLimits} budget limits will be removed.\n\n"
+                    ? Loc.F("Its {0} budget limits will be removed.", usage.BudgetLimits) + "\n\n"
                     : "")
-                + "This cannot be undone.",
-                "Move and delete",
-                "Cancel"));
+                + Loc.T("This cannot be undone."),
+                Loc.T("Move and delete"),
+                Loc.T("Cancel")));
     }
 }

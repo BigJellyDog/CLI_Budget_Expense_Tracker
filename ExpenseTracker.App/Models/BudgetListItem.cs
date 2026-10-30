@@ -1,5 +1,7 @@
 namespace ExpenseTracker.App.Models;
 
+using ExpenseTracker.App.Services;
+
 public sealed record BudgetListItem(
     Guid CategoryId,
     string CategoryName,
@@ -10,11 +12,11 @@ public sealed record BudgetListItem(
     public bool IsOverBudget => Spent > Limit;
 
     public string Summary =>
-        $"Spent: {Money(Spent)} / Limit: {Money(Limit)}";
+        Loc.F("Spent: {0} / Limit: {1}", Money(Spent), Money(Limit));
 
     public string BalanceText => IsOverBudget
-        ? $"Over budget: {Money(Spent - Limit)}"
-        : $"Remaining: {Money(Limit - Spent)}";
+        ? Loc.F("Over budget: {0}", Money(Spent - Limit))
+        : Loc.F("Remaining: {0}", Money(Limit - Spent));
 
     private string Money(decimal amount) => $"{amount:N2} {Currency}".TrimEnd();
 

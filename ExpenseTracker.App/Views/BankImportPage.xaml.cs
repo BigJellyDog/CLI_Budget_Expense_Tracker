@@ -1,5 +1,7 @@
 namespace ExpenseTracker.App.Views;
 
+using ExpenseTracker.App.Services;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Maui.Devices;
 using Microsoft.Maui.Storage;
@@ -49,7 +51,7 @@ public partial class BankImportPage : ContentPage
         {
             var file = await FilePicker.Default.PickAsync(new PickOptions
             {
-                PickerTitle = "Choose a CSV statement",
+                PickerTitle = Loc.T("Choose a CSV statement"),
                 FileTypes = new FilePickerFileType(
                     new Dictionary<DevicePlatform, IEnumerable<string>>
                     {

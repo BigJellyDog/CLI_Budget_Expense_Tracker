@@ -1,5 +1,7 @@
 namespace ExpenseTracker.App.Views;
 
+using ExpenseTracker.App.Services;
+
 using Models;
 using ViewModels;
 
@@ -41,9 +43,9 @@ public partial class RulesPage : ContentPage
         await _viewModel.DeleteAsync(
             rule.Id,
             () => DisplayAlertAsync(
-                "Delete rule?",
+                Loc.T("Delete rule?"),
                 $"\"{rule.Pattern}\" → {rule.CategoryName}",
-                "Delete",
-                "Cancel"));
+                Loc.T("Delete"),
+                Loc.T("Cancel")));
     }
 }

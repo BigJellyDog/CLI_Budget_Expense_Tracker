@@ -93,7 +93,7 @@ public sealed class BudgetsViewModel : ObservableObject
 
     public Task LoadAsync() => RunAsync(
         ReloadAsync,
-        () => "Could not load budgets. Try Refresh.");
+        () => Loc.T("Could not load budgets. Try Refresh."));
 
     public async Task MoveMonthAsync(int offset)
     {
@@ -141,7 +141,7 @@ public sealed class BudgetsViewModel : ObservableObject
             || amount > long.MaxValue / 100m)
         {
             ErrorMessage =
-                "Enter an amount of 0 or more with up to 2 decimal places.";
+                Loc.T("Enter an amount of 0 or more with up to 2 decimal places.");
 
             SuccessMessage = "";
             NotifyState();
@@ -163,12 +163,12 @@ public sealed class BudgetsViewModel : ObservableObject
             });
 
             saved = true;
-            SuccessMessage = "Budget saved.";
+            SuccessMessage = Loc.T("Budget saved.");
 
             await ReloadAsync();
         }, () => saved
-            ? "The budget was saved, but the list could not be reloaded. Click Refresh."
-            : "Could not save the budget. Click Refresh and try again.");
+            ? Loc.T("The budget was saved, but the list could not be reloaded. Click Refresh.")
+            : Loc.T("Could not save the budget. Click Refresh and try again."));
     }
 
     public async Task RemoveLimitAsync(
@@ -203,9 +203,9 @@ public sealed class BudgetsViewModel : ObservableObject
                 UseSelectedLimit();
 
             SuccessMessage = removed
-                ? "Budget limit removed."
-                : "The limit was already removed. The list has been updated.";
-        }, () => "Could not remove the budget limit. Try Refresh.");
+                ? Loc.T("Budget limit removed.")
+                : Loc.T("The limit was already removed. The list has been updated.");
+        }, () => Loc.T("Could not remove the budget limit. Try Refresh."));
     }
     
     private async Task ReloadAsync()
@@ -239,7 +239,7 @@ public sealed class BudgetsViewModel : ObservableObject
                 .Select(x => new BudgetListItem(
                     x.CategoryId,
                     names.GetValueOrDefault(
-                        x.CategoryId, "Unknown category"),
+                        x.CategoryId, Loc.T("Unknown category")),
                     x.Limit!.Value,
                     x.Spent,
                     _settings.Currency))

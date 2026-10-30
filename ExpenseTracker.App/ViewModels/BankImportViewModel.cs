@@ -54,8 +54,8 @@ public sealed class BankImportViewModel : ObservableObject
 
     public IReadOnlyList<ImportFormatOption> Formats { get; } =
     [
-        new(ImportFormat.Revolut, "Revolut (German column names)"),
-        new(ImportFormat.Custom, "Other bank CSV (choose the columns)")
+        new(ImportFormat.Revolut, Loc.T("Revolut (German column names)")),
+        new(ImportFormat.Custom, Loc.T("Other bank CSV (choose the columns)"))
     ];
 
     public ImportFormatOption SelectedFormat
@@ -81,8 +81,8 @@ public sealed class BankImportViewModel : ObservableObject
     public bool ShowMapping => IsCustomFormat && _customBytes is not null && !IsBusy;
 
     public string FormatHint => IsCustomFormat
-        ? "Choose a CSV file, tell the app how it is written, then press Show preview."
-        : $"Revolut CSV with German column names · {_settings.Currency}";
+        ? Loc.T("Choose a CSV file, tell the app how it is written, then press Show preview.")
+        : Loc.F("Revolut CSV with German column names · {0}", _settings.Currency);
 
     public IReadOnlyList<BankImportListItem> Items { get; private set; } = [];
 
@@ -109,7 +109,7 @@ public sealed class BankImportViewModel : ObservableObject
     public decimal CandidateTotal { get; private set; }
 
     public string TotalText =>
-        $"Expense candidates: {CandidateTotal:N2} {_currency}" + (IsCustomFormat ? "" : " (fees excluded)");
+        Loc.F("Expense candidates: {0:N2} {1}", CandidateTotal, _currency) + (IsCustomFormat ? "" : Loc.T(" (fees excluded)"));
 
     public string SelectionText
     {
@@ -118,7 +118,7 @@ public sealed class BankImportViewModel : ObservableObject
             var selected = Items.Where(x => x.IsSelected).ToArray();
             var total = selected.Sum(x => -x.Entry.Source.Amount);
 
-            return $"Selected: {selected.Length} · {total:N2} {_currency}";
+            return Loc.F("Selected: {0} · {1:N2} {2}", selected.Length, total, _currency);
         }
     }
 
@@ -208,7 +208,7 @@ public sealed class BankImportViewModel : ObservableObject
 
             ErrorMessage = exception is FormatException
                 ? exception.Message
-                : "Could not read the file. Check it and try again.";
+                : Loc.T("Could not read the file. Check it and try again.");
         }
         finally
         {
@@ -326,10 +326,10 @@ public sealed class BankImportViewModel : ObservableObject
                 entries.Count(x => x.Kind == kind);
 
             Summary =
-                $"Records: {entries.Count} · Expense candidates: {Count(BankEntryKind.ExpenseCandidate)}\n" +
-                $"Incoming: {Count(BankEntryKind.Incoming)} · Internal transfers: {Count(BankEntryKind.InternalTransfer)}\n" +
-                $"Needs review: {Count(BankEntryKind.NeedsReview)} · Ignored: {Count(BankEntryKind.Ignored)}\n" +
-                $"Category set by rules: {matched}";
+                Loc.F("Records: {0} · Expense candidates: {1}", entries.Count, Count(BankEntryKind.ExpenseCandidate)) + "\n" +
+                Loc.F("Incoming: {0} · Internal transfers: {1}", Count(BankEntryKind.Incoming), Count(BankEntryKind.InternalTransfer)) + "\n" +
+                Loc.F("Needs review: {0} · Ignored: {1}", Count(BankEntryKind.NeedsReview), Count(BankEntryKind.Ignored)) + "\n" +
+                Loc.F("Category set by rules: {0}", matched);
 
             SetCategories(result.Categories);
             _loaded = true;
@@ -344,7 +344,7 @@ public sealed class BankImportViewModel : ObservableObject
 
             ErrorMessage = exception is FormatException
                 ? exception.Message
-                : "Could not read the statement. Check the file and try again.";
+                : Loc.T("Could not read the statement. Check the file and try again.");
         }
         finally
         {
@@ -393,7 +393,7 @@ public sealed class BankImportViewModel : ObservableObject
                 "Failed to import a Revolut statement.");
 
             ErrorMessage =
-                "Could not save the imported expenses. Nothing was added; try again.";
+                Loc.T("Could not save the imported expenses. Nothing was added; try again.");
         }
         finally
         {
@@ -411,17 +411,17 @@ public sealed class BankImportViewModel : ObservableObject
             exception,
             "Failed to choose a statement file.");
 
-        ErrorMessage = "Could not open the file picker. Try again.";
+        ErrorMessage = Loc.T("Could not open the file picker. Try again.");
         NotifyState();
     }
 
     private static string Describe(BankImportResult result)
     {
         var text = new StringBuilder(
-            $"Added: {result.Added} · Skipped as duplicates: {result.Duplicates} · Not imported: {result.Failures.Count}");
+            Loc.F("Added: {0} · Skipped as duplicates: {1} · Not imported: {2}", result.Added, result.Duplicates, result.Failures.Count));
 
         foreach (var failure in result.Failures)
-            text.Append($"\nRow {failure.RowNumber}: {failure.Reason}");
+            text.Append("\n" + Loc.F("Row {0}: {1}", failure.RowNumber, failure.Reason));
 
         return text.ToString();
     }

@@ -35,6 +35,27 @@ public partial class SettingsPage : ContentPage
         _viewModel.ApplyAppearance();
     }
 
+    private void OnLanguageChanged(object? sender, EventArgs e)
+    {
+        if (LanguagePicker.SelectedItem is not LanguageOption language)
+            return;
+
+        _viewModel.SelectedLanguage = language;
+
+        if (!_viewModel.ApplyLanguage())
+            return;
+
+        // Every page reads its texts when it is built, so the shell is built again.
+        Dispatcher.Dispatch(() =>
+        {
+            if (Window is null) return;
+
+            var shell = new AppShell();
+            Window.Page = shell;
+            shell.Dispatcher.Dispatch(async () => await Shell.Current.GoToAsync("//settings"));
+        });
+    }
+
     private void OnSaveClicked(object? sender, EventArgs e) =>
         _viewModel.Save();
 }

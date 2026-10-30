@@ -75,18 +75,18 @@ public sealed class ExpensesViewModel : ObservableObject
 
     public IReadOnlyList<BarSegment> Segments { get; private set; } = [];
 
-    public string SpentTitle => IsMonthPeriod ? $"Spent in {_month:MMMM}" : "Spent";
+    public string SpentTitle => IsMonthPeriod ? Loc.F("Spent in {0}", _month.ToString("MMMM")) : Loc.T("Spent");
 
     public string SpentText => $"{_total:N2} {_settings.Currency}";
 
-    public string DeltaTitle => IsMonthPeriod ? $"Compared with {_month.AddMonths(-1):MMMM}" : "Compared with last month";
+    public string DeltaTitle => IsMonthPeriod ? Loc.F("Compared with {0}", _month.AddMonths(-1).ToString("MMMM")) : Loc.T("Compared with last month");
 
     public string DeltaPercentText
     {
         get
         {
             if (_previousTotal is not { } previous || !IsMonthPeriod) return "–";
-            if (previous == 0) return _total == 0 ? "0%" : "new";
+            if (previous == 0) return _total == 0 ? "0%" : Loc.T("new");
 
             var percent = (_total - previous) / previous * 100m;
             return $"{(percent > 0 ? "+" : "")}{percent:0.#}%";
@@ -107,10 +107,10 @@ public sealed class ExpensesViewModel : ObservableObject
     /// <summary>Spending went up compared with the previous month.</summary>
     public bool DeltaIsUp => _previousTotal is { } previous && IsMonthPeriod && _total > previous;
 
-    public string BudgetsText => IsMonthPeriod && _budgetsTotal > 0 ? $"{_budgetsOver} of {_budgetsTotal}" : "–";
+    public string BudgetsText => IsMonthPeriod && _budgetsTotal > 0 ? Loc.F("{0} of {1}", _budgetsOver, _budgetsTotal) : "–";
 
     public string BudgetsCaption =>
-        !IsMonthPeriod ? "" : _budgetsTotal == 0 ? "no limits set" : "over the limit";
+        !IsMonthPeriod ? "" : _budgetsTotal == 0 ? Loc.T("no limits set") : Loc.T("over the limit");
 
     public bool BudgetsAreOver => _budgetsOver > 0;
     
@@ -120,19 +120,19 @@ public sealed class ExpensesViewModel : ObservableObject
 
     public IReadOnlyList<PeriodOption> PeriodOptions { get; } =
     [
-        new(ExpensePeriod.Month, "Month"),
-        new(ExpensePeriod.AllTime, "All time"),
-        new(ExpensePeriod.Custom, "Custom range")
+        new(ExpensePeriod.Month, Loc.T("Month")),
+        new(ExpensePeriod.AllTime, Loc.T("All time")),
+        new(ExpensePeriod.Custom, Loc.T("Custom range"))
     ];
 
     public PeriodOption SelectedPeriod { get; set; }
 
     public IReadOnlyList<SortOption> SortOptions { get; } =
     [
-        new(ExpenseSort.DateNewestFirst, "Date: newest first"),
-        new(ExpenseSort.DateOldestFirst, "Date: oldest first"),
-        new(ExpenseSort.AmountHighestFirst, "Amount: highest first"),
-        new(ExpenseSort.AmountLowestFirst, "Amount: lowest first")
+        new(ExpenseSort.DateNewestFirst, Loc.T("Date: newest first")),
+        new(ExpenseSort.DateOldestFirst, Loc.T("Date: oldest first")),
+        new(ExpenseSort.AmountHighestFirst, Loc.T("Amount: highest first")),
+        new(ExpenseSort.AmountLowestFirst, Loc.T("Amount: lowest first"))
     ];
 
     public SortOption SelectedSort { get; set; }
@@ -159,15 +159,15 @@ public sealed class ExpensesViewModel : ObservableObject
 
     public string PeriodTitle => SelectedPeriod.Period switch
     {
-        ExpensePeriod.AllTime => "All time",
+        ExpensePeriod.AllTime => Loc.T("All time"),
         ExpensePeriod.Custom when CustomFrom is { } from && CustomTo is { } to =>
             $"{from:dd.MM.yyyy} – {to:dd.MM.yyyy}",
-        ExpensePeriod.Custom => "Custom range",
+        ExpensePeriod.Custom => Loc.T("Custom range"),
         _ => _month.ToString("MMMM yyyy")
     };
 
     public string Summary =>
-        $"Expenses: {Items.Count} · Total: {_total:N2} {_settings.Currency}";
+        Loc.F("Expenses: {0} · Total: {1:N2} {2}", Items.Count, _total, _settings.Currency);
 
     public string ErrorMessage { get; private set; } = "";
 
@@ -208,7 +208,7 @@ public sealed class ExpensesViewModel : ObservableObject
 
                 IReadOnlyList<ExpenseCategoryFilter> filters =
                 [
-                    new(null, "All categories"),
+                    new(null, Loc.T("All categories")),
                     .. categories.Select(x =>
                         new ExpenseCategoryFilter(x.Id, x.Name))
                 ];
@@ -258,7 +258,7 @@ public sealed class ExpensesViewModel : ObservableObject
                         x.Date,
                         x.Amount,
                         names.GetValueOrDefault(
-                            x.CategoryId, "Unknown category"),
+                            x.CategoryId, Loc.T("Unknown category")),
                         x.Description,
                         _settings.Currency))
                     .ToArray();
@@ -302,7 +302,7 @@ public sealed class ExpensesViewModel : ObservableObject
                 filter.Title,
                 filter.CategoryId);
 
-            ErrorMessage = "Could not load expenses. Try Refresh.";
+            ErrorMessage = Loc.T("Could not load expenses. Try Refresh.");
             _loaded = false;
         }
         finally
@@ -371,7 +371,7 @@ public sealed class ExpensesViewModel : ObservableObject
             case ExpensePeriod.Custom:
                 if (CustomFrom is not { } from || CustomTo is not { } to)
                 {
-                    ShowFilterError("Choose both dates.");
+                    ShowFilterError(Loc.T("Choose both dates."));
                     return false;
                 }
 
@@ -380,11 +380,11 @@ public sealed class ExpensesViewModel : ObservableObject
 
                 if (end < start)
                 {
-                    ShowFilterError("The end date cannot be earlier than the start date.");
+                    ShowFilterError(Loc.T("The end date cannot be earlier than the start date."));
                     return false;
                 }
 
-                title = $"Expenses {start:dd.MM.yyyy} – {end:dd.MM.yyyy}";
+                title = $"{Loc.T("Expenses")} {start:dd.MM.yyyy} – {end:dd.MM.yyyy}";
                 fileLabel = $"{start:yyyyMMdd}-{end:yyyyMMdd}";
                 break;
 
@@ -395,7 +395,7 @@ public sealed class ExpensesViewModel : ObservableObject
                     _month.Month,
                     DateTime.DaysInMonth(_month.Year, _month.Month));
 
-                title = $"Expenses {_month:MMMM yyyy}";
+                title = $"{Loc.T("Expenses")} {_month:MMMM yyyy}";
                 fileLabel = $"{_month:yyyy-MM}";
                 break;
         }
@@ -403,13 +403,13 @@ public sealed class ExpensesViewModel : ObservableObject
         if (!TryParseAmount(MinAmountText, out var min)
             || !TryParseAmount(MaxAmountText, out var max))
         {
-            ShowFilterError("Enter amounts as numbers, for example 12.50.");
+            ShowFilterError(Loc.T("Enter amounts as numbers, for example 12.50."));
             return false;
         }
 
         if (min is { } lowest && max is { } highest && highest < lowest)
         {
-            ShowFilterError("The maximum amount cannot be less than the minimum.");
+            ShowFilterError(Loc.T("The maximum amount cannot be less than the minimum."));
             return false;
         }
 
@@ -491,7 +491,7 @@ public sealed class ExpensesViewModel : ObservableObject
                 "Failed to delete expense {ExpenseId}.",
                 id);
 
-            ErrorMessage = "Could not delete the expense. Try Refresh.";
+            ErrorMessage = Loc.T("Could not delete the expense. Try Refresh.");
         }
         finally
         {
@@ -548,7 +548,7 @@ public sealed class ExpensesViewModel : ObservableObject
                     var path = Path.Combine(_exportLocation.Directory, baseName + ".md");
                     var title = filter.Title
                                 + (categoryName is null ? "" : $" · {categoryName}")
-                                + (filter.IsNarrowed ? " (filtered)" : "");
+                                + (filter.IsNarrowed ? Loc.T(" (filtered)") : "");
                     new MarkdownExpenseExporter().Export(shown, names, title, path);
                     return path;
                 }
@@ -562,7 +562,7 @@ public sealed class ExpensesViewModel : ObservableObject
                 filter.Title,
                 filter.CategoryId);
 
-            ErrorMessage = "Could not export expenses.";
+            ErrorMessage = Loc.T("Could not export expenses.");
             return null;
         }
         finally
@@ -589,7 +589,7 @@ public sealed class ExpensesViewModel : ObservableObject
         {
             _logger.LogError(exception, "Failed to create a database backup.");
 
-            ErrorMessage = "Could not create the backup.";
+            ErrorMessage = Loc.T("Could not create the backup.");
             return null;
         }
         finally
@@ -632,7 +632,7 @@ public sealed class ExpensesViewModel : ObservableObject
         {
             _logger.LogError(exception, "Failed to restore backup {FileName}.", fileName);
 
-            ErrorMessage = "Could not restore the backup. The current data was not changed.";
+            ErrorMessage = Loc.T("Could not restore the backup. The current data was not changed.");
         }
         finally
         {
