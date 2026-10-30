@@ -1,6 +1,6 @@
 namespace ExpenseTracker.App.Controls;
 
-/// <summary>Keeps the content no wider than MaxContentWidth and centered, so rows never stretch across a big monitor.</summary>
+/// <summary>Keeps the content no wider than MaxContentWidth and next to the menu, so rows never stretch across a big monitor.</summary>
 public sealed class CenteredContainer : ContentView
 {
     public static readonly BindableProperty MaxContentWidthProperty = BindableProperty.Create(
@@ -18,7 +18,7 @@ public sealed class CenteredContainer : ContentView
 
         if (Content is not View view || width <= 0) return;
 
-        view.HorizontalOptions = LayoutOptions.Center;
+        view.HorizontalOptions = LayoutOptions.Start;
         view.WidthRequest = Math.Max(0, Math.Min(MaxContentWidth, width - Padding.HorizontalThickness));
     }
 }
