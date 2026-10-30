@@ -5,8 +5,9 @@
     xmlns:vm="clr-namespace:ExpenseTracker.App.ViewModels"
     x:Class="ExpenseTracker.App.Views.SettingsPage"
     x:DataType="vm:SettingsViewModel"
+    Shell.NavBarIsVisible="False"
     Title="Settings"
-    BackgroundColor="{AppThemeBinding Light=#F5F6FA, Dark=#151821}">
+    BackgroundColor="{DynamicResource Bg}">
 
     <ScrollView>
         <VerticalStackLayout
@@ -17,8 +18,34 @@
 
             <Label
                 Text="Settings"
-                FontSize="24"
-                FontAttributes="Bold" />
+                FontSize="26"
+                FontFamily="ManropeExtraBold" />
+
+            <VerticalStackLayout Spacing="8">
+                <Label Text="Appearance" FontAttributes="Bold" />
+
+                <Label
+                    Text="Mode follows the system theme, or stays light or dark. The accent sets the color of buttons and the selected menu item. Changes apply at once."
+                    TextColor="{DynamicResource InkMuted}"
+                    FontSize="12" />
+
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <Picker
+                        x:Name="ModePicker"
+                        Title="Mode"
+                        ItemsSource="{Binding ModeOptions}"
+                        SelectedItem="{Binding SelectedMode, Mode=TwoWay}"
+                        SelectedIndexChanged="OnAppearanceChanged" />
+
+                    <Picker
+                        x:Name="AccentPicker"
+                        Grid.Column="1"
+                        Title="Accent"
+                        ItemsSource="{Binding AccentOptions}"
+                        SelectedItem="{Binding SelectedAccent, Mode=TwoWay}"
+                        SelectedIndexChanged="OnAppearanceChanged" />
+                </Grid>
+            </VerticalStackLayout>
 
             <VerticalStackLayout Spacing="8">
                 <Label Text="Currency" FontAttributes="Bold" />
@@ -36,18 +63,19 @@
                     <Button
                         Grid.Column="1"
                         Text="Save"
+                        Style="{StaticResource PrimaryButton}"
                         Clicked="OnSaveClicked" />
                 </Grid>
 
                 <Label
                     Text="{Binding ErrorMessage}"
                     IsVisible="{Binding HasError}"
-                    TextColor="{AppThemeBinding Light=#B42318, Dark=#FFB4AB}" />
+                    TextColor="{DynamicResource Danger}" />
 
                 <Label
                     Text="{Binding SuccessMessage}"
                     IsVisible="{Binding HasSuccess}"
-                    TextColor="{AppThemeBinding Light=#18794E, Dark=#75D6A6}" />
+                    TextColor="{DynamicResource Success}" />
             </VerticalStackLayout>
 
             <VerticalStackLayout Spacing="8">

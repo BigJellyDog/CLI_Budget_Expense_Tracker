@@ -5,7 +5,9 @@ using CLI_Budget_Expense_Tracker.Core.Models;
 
 public sealed record SettingsData(
     string Currency = "EUR",
-    CsvImportProfile? LastCsvProfile = null);
+    CsvImportProfile? LastCsvProfile = null,
+    ThemeMode ThemeMode = ThemeMode.System,
+    string Accent = "Lavender");
 
 /// <summary>
 /// User settings kept in a small JSON file next to the database.
@@ -32,6 +34,12 @@ public sealed class AppSettings
     /// <summary>The column choices of the last CSV import of another bank.</summary>
     public CsvImportProfile? LastCsvProfile => _data.LastCsvProfile;
 
+    /// <summary>Light, dark, or follow the system.</summary>
+    public ThemeMode ThemeMode => _data.ThemeMode;
+
+    /// <summary>Name of the accent palette, one of <see cref="ThemeService.Accents"/>.</summary>
+    public string Accent => _data.Accent;
+
     public static bool IsValidCurrency(string? code) =>
         code is { Length: 3 } && code.All(char.IsLetter);
 
@@ -43,6 +51,14 @@ public sealed class AppSettings
             throw new ArgumentException("Currency must be three letters.", nameof(code));
 
         Save(_data with { Currency = code });
+    }
+
+    public void SetAppearance(ThemeMode mode, string accent)
+    {
+        if (!ThemeService.Accents.Contains(accent))
+            throw new ArgumentException("Unknown accent.", nameof(accent));
+
+        Save(_data with { ThemeMode = mode, Accent = accent });
     }
 
     public void SetLastCsvProfile(CsvImportProfile profile)
@@ -60,7 +76,9 @@ public sealed class AppSettings
 
             var data = JsonSerializer.Deserialize<SettingsData>(File.ReadAllText(FilePath));
 
-            return data is not null && IsValidCurrency(data.Currency)
+            return data is not null
+                   && IsValidCurrency(data.Currency)
+                   && ThemeService.Accents.Contains(data.Accent)
                 ? data
                 : new SettingsData();
         }

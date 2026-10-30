@@ -6,9 +6,39 @@ using Services;
 
 public sealed class SettingsViewModel(
     AppSettings settings,
+    ThemeService theme,
     ILogger<SettingsViewModel> logger) : ObservableObject
 {
+    public IReadOnlyList<ThemeMode> ModeOptions { get; } = Enum.GetValues<ThemeMode>();
+
+    public IReadOnlyList<string> AccentOptions => ThemeService.Accents;
+
+    public ThemeMode SelectedMode { get; set; } = settings.ThemeMode;
+
+    public string SelectedAccent { get; set; } = settings.Accent;
+
     public string CurrencyText { get; set; } = settings.Currency;
+
+    /// <summary>Saves the look and shows it straight away.</summary>
+    public void ApplyAppearance()
+    {
+        if (SelectedMode == settings.ThemeMode && SelectedAccent == settings.Accent)
+            return;
+
+        try
+        {
+            settings.SetAppearance(SelectedMode, SelectedAccent);
+            theme.Apply();
+        }
+        catch (Exception exception)
+        {
+            logger.LogError(exception, "Failed to save the appearance.");
+
+            ErrorMessage = "Could not save the appearance. Try again.";
+            SuccessMessage = "";
+            NotifyState();
+        }
+    }
 
     public string DataFolder =>
         Path.GetDirectoryName(Path.GetFullPath(settings.FilePath)) ?? "";
@@ -24,9 +54,13 @@ public sealed class SettingsViewModel(
     public void Reload()
     {
         CurrencyText = settings.Currency;
+        SelectedMode = settings.ThemeMode;
+        SelectedAccent = settings.Accent;
         ErrorMessage = "";
         SuccessMessage = "";
 
+        OnPropertyChanged(nameof(SelectedMode));
+        OnPropertyChanged(nameof(SelectedAccent));
         NotifyState();
     }
 

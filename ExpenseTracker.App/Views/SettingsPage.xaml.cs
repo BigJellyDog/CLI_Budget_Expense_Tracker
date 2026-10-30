@@ -1,5 +1,6 @@
 namespace ExpenseTracker.App.Views;
 
+using Services;
 using ViewModels;
 
 public partial class SettingsPage : ContentPage
@@ -18,6 +19,20 @@ public partial class SettingsPage : ContentPage
     {
         base.OnAppearing();
         _viewModel.Reload();
+    }
+
+    private void OnAppearanceChanged(object? sender, EventArgs e)
+    {
+        // Read the pickers directly: the bindings may not have copied the new item yet.
+        if (ModePicker.SelectedItem is not ThemeMode mode
+            || AccentPicker.SelectedItem is not string accent)
+        {
+            return;
+        }
+
+        _viewModel.SelectedMode = mode;
+        _viewModel.SelectedAccent = accent;
+        _viewModel.ApplyAppearance();
     }
 
     private void OnSaveClicked(object? sender, EventArgs e) =>

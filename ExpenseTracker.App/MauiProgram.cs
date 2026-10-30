@@ -18,12 +18,16 @@ public static class MauiProgram
 
         builder.UseMauiApp<App>().ConfigureFonts(fonts =>
         {
-            fonts.AddFont(
-                "OpenSans-Regular.ttf", "OpenSansRegular");
-
-            fonts.AddFont(
-                "OpenSans-Semibold.ttf", "OpenSansSemibold");
+            fonts.AddFont("Manrope-Regular.ttf", "ManropeRegular");
+            fonts.AddFont("Manrope-Medium.ttf", "ManropeMedium");
+            fonts.AddFont("Manrope-SemiBold.ttf", "ManropeSemiBold");
+            fonts.AddFont("Manrope-Bold.ttf", "ManropeBold");
+            fonts.AddFont("Manrope-ExtraBold.ttf", "ManropeExtraBold");
         });
+
+#if WINDOWS
+        Platforms.Windows.NativeControlTheme.Register();
+#endif
 
         var dataDirectory = FileSystem.Current.AppDataDirectory;
 
@@ -37,6 +41,8 @@ public static class MauiProgram
 
         builder.Services.AddSingleton(new AppSettings(
             Path.Combine(Path.GetDirectoryName(databasePath)!, "settings.json")));
+
+        builder.Services.AddSingleton<ThemeService>();
 
         builder.Services.AddSingleton(new ExportLocation(
             Path.Combine(Path.GetDirectoryName(databasePath)!, "exports")));

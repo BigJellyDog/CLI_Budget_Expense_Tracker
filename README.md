@@ -26,7 +26,7 @@ live in one folder.
 - **Export** of the expenses on screen to CSV or Markdown.
 - **Backup and restore** of the database. A backup is also made automatically before a
   database upgrade and before a category is deleted together with its data.
-- **Settings**: the currency shown next to amounts.
+- **Settings**: the currency shown next to amounts, and the look: mode (System, Light, Dark, Black) and accent (Lavender, Mint, Sky, Rose, Amber), applied at once.
 - **Error log**: unexpected errors are written to a log file instead of crashing the app.
 
 ## Requirements
