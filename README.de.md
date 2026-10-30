@@ -55,7 +55,7 @@ Die englischen Fassungen liegen in [`docs/en`](docs/en).
 
 Ein sofort lauffähiger Windows-Build (64 Bit, ohne Installation, ohne .NET) liegt auf der
 [Releases-Seite](https://github.com/BigJellyDog/CLI_Budget_Expense_Tracker/releases/latest): Zip herunterladen,
-entpacken und `ExpenseTracker.App.exe` starten. Die App startet mit 18 Standardkategorien und ohne Ausgaben: unter **Einstellungen → Demodaten laden** füllt
+entpacken und `ExpenseTracker.exe` starten (die Programmdateien liegen im Ordner `app` daneben). Die App startet mit 18 Standardkategorien und ohne Ausgaben: unter **Einstellungen → Demodaten laden** füllt
 sich jeder Bildschirm mit Beispieldaten für ein Jahr; **Alle Daten löschen** entfernt sie wieder.
 
 ## Schnellstart (aus dem Quellcode)

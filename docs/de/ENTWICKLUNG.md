@@ -121,3 +121,11 @@ Offen:
       Import-Hash und -Klassifizierung, Regeltreffer) und deren Ausführung in der CI.
 - [ ] Windows-Release-Build (Paketierung).
 - [ ] Übersetzung der Meldungen aus dem Core-Projekt.
+
+## 9. Release-Zip bauen
+
+`.\tools\pack-release.ps1 -Version 1.2.0` veröffentlicht die App eigenständig in einen Ordner `app`, baut einen kleinen
+nativen Starter (`tools/Launcher`, Native AOT, etwa 1,5 MB) als `ExpenseTracker.exe`, fügt `info` (Readme, Lizenz,
+Hinweise) hinzu und schreibt `artifacts/ExpenseTracker-v<Version>-win-x64.zip`. Im Hauptordner des Zips liegen dann nur
+der Starter und zwei Ordner. Zum Linken braucht der Starter die C++-Werkzeuge von Visual Studio (Workload
+„Desktopentwicklung mit C++“).

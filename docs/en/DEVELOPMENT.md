@@ -120,3 +120,10 @@ Open:
       classification, rule matching) and running them in CI.
 - [ ] Windows release build (packaging).
 - [ ] Translating the messages that come from the Core project.
+
+## 9. Building the release zip
+
+`.\tools\pack-release.ps1 -Version 1.2.0` publishes the app self-contained into an `app` folder, builds a small native
+starter (`tools/Launcher`, Native AOT, about 1.5 MB) as `ExpenseTracker.exe`, adds `info` (readme, license, notices) and
+writes `artifacts/ExpenseTracker-v<version>-win-x64.zip`. The root of the zip then holds only the starter and two folders.
+The starter needs the Visual Studio C++ tools (the "Desktop development with C++" workload) to link.
