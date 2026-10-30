@@ -1,5 +1,7 @@
 # Expense Tracker
 
+[![Build](https://github.com/BigJellyDog/CLI_Budget_Expense_Tracker/actions/workflows/build.yml/badge.svg)](https://github.com/BigJellyDog/CLI_Budget_Expense_Tracker/actions/workflows/build.yml)
+
 **English** · [Deutsch](README.de.md)
 
 A personal budget and expense tracker for Windows, built with **C#, .NET 10 and .NET MAUI**.
@@ -49,7 +51,13 @@ The German versions are in [`docs/de`](docs/de).
 - The .NET MAUI workload: `dotnet workload install maui`
 - Optional: JetBrains Rider or Visual Studio 2022+ with the .NET MAUI workload
 
-## Quick start
+## Download
+
+A ready-to-run Windows build (64-bit, no installation, no .NET needed) is on the
+[Releases page](https://github.com/BigJellyDog/CLI_Budget_Expense_Tracker/releases/latest): download the zip,
+extract it and start `ExpenseTracker.App.exe`.
+
+## Quick start (from source)
 
 ```powershell
 dotnet run --project ExpenseTracker.App -f net10.0-windows10.0.19041.0
