@@ -185,6 +185,9 @@ Für Zahlungen, die sich wiederholen: Miete, Abonnements, Versicherungen.
   *Akzent* (Lavendel, Minze, Himmel, Rose, Bernstein). Änderungen wirken sofort, auch in der Titelleiste.
 - **Währung**: ein dreibuchstabiger Code (EUR, USD, CHF …) neben den Beträgen. Gespeicherte Beträge werden nicht
   umgerechnet.
+- **Demodaten**: **Demodaten laden** fügt Beispielausgaben, Budgets, Wiederholungspläne und Regeln für ein Jahr hinzu,
+  von heute rückwärts gerechnet, damit jeder Bildschirm etwas zeigt. Ihre eigenen Daten bleiben erhalten; zuvor wird
+  eine Sicherung erstellt. Zweimaliges Laden fügt weitere Ausgaben hinzu.
 - **Wo Ihre Daten liegen**: der Ordner mit Datenbank, Sicherungen, Exporten, Protokollen und Einstellungen.
 
 ## 9. Ihre Daten

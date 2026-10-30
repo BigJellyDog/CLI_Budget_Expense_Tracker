@@ -7,6 +7,7 @@ using Services;
 public sealed class SettingsViewModel(
     AppSettings settings,
     ThemeService theme,
+    DemoDataService demoData,
     ILogger<SettingsViewModel> logger) : ObservableObject
 {
     public IReadOnlyList<ThemeMode> ModeOptions { get; } = Enum.GetValues<ThemeMode>();
@@ -64,6 +65,41 @@ public sealed class SettingsViewModel(
 
             ErrorMessage = Loc.T("Could not save the appearance. Try again.");
             SuccessMessage = "";
+            NotifyState();
+        }
+    }
+
+    public bool IsBusy { get; private set; }
+
+    public bool CanLoadDemo => !IsBusy;
+
+    /// <summary>Adds a year of sample data. True when it worked.</summary>
+    public async Task<bool> LoadDemoDataAsync()
+    {
+        if (IsBusy) return false;
+
+        IsBusy = true;
+        ErrorMessage = "";
+        SuccessMessage = "";
+        NotifyState();
+
+        try
+        {
+            var result = await demoData.LoadAsync();
+
+            SuccessMessage = Loc.F("Demo data added: {0} expenses, {1} schedules.", result.Expenses, result.Schedules);
+            return true;
+        }
+        catch (Exception exception)
+        {
+            logger.LogError(exception, "Failed to load the demo data.");
+
+            ErrorMessage = Loc.T("Could not load the demo data. Nothing was lost; a backup was made first.");
+            return false;
+        }
+        finally
+        {
+            IsBusy = false;
             NotifyState();
         }
     }
@@ -129,6 +165,8 @@ public sealed class SettingsViewModel(
     private void NotifyState()
     {
         OnPropertyChanged(nameof(CurrencyText));
+        OnPropertyChanged(nameof(IsBusy));
+        OnPropertyChanged(nameof(CanLoadDemo));
         OnPropertyChanged(nameof(ErrorMessage));
         OnPropertyChanged(nameof(SuccessMessage));
         OnPropertyChanged(nameof(HasError));

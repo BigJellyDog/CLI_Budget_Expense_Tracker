@@ -49,6 +49,7 @@ public static class MauiProgram
 
         builder.Services.AddSingleton<ThemeService>();
         builder.Services.AddSingleton<ExpenseFilterRequest>();
+        builder.Services.AddSingleton<DemoDataService>();
 
         builder.Services.AddSingleton(new ExportLocation(
             Path.Combine(Path.GetDirectoryName(databasePath)!, "exports")));

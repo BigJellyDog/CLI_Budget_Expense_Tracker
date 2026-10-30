@@ -119,5 +119,4 @@ Open:
 - [ ] Automated tests (Core services first: money rules, budget status, recurring generation, import hash and
       classification, rule matching) and running them in CI.
 - [ ] Windows release build (packaging).
-- [ ] Demo data for screenshots.
 - [ ] Translating the messages that come from the Core project.

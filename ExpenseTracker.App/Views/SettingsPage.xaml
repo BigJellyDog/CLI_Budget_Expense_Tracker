@@ -103,6 +103,21 @@
             </VerticalStackLayout>
 
             <VerticalStackLayout Spacing="8">
+                <Label Text="{loc:Tr Key='Demo data'}" FontAttributes="Bold" />
+
+                <Label
+                    Text="{loc:Tr Key='Fills the app with a year of sample data, counted back from today, so every screen has something to show.'}"
+                    TextColor="{DynamicResource InkMuted}"
+                    FontSize="12" />
+
+                <controls:PillButton
+                    Text="{loc:Tr Key='Load demo data'}"
+                    HorizontalOptions="Start"
+                    Clicked="OnLoadDemoClicked"
+                    IsEnabled="{Binding CanLoadDemo}" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="8">
                 <Label Text="{loc:Tr Key='Where your data is'}" FontAttributes="Bold" />
 
                 <Label

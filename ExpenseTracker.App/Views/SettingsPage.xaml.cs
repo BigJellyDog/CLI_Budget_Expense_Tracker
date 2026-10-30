@@ -56,6 +56,20 @@ public partial class SettingsPage : ContentPage
         });
     }
 
+    private async void OnLoadDemoClicked(object? sender, EventArgs e)
+    {
+        if (!_viewModel.CanLoadDemo) return;
+
+        var confirmed = await DisplayAlertAsync(
+            Loc.T("Load demo data?"),
+            Loc.T("Adds a year of sample expenses, budgets, schedules and rules, counted back from today. Your data stays; a backup is made first. Loading it twice adds more expenses."),
+            Loc.T("Load"),
+            Loc.T("Cancel"));
+
+        if (confirmed)
+            await _viewModel.LoadDemoDataAsync();
+    }
+
     private void OnSaveClicked(object? sender, EventArgs e) =>
         _viewModel.Save();
 }

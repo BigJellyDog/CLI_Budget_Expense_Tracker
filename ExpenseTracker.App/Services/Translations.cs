@@ -444,6 +444,16 @@ internal static class Translations
         ["No expenses this month."] = ["In diesem Monat keine Ausgaben.", "В этом месяце расходов нет.", "Цього місяця витрат немає."],
         ["Red: spent more · Green: spent less"] = ["Rot: mehr ausgegeben · Grün: weniger ausgegeben", "Красный: потрачено больше · зелёный: меньше", "Червоний: витрачено більше · зелений: менше"],
 
+        // Demo data
+        ["Demo data"] = ["Demodaten", "Демо-данные", "Демо-дані"],
+        ["Fills the app with a year of sample data, counted back from today, so every screen has something to show."] = ["Füllt die App mit Beispieldaten für ein Jahr, von heute rückwärts gerechnet, damit jeder Bildschirm etwas zeigt.", "Заполняет приложение примерными данными за год, считая от сегодняшнего дня, чтобы на каждом экране было что показать.", "Заповнює застосунок прикладними даними за рік, рахуючи від сьогодні, щоб на кожному екрані було що показати."],
+        ["Load demo data"] = ["Demodaten laden", "Загрузить демо-данные", "Завантажити демо-дані"],
+        ["Load demo data?"] = ["Demodaten laden?", "Загрузить демо-данные?", "Завантажити демо-дані?"],
+        ["Adds a year of sample expenses, budgets, schedules and rules, counted back from today. Your data stays; a backup is made first. Loading it twice adds more expenses."] = ["Fügt Beispielausgaben, Budgets, Pläne und Regeln für ein Jahr hinzu, von heute rückwärts. Ihre Daten bleiben erhalten; zuvor wird eine Sicherung erstellt. Zweimaliges Laden fügt weitere Ausgaben hinzu.", "Добавляет примерные расходы, бюджеты, расписания и правила за год, считая от сегодняшнего дня. Ваши данные остаются; сначала создаётся копия. Повторная загрузка добавит ещё расходов.", "Додає прикладні витрати, бюджети, розклади та правила за рік, рахуючи від сьогодні. Ваші дані залишаються; спершу створюється копія. Повторне завантаження додасть ще витрат."],
+        ["Load"] = ["Laden", "Загрузить", "Завантажити"],
+        ["Demo data added: {0} expenses, {1} schedules."] = ["Demodaten hinzugefügt: {0} Ausgaben, {1} Pläne.", "Демо-данные добавлены: расходов {0}, расписаний {1}.", "Демо-дані додано: витрат {0}, розкладів {1}."],
+        ["Could not load the demo data. Nothing was lost; a backup was made first."] = ["Demodaten konnten nicht geladen werden. Es ging nichts verloren; zuvor wurde eine Sicherung erstellt.", "Не удалось загрузить демо-данные. Ничего не потеряно; сначала была создана копия.", "Не вдалося завантажити демо-дані. Нічого не втрачено; спершу створено копію."],
+
         // Misc
         ["Something went wrong"] = ["Etwas ist schiefgelaufen", "Что-то пошло не так", "Щось пішло не так"],
     };

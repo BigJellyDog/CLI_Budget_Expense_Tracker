@@ -171,6 +171,9 @@ For payments that repeat: rent, subscriptions, insurance.
 - **Appearance**: the *mode* (System follows Windows, Light, Dark, Black with a pure black background) and the
   *accent* (Lavender, Mint, Sky, Rose, Amber). Changes apply immediately, including the title bar.
 - **Currency**: a three-letter code (EUR, USD, CHF...) shown next to amounts. It does not convert saved amounts.
+- **Demo data**: **Load demo data** adds a year of sample expenses, budgets, recurring schedules and rules,
+  counted back from today, so every screen has something to show. Your own data stays; a backup is made first.
+  Loading it twice adds more expenses.
 - **Where your data is**: the folder with the database, backups, exports, logs and settings.
 
 ## 9. Your data

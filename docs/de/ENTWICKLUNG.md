@@ -120,5 +120,4 @@ Offen:
 - [ ] Automatische Tests (zuerst die Core-Dienste: Geldregeln, Budgetstatus, Erzeugung von Wiederholungen,
       Import-Hash und -Klassifizierung, Regeltreffer) und deren Ausführung in der CI.
 - [ ] Windows-Release-Build (Paketierung).
-- [ ] Demodaten für Screenshots.
 - [ ] Übersetzung der Meldungen aus dem Core-Projekt.
