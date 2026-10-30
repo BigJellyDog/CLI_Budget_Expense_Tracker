@@ -32,34 +32,34 @@ public partial class MainPage : ContentPage
         await _viewModel.RefreshAsync();
     }
 
+    private void OnPreviousClicked(object? sender, EventArgs e) =>
+        _viewModel.PreviousMonthCommand.Execute(null);
+
+    private void OnNextClicked(object? sender, EventArgs e) =>
+        _viewModel.NextMonthCommand.Execute(null);
+
+    private void OnRefreshClicked(object? sender, EventArgs e) =>
+        _viewModel.RefreshCommand.Execute(null);
+
     private async void OnAddExpenseClicked(object? sender, EventArgs e) =>
         await OpenPageAsync<ExpenseEditorPage>();
     
     private async void OnEditExpenseClicked(object? sender, EventArgs e)
     {
-        if (sender is not Button { BindingContext: ExpenseListItem expense })
+        if (sender is not BindableObject { BindingContext: ExpenseListItem expense })
             return;
 
         await OpenPageAsync<ExpenseEditorPage>(
             page => page.ConfigureForEdit(expense.Id));
     }
 
-    private async void OnBankImportClicked(object? sender, EventArgs e) =>
-        await OpenPageAsync<BankImportPage>();
-    
-    private async void OnCategoriesClicked(object? sender, EventArgs e) =>
+private async void OnCategoriesClicked(object? sender, EventArgs e) =>
         await OpenPageAsync<CategoriesPage>();
     
-    private async void OnSettingsClicked(object? sender, EventArgs e) =>
-        await OpenPageAsync<SettingsPage>();
-
-    private async void OnReportsClicked(object? sender, EventArgs e) =>
+private async void OnReportsClicked(object? sender, EventArgs e) =>
         await OpenPageAsync<ReportsPage>();
 
-    private async void OnBudgetsClicked(object? sender, EventArgs e) =>
-        await OpenPageAsync<BudgetsPage>();
-    
-    private async void OnRecurringExpensesClicked(object? sender, EventArgs e) =>
+private async void OnRecurringExpensesClicked(object? sender, EventArgs e) =>
         await OpenPageAsync<RecurringExpensesPage>();
 
     private async void OnExportCsvClicked(object? sender, EventArgs e) =>
@@ -203,7 +203,7 @@ public partial class MainPage : ContentPage
     private async void OnDeleteExpenseClicked(object? sender, EventArgs e)
     {
         if (_confirmingDelete || _openingPage || _viewModel.IsBusy
-            || sender is not Button { BindingContext: ExpenseListItem expense })
+            || sender is not BindableObject { BindingContext: ExpenseListItem expense })
         {
             return;
         }

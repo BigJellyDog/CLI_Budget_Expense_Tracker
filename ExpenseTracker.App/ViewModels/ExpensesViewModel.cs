@@ -9,6 +9,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Controls;
 using Models;
 using Services;
 
@@ -24,6 +25,9 @@ public sealed class ExpensesViewModel : ObservableObject
     private DateOnly _month;
     private bool _loaded;
     private decimal _total;
+    private decimal? _previousTotal;
+    private int _budgetsOver;
+    private int _budgetsTotal;
 
     public ExpensesViewModel(
         IServiceScopeFactory scopeFactory,
@@ -65,6 +69,50 @@ public sealed class ExpensesViewModel : ObservableObject
     }
 
     public IReadOnlyList<ExpenseListItem> Items { get; private set; } = [];
+
+    /// <summary>The same rows grouped by day (only when sorted by date).</summary>
+    public IReadOnlyList<ExpenseDayGroup> Groups { get; private set; } = [];
+
+    public IReadOnlyList<BarSegment> Segments { get; private set; } = [];
+
+    public string SpentTitle => IsMonthPeriod ? $"Spent in {_month:MMMM}" : "Spent";
+
+    public string SpentText => $"{_total:N2} {_settings.Currency}";
+
+    public string DeltaTitle => IsMonthPeriod ? $"Compared with {_month.AddMonths(-1):MMMM}" : "Compared with last month";
+
+    public string DeltaPercentText
+    {
+        get
+        {
+            if (_previousTotal is not { } previous || !IsMonthPeriod) return "–";
+            if (previous == 0) return _total == 0 ? "0%" : "new";
+
+            var percent = (_total - previous) / previous * 100m;
+            return $"{(percent > 0 ? "+" : "")}{percent:0.#}%";
+        }
+    }
+
+    public string DeltaAmountText
+    {
+        get
+        {
+            if (_previousTotal is not { } previous || !IsMonthPeriod) return "";
+
+            var diff = _total - previous;
+            return $"{(diff > 0 ? "+" : diff < 0 ? "−" : "")}{Math.Abs(diff):N2} {_settings.Currency}";
+        }
+    }
+
+    /// <summary>Spending went up compared with the previous month.</summary>
+    public bool DeltaIsUp => _previousTotal is { } previous && IsMonthPeriod && _total > previous;
+
+    public string BudgetsText => IsMonthPeriod && _budgetsTotal > 0 ? $"{_budgetsOver} of {_budgetsTotal}" : "–";
+
+    public string BudgetsCaption =>
+        !IsMonthPeriod ? "" : _budgetsTotal == 0 ? "no limits set" : "over the limit";
+
+    public bool BudgetsAreOver => _budgetsOver > 0;
     
     public IReadOnlyList<ExpenseCategoryFilter> CategoryFilters { get; private set; } = [];
 
@@ -181,6 +229,29 @@ public sealed class ExpensesViewModel : ObservableObject
                     x => x.Id,
                     x => x.Name);
 
+                decimal? previousTotal = null;
+                var budgetsOver = 0;
+                var budgetsTotal = 0;
+
+                if (filter.IsMonth && filter.Start is { } monthStart)
+                {
+                    var previousStart = monthStart.AddMonths(-1);
+                    var previousEnd = monthStart.AddDays(-1);
+
+                    var previous = await services
+                        .GetRequiredService<ExpenseService>()
+                        .GetReportAsync(previousStart, previousEnd, selectedFilter.CategoryId);
+
+                    previousTotal = filter.Query.Apply(previous.Expenses).Sum(x => x.Amount);
+
+                    var statuses = await services
+                        .GetRequiredService<BudgetService>()
+                        .GetMonthlyStatusesAsync(monthStart);
+
+                    budgetsTotal = statuses.Count;
+                    budgetsOver = statuses.Count(x => x.Overspend > 0);
+                }
+
                 IReadOnlyList<ExpenseListItem> rows = shown
                     .Select(x => new ExpenseListItem(
                         x.Id,
@@ -196,11 +267,24 @@ public sealed class ExpensesViewModel : ObservableObject
                     Rows: rows,
                     Total: shown.Sum(x => x.Amount),
                     Filters: filters,
-                    SelectedFilter: selectedFilter);
+                    SelectedFilter: selectedFilter,
+                    PreviousTotal: previousTotal,
+                    BudgetsOver: budgetsOver,
+                    BudgetsTotal: budgetsTotal);
             });
 
-            Items = result.Rows;
+            // Colors come from the theme, which belongs to the UI thread.
+            CategoryPalette.Assign(result.Filters
+                .Where(x => x.CategoryId is not null)
+                .Select(x => x.Name));
+            Items = result.Rows
+                .Select(x => x with { CategoryColor = CategoryPalette.ColorFor(x.CategoryName) })
+                .ToArray();
             _total = result.Total;
+            _previousTotal = result.PreviousTotal;
+            _budgetsOver = result.BudgetsOver;
+            _budgetsTotal = result.BudgetsTotal;
+            BuildGroups();
 
             CategoryFilters = result.Filters;
             OnPropertyChanged(nameof(CategoryFilters));
@@ -259,6 +343,8 @@ public sealed class ExpensesViewModel : ObservableObject
         string Title,
         string FileLabel)
     {
+        public bool IsMonth { get; init; }
+
         public bool IsNarrowed =>
             !string.IsNullOrWhiteSpace(Query.Text)
             || Query.MinAmount is not null
@@ -333,7 +419,10 @@ public sealed class ExpensesViewModel : ObservableObject
             SelectedCategoryFilter?.CategoryId,
             new ExpenseListQuery(SearchText, min, max, SelectedSort.Sort),
             title,
-            fileLabel);
+            fileLabel)
+        {
+            IsMonth = SelectedPeriod.Period == ExpensePeriod.Month
+        };
 
         FilterError = "";
         OnPropertyChanged(nameof(FilterError));
@@ -393,6 +482,7 @@ public sealed class ExpensesViewModel : ObservableObject
             // Also remove a stale row if it was already deleted elsewhere.
             Items = Items.Where(x => x.Id != id).ToArray();
             _total = Items.Sum(x => x.Amount);
+            BuildGroups();
         }
         catch (Exception exception)
         {
@@ -566,8 +656,37 @@ public sealed class ExpensesViewModel : ObservableObject
         await RefreshAsync();
     }
 
+    private void BuildGroups()
+    {
+        Segments = Items
+            .GroupBy(x => x.CategoryName)
+            .Select(g => new BarSegment(g.Key, g.Sum(x => x.Amount)))
+            .OrderByDescending(x => x.Value)
+            .ToArray();
+
+        var byDate = SelectedSort.Sort is ExpenseSort.DateNewestFirst or ExpenseSort.DateOldestFirst;
+
+        Groups = byDate
+            ? Items
+                .GroupBy(x => x.Date)
+                .Select(g => new ExpenseDayGroup(g.Key.ToString("ddd, d MMMM"), g))
+                .ToArray()
+            : [new ExpenseDayGroup("", Items)];
+    }
+
     private void NotifyState()
     {
+        OnPropertyChanged(nameof(Groups));
+        OnPropertyChanged(nameof(Segments));
+        OnPropertyChanged(nameof(SpentTitle));
+        OnPropertyChanged(nameof(SpentText));
+        OnPropertyChanged(nameof(DeltaTitle));
+        OnPropertyChanged(nameof(DeltaPercentText));
+        OnPropertyChanged(nameof(DeltaAmountText));
+        OnPropertyChanged(nameof(DeltaIsUp));
+        OnPropertyChanged(nameof(BudgetsText));
+        OnPropertyChanged(nameof(BudgetsCaption));
+        OnPropertyChanged(nameof(BudgetsAreOver));
         OnPropertyChanged(nameof(Items));
         OnPropertyChanged(nameof(PeriodTitle));
         OnPropertyChanged(nameof(IsMonthPeriod));
