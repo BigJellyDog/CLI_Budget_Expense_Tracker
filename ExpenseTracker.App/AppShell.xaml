@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:ExpenseTracker.App"
+    xmlns:views="clr-namespace:ExpenseTracker.App.Views"
+    xmlns:controls="clr-namespace:ExpenseTracker.App.Controls"
+    x:Class="ExpenseTracker.App.AppShell"
+    FlyoutBehavior="Locked"
+    FlyoutWidth="248"
+    Title="Expense Tracker">
+
+    <Shell.FlyoutContent>
+        <controls:Sidebar />
+    </Shell.FlyoutContent>
+
+    <ShellContent Route="expenses" ContentTemplate="{DataTemplate local:MainPage}" />
+    <ShellContent Route="import" ContentTemplate="{DataTemplate views:BankImportPage}" />
+    <ShellContent Route="categories" ContentTemplate="{DataTemplate views:CategoriesPage}" />
+    <ShellContent Route="budgets" ContentTemplate="{DataTemplate views:BudgetsPage}" />
+    <ShellContent Route="reports" ContentTemplate="{DataTemplate views:ReportsPage}" />
+    <ShellContent Route="recurring" ContentTemplate="{DataTemplate views:RecurringExpensesPage}" />
+    <ShellContent Route="settings" ContentTemplate="{DataTemplate views:SettingsPage}" />
+</Shell>
