@@ -4,7 +4,7 @@
 
 Expense Tracker ist eine Desktop-App, um Ausgaben zu erfassen, Monatslimits zu planen und zu verstehen, wohin das
 Geld fließt. Dieses Handbuch beschreibt jeden Bildschirm. Die Screenshots zeigen das Design „Schwarz“ mit dem
-Akzent „Minze“ und eine englische Oberfläche; in den Einstellungen lässt sich die App auf Deutsch umstellen.
+Akzent „Minze“ und die deutsche Oberfläche.
 
 ## Inhalt
 
@@ -35,7 +35,7 @@ Gemeinsame Elemente:
 
 ## 2. Ausgaben
 
-![Ausgaben](../images/expenses.png)
+![Ausgaben](../images/de/expenses.png)
 
 Der Hauptbildschirm. Er zeigt jeweils einen Monat.
 
@@ -82,7 +82,7 @@ Termin ändern.
 
 ## 3. CSV-Import
 
-![Import](../images/import.png)
+![Import](../images/de/import.png)
 
 Importiert einen Kontoauszug. Vor Ihrer Bestätigung wird nichts gespeichert.
 
@@ -112,7 +112,7 @@ Kleinschreibung spielt keine Rolle. Passen mehrere Regeln, gewinnt der längste 
 
 ## 4. Kategorien
 
-![Kategorien](../images/categories.png)
+![Kategorien](../images/de/categories.png)
 
 Jede Kategorie ist eine Kachel mit ihrer Farbe, der Anzahl der Einträge in diesem Monat, dem Betrag und ihrem
 Anteil am Monat.
@@ -130,7 +130,7 @@ Die Kategoriefarben sind auf jedem Bildschirm gleich (Listen, Ringdiagramm, Budg
 
 ## 5. Budgets
 
-![Budgets](../images/budgets.png)
+![Budgets](../images/de/budgets.png)
 
 Ein Ausgabenlimit pro Kategorie und Monat.
 
@@ -146,7 +146,7 @@ Limits gehören zu einem Monat; jeder Monat hat also eigene Limits.
 
 ## 6. Berichte
 
-![Berichte](../images/reports.png)
+![Berichte](../images/de/reports.png)
 
 Eine Auswertung eines Monats im Vergleich zum Vormonat.
 
@@ -160,7 +160,7 @@ Eine Auswertung eines Monats im Vergleich zum Vormonat.
 
 ## 7. Wiederkehrende Ausgaben
 
-![Wiederkehrend](../images/recurring.png)
+![Wiederkehrend](../images/de/recurring.png)
 
 Für Zahlungen, die sich wiederholen: Miete, Abonnements, Versicherungen.
 
@@ -177,7 +177,7 @@ Für Zahlungen, die sich wiederholen: Miete, Abonnements, Versicherungen.
 
 ## 8. Einstellungen
 
-![Einstellungen](../images/settings.png)
+![Einstellungen](../images/de/settings.png)
 
 - **Sprache**: Englisch, Deutsch, Russisch oder Ukrainisch. Beim Wechsel werden die Bildschirme neu geladen. Monats-
   und Tagesnamen folgen der Sprache.

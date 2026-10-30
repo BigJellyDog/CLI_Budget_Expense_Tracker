@@ -140,11 +140,18 @@
                                             FontFamily="ManropeSemiBold"
                                             TextColor="{DynamicResource InkMuted}" />
 
-                                        <HorizontalStackLayout Spacing="10" HeightRequest="40">
-                                            <Switch IsToggled="{Binding HasEndDate, Mode=TwoWay}" VerticalOptions="Center" />
+                                        <!-- The switch of Windows reserves a wide empty area; the text sits over it. -->
+                                        <Grid HeightRequest="40">
+                                            <Switch
+                                                IsToggled="{Binding HasEndDate, Mode=TwoWay}"
+                                                HorizontalOptions="Start"
+                                                VerticalOptions="Center" />
                                             <Label
                                                 Text="{loc:Tr Key='No end date'}"
+                                                Margin="56,0,0,0"
                                                 TextColor="{DynamicResource InkMuted}"
+                                                InputTransparent="True"
+                                                LineBreakMode="TailTruncation"
                                                 VerticalOptions="Center">
                                                 <Label.Triggers>
                                                     <DataTrigger TargetType="Label" Binding="{Binding HasEndDate}" Value="True">
@@ -152,7 +159,7 @@
                                                     </DataTrigger>
                                                 </Label.Triggers>
                                             </Label>
-                                        </HorizontalStackLayout>
+                                        </Grid>
                                     </VerticalStackLayout>
                                 </Grid>
 

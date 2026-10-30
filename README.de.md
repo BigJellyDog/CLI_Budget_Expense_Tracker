@@ -5,7 +5,7 @@
 Eine persönliche Haushalts- und Ausgabenverwaltung für Windows, entwickelt mit **C#, .NET 10 und .NET MAUI**.
 Alle Daten liegen in einer lokalen SQLite-Datei neben dem Projekt: kein Konto, kein Server, keine Cloud.
 
-![Ausgaben](docs/images/expenses.png)
+![Ausgaben](docs/images/de/expenses.png)
 
 ## Das Wichtigste
 
@@ -28,11 +28,9 @@ Alle Daten liegen in einer lokalen SQLite-Datei neben dem Projekt: kein Konto, k
 
 | | |
 |---|---|
-| ![Budgets](docs/images/budgets.png) | ![Kategorien](docs/images/categories.png) |
-| ![Wiederkehrend](docs/images/recurring.png) | ![Berichte](docs/images/reports.png) |
-| ![Import](docs/images/import.png) | ![Einstellungen](docs/images/settings.png) |
-
-*Die Oberfläche der Screenshots ist englisch; die App selbst lässt sich in den Einstellungen auf Deutsch umstellen.*
+| ![Budgets](docs/images/de/budgets.png) | ![Kategorien](docs/images/de/categories.png) |
+| ![Wiederkehrend](docs/images/de/recurring.png) | ![Berichte](docs/images/de/reports.png) |
+| ![Import](docs/images/de/import.png) | ![Einstellungen](docs/images/de/settings.png) |
 
 ## Dokumentation
 

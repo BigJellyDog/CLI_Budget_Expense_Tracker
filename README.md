@@ -5,7 +5,7 @@
 A personal budget and expense tracker for Windows, built with **C#, .NET 10 and .NET MAUI**.
 All data stays in a local SQLite file next to the project: no account, no server, no cloud.
 
-![Expenses](docs/images/expenses.png)
+![Expenses](docs/images/en/expenses.png)
 
 ## Highlights
 
@@ -28,9 +28,9 @@ All data stays in a local SQLite file next to the project: no account, no server
 
 | | |
 |---|---|
-| ![Budgets](docs/images/budgets.png) | ![Categories](docs/images/categories.png) |
-| ![Recurring](docs/images/recurring.png) | ![Reports](docs/images/reports.png) |
-| ![Import](docs/images/import.png) | ![Settings](docs/images/settings.png) |
+| ![Budgets](docs/images/en/budgets.png) | ![Categories](docs/images/en/categories.png) |
+| ![Recurring](docs/images/en/recurring.png) | ![Reports](docs/images/en/reports.png) |
+| ![Import](docs/images/en/import.png) | ![Settings](docs/images/en/settings.png) |
 
 ## Documentation
 

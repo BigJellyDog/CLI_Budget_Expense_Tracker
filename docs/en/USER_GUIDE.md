@@ -34,7 +34,7 @@ Common elements:
 
 ## 2. Expenses
 
-![Expenses](../images/expenses.png)
+![Expenses](../images/en/expenses.png)
 
 The main screen. It shows one month at a time.
 
@@ -76,7 +76,7 @@ recurring schedule keeps its date; other fields can be changed for this one occu
 
 ## 3. Import CSV
 
-![Import](../images/import.png)
+![Import](../images/en/import.png)
 
 Imports a bank statement. Nothing is saved before you confirm.
 
@@ -102,7 +102,7 @@ text wins.
 
 ## 4. Categories
 
-![Categories](../images/categories.png)
+![Categories](../images/en/categories.png)
 
 Each category is a tile with its color, the number of entries this month, the amount and its share of the month.
 
@@ -118,7 +118,7 @@ Category colors are the same on every screen (lists, donut chart, budgets, repor
 
 ## 5. Budgets
 
-![Budgets](../images/budgets.png)
+![Budgets](../images/en/budgets.png)
 
 A monthly spending limit per category.
 
@@ -134,7 +134,7 @@ Limits belong to a month, so every month has its own limits.
 
 ## 6. Reports
 
-![Reports](../images/reports.png)
+![Reports](../images/en/reports.png)
 
 An analysis of one month against the month before.
 
@@ -147,7 +147,7 @@ An analysis of one month against the month before.
 
 ## 7. Recurring expenses
 
-![Recurring](../images/recurring.png)
+![Recurring](../images/en/recurring.png)
 
 For payments that repeat: rent, subscriptions, insurance.
 
@@ -164,7 +164,7 @@ For payments that repeat: rent, subscriptions, insurance.
 
 ## 8. Settings
 
-![Settings](../images/settings.png)
+![Settings](../images/en/settings.png)
 
 - **Language**: English, German, Russian or Ukrainian. The screens reload when you change it. Month and day
   names follow the language.
