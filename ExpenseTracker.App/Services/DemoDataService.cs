@@ -41,17 +41,30 @@ public sealed class DemoDataService(
         new("Entertainment", 0.09, 1000, 9500, ["Cinema", "Theatre", "Concert", "Book", "Game"], Summer),
         new("Health", 0.035, 1500, 12000, ["Pharmacy", "Checkup", "Dentist"], Even),
         new("Pets", 0.07, 800, 9000, ["Fressnapf", "Vet", "Toys"], Even),
-        new("Shopping", 0.08, 1500, 14000, ["Amazon EU", "Clothes", "Electronics", "Shoes", "dm-drogerie markt"], Holidays)
+        new("Shopping", 0.08, 1500, 14000, ["Amazon EU", "Clothes", "Electronics", "Shoes"], Holidays),
+        new("Personal care", 0.05, 800, 5500, ["Hairdresser", "dm-drogerie markt", "Cosmetics"], Even),
+        new("Education", 0.025, 1500, 8000, ["Online course", "Textbook", "Workshop", "Language class"], Even),
+        new("Gifts", 0.035, 1500, 9000, ["Birthday gift", "Flowers", "Wedding present"], Holidays),
+        new("Travel", 0.02, 3000, 28000, ["Hotel", "Train tickets", "Flight", "Hostel", "Souvenirs"], Summer)
+    ];
+
+    private static readonly string[] CategoryNames =
+    [
+        "Food", "Transport", "Entertainment", "Health", "Pets", "Shopping", "Personal care", "Education",
+        "Gifts", "Travel", "Housing", "Utilities", "Insurance", "Sports"
     ];
 
     private static readonly (string Category, decimal Limit)[] Budgets =
     [
-        ("Food", 500m), ("Entertainment", 190m), ("Health", 130m), ("Pets", 120m), ("Transport", 160m)
+        ("Food", 500m), ("Entertainment", 190m), ("Health", 130m), ("Pets", 120m), ("Transport", 160m),
+        ("Shopping", 220m), ("Personal care", 60m), ("Education", 70m), ("Gifts", 80m), ("Travel", 260m),
+        ("Housing", 700m), ("Utilities", 120m), ("Insurance", 45m), ("Sports", 40m)
     ];
 
     private static readonly (string Pattern, string Category)[] Rules =
     [
-        ("LIDL", "Food"), ("REWE", "Food"), ("BVG", "Transport"), ("Amazon", "Shopping"), ("Fressnapf", "Pets")
+        ("LIDL", "Food"), ("REWE", "Food"), ("BVG", "Transport"), ("Amazon", "Shopping"), ("Fressnapf", "Pets"),
+        ("Deutsche Bahn", "Travel"), ("dm-drogerie", "Personal care")
     ];
 
     public async Task<DemoDataResult> LoadAsync(CancellationToken cancellationToken = default)
@@ -93,7 +106,7 @@ public sealed class DemoDataService(
             return category.Id;
         }
 
-        foreach (var name in Habits.Select(x => x.Category).Concat(["Transport", "Entertainment", "Health"]).Distinct())
+        foreach (var name in CategoryNames)
             await CategoryAsync(name);
 
         // A year back from today, a little different each day but the same on every run.
@@ -134,7 +147,11 @@ public sealed class DemoDataService(
                  {
                      ("Bus pass", "Transport", 50m, 0),
                      ("Streaming subscription", "Entertainment", 15.99m, 3),
-                     ("Gym", "Health", 29.90m, 6)
+                     ("Gym", "Sports", 29.90m, 6),
+                     ("Rent", "Housing", 650m, 1),
+                     ("Electricity", "Utilities", 48m, 4),
+                     ("Internet and phone", "Utilities", 39.99m, 5),
+                     ("Liability insurance", "Insurance", 36.50m, 2)
                  })
         {
             await scheduleService.AddAsync(
