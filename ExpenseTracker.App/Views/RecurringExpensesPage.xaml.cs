@@ -45,7 +45,7 @@ public partial class RecurringExpensesPage : ContentPage
     private void OnEditClicked(object? sender, EventArgs e)
     {
         if (!_viewModel.ShowResults
-            || sender is not Button
+            || sender is not BindableObject
             {
                 BindingContext: RecurringExpenseListItem item
             })
@@ -62,7 +62,7 @@ public partial class RecurringExpensesPage : ContentPage
     private async void OnReactivateClicked(object? sender, EventArgs e)
     {
         if (!_viewModel.ShowResults
-            || sender is not Button
+            || sender is not BindableObject
             {
                 BindingContext: RecurringExpenseListItem item
             })
@@ -76,7 +76,7 @@ public partial class RecurringExpensesPage : ContentPage
     private async void OnDeleteClicked(object? sender, EventArgs e)
     {
         if (!_viewModel.ShowResults
-            || sender is not Button
+            || sender is not BindableObject
             {
                 BindingContext: RecurringExpenseListItem item
             })
@@ -97,7 +97,7 @@ public partial class RecurringExpensesPage : ContentPage
     private async void OnDeactivateClicked(object? sender, EventArgs e)
     {
         if (!_viewModel.ShowResults
-            || sender is not Button
+            || sender is not BindableObject
             {
                 BindingContext: RecurringExpenseListItem item
             })

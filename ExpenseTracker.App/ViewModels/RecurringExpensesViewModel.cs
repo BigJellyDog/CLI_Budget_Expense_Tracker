@@ -7,6 +7,7 @@ using CLI_Budget_Expense_Tracker.Core.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Controls;
 using Models;
 using Services;
 
@@ -42,6 +43,68 @@ public sealed class RecurringExpensesViewModel : ObservableObject
     public IReadOnlyList<Category> Categories { get; private set; } = [];
 
     public IReadOnlyList<RecurringExpenseListItem> Items { get; private set; } = [];
+
+    public IReadOnlyList<UpcomingItem> Upcoming { get; private set; } = [];
+
+    public bool HasUpcoming => Upcoming.Count > 0;
+
+    public bool NoItems => Items.Count == 0;
+
+    public string UpcomingSumText =>
+        $"{Upcoming.Sum(x => x.Amount):N2} {_settings.Currency}";
+
+    public string UpcomingCountText => Loc.F("{0} due dates", Upcoming.Count);
+
+    private DateOnly Today => DateOnly.FromDateTime(_timeProvider.GetLocalNow().DateTime);
+
+    /// <summary>What the active schedules cost in an average month.</summary>
+    private decimal MonthlyTotal => Items
+        .Where(x => x.IsActive)
+        .Sum(x => x.Frequency switch
+        {
+            RecurrenceFrequency.Daily => x.Amount * 365m / 12m,
+            RecurrenceFrequency.Weekly => x.Amount * 52m / 12m,
+            RecurrenceFrequency.Yearly => x.Amount / 12m,
+            _ => x.Amount
+        });
+
+    public string Subtitle =>
+        Loc.F("{0} active schedules · {1:N2} {2} per month", Items.Count(x => x.IsActive), MonthlyTotal, _settings.Currency);
+
+    private static DateOnly Advance(DateOnly date, RecurrenceFrequency frequency) => frequency switch
+    {
+        RecurrenceFrequency.Daily => date.AddDays(1),
+        RecurrenceFrequency.Weekly => date.AddDays(7),
+        RecurrenceFrequency.Yearly => date.AddYears(1),
+        _ => date.AddMonths(1)
+    };
+
+    /// <summary>The due dates of the next 30 days (and any that are already overdue), soonest first.</summary>
+    private IReadOnlyList<UpcomingItem> BuildUpcoming()
+    {
+        var limit = Today.AddDays(30);
+        var list = new List<UpcomingItem>();
+
+        foreach (var item in Items.Where(x => x.IsActive))
+        {
+            var due = item.NextDueDate;
+
+            // A schedule with a short step could list a lot of dates; a month of them is plenty.
+            for (var guard = 0; guard < 40 && due <= limit && (item.EndDate is null || due <= item.EndDate); guard++)
+            {
+                list.Add(new UpcomingItem(
+                    due,
+                    item.Title,
+                    item.Amount,
+                    _settings.Currency,
+                    item.Color ?? Colors.Gray));
+
+                due = Advance(due, item.Frequency);
+            }
+        }
+
+        return list.OrderBy(x => x.Date).ToArray();
+    }
 
     public IReadOnlyList<RecurrenceFrequency> Frequencies { get; } =
         Enum.GetValues<RecurrenceFrequency>();
@@ -540,7 +603,11 @@ public sealed class RecurringExpensesViewModel : ObservableObject
             return (Categories: categories, Items: rows);
         });
 
-        Items = result.Items;
+        CategoryPalette.Assign(result.Categories.Select(x => x.Name));
+        Items = result.Items
+            .Select(x => x with { Color = CategoryPalette.ColorFor(x.CategoryName), Today = Today })
+            .ToArray();
+        Upcoming = BuildUpcoming();
         Categories = result.Categories;
         OnPropertyChanged(nameof(Categories));
 
@@ -592,6 +659,12 @@ public sealed class RecurringExpensesViewModel : ObservableObject
     private void NotifyState()
     {
         OnPropertyChanged(nameof(Items));
+        OnPropertyChanged(nameof(Subtitle));
+        OnPropertyChanged(nameof(Upcoming));
+        OnPropertyChanged(nameof(HasUpcoming));
+        OnPropertyChanged(nameof(NoItems));
+        OnPropertyChanged(nameof(UpcomingSumText));
+        OnPropertyChanged(nameof(UpcomingCountText));
         OnPropertyChanged(nameof(ErrorMessage));
         OnPropertyChanged(nameof(SuccessMessage));
         OnPropertyChanged(nameof(HasError));

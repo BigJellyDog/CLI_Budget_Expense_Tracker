@@ -2,9 +2,9 @@
 <ContentPage
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:controls="clr-namespace:ExpenseTracker.App.Controls"
     xmlns:loc="clr-namespace:ExpenseTracker.App.Services"
     xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+    xmlns:controls="clr-namespace:ExpenseTracker.App.Controls"
     xmlns:vm="clr-namespace:ExpenseTracker.App.ViewModels"
     xmlns:models="clr-namespace:ExpenseTracker.App.Models"
     xmlns:core="clr-namespace:CLI_Budget_Expense_Tracker.Core.Models;assembly=CLI_Budget_Expense_Tracker.Core"
@@ -15,234 +15,392 @@
     NavigationPage.HasBackButton="{Binding CanGoBack}"
     BackgroundColor="{DynamicResource Bg}">
 
-    <Grid
-        Padding="24"
-        RowDefinitions="Auto,Auto,*"
-        RowSpacing="16">
+    <controls:CenteredContainer Padding="40,28,40,24">
+        <Grid RowDefinitions="Auto,Auto,*" RowSpacing="20">
 
-        <Grid
-            ColumnDefinitions="*,Auto,Auto"
-            ColumnSpacing="12">
-
-            <Label
-                Text="{loc:Tr Key='Recurring expenses'}"
-                FontSize="26"
-                FontFamily="ManropeExtraBold"
-                VerticalOptions="Center" />
-
-            <Button
-                Grid.Column="1"
-                Text="{loc:Tr Key='Refresh'}"
-                Clicked="OnRefreshClicked"
-                IsEnabled="{Binding CanRefresh}" />
-
-            <Button
-                Grid.Column="2"
-                Text="{loc:Tr Key='Generate due expenses'}"
-                Clicked="OnGenerateClicked"
-                IsEnabled="{Binding CanRefresh}" />
-        </Grid>
-
-        <VerticalStackLayout Grid.Row="1" Spacing="8">
-            <ActivityIndicator
-                IsRunning="{Binding IsBusy}"
-                IsVisible="{Binding IsBusy}" />
-
-            <Label
-                Text="{Binding ErrorMessage}"
-                IsVisible="{Binding HasError}"
-                TextColor="{DynamicResource Danger}" />
-
-            <Label
-                Text="{Binding SuccessMessage}"
-                IsVisible="{Binding HasSuccess}"
-                TextColor="{DynamicResource Success}" />
-
-            <Label
-                Text="{loc:Tr Key='Create a category on the Categories screen first.'}"
-                IsVisible="{Binding ShowNoCategories}" />
-        </VerticalStackLayout>
-
-        <Grid
-            Grid.Row="2"
-            ColumnDefinitions="360,*"
-            ColumnSpacing="24">
-
-            <ScrollView>
-                <VerticalStackLayout Spacing="16">
+            <!-- Title, refresh, generate -->
+            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
+                <VerticalStackLayout VerticalOptions="Center" Spacing="2">
                     <Label
-                        Text="{Binding FormTitle}"
-                        FontSize="18"
-                        FontAttributes="Bold" />
-
-                    <VerticalStackLayout
-                        Spacing="10"
-                        IsEnabled="{Binding CanEdit}">
-
-                        <Label Text="{loc:Tr Key='Category'}" />
-
-                        <controls:DropDown
-                            Title="{loc:Tr Key='Choose a category'}"
-                            ItemsSource="{Binding Categories}"
-                            DisplayMember="Name"
-                            SelectedItem="{Binding SelectedCategory, Mode=TwoWay}" />
-
-                        <Label Text="{loc:Tr Key='Amount per occurrence'}" />
-
-                        <Entry
-                            Placeholder="12.50"
-                            Keyboard="Numeric"
-                            Text="{Binding AmountText, Mode=TwoWay}" />
-
-                        <Label Text="{loc:Tr Key='Frequency'}" />
-
-                        <controls:DropDown
-                            Title="{loc:Tr Key='Choose a frequency'}"
-                            ItemsSource="{Binding Frequencies}"
-                            Translate="True"
-                            SelectedItem="{Binding SelectedFrequency, Mode=TwoWay}" />
-
-                        <Label Text="{loc:Tr Key='Start date'}" />
-
-                        <controls:DateField
-                            Date="{Binding SelectedStartDate, Mode=TwoWay}"
-                            MinimumDate="{x:Null}"
-                            MaximumDate="{x:Null}"
-                            IsEnabled="{Binding CanChangeStartDate}"
-                            Format="dd.MM.yyyy" />
-
-                        <HorizontalStackLayout Spacing="8">
-                            <CheckBox IsChecked="{Binding HasEndDate, Mode=TwoWay}" />
-                            <Label
-                                Text="{loc:Tr Key='End date (optional)'}"
-                                VerticalOptions="Center" />
-                        </HorizontalStackLayout>
-
-                        <controls:DateField
-                            Date="{Binding SelectedEndDate, Mode=TwoWay}"
-                            MinimumDate="{x:Null}"
-                            MaximumDate="{x:Null}"
-                            DateSelected="OnEndDateSelected"
-                            Format="dd.MM.yyyy" />
-
-                        <Label Text="{loc:Tr Key='Description (optional)'}" />
-
-                        <Editor
-                            Text="{Binding Description, Mode=TwoWay}"
-                            AutoSize="TextChanges"
-                            MinimumHeightRequest="80" />
-
-                        <Label
-                            Text="{loc:Tr Key='Creating a schedule also generates due expenses through today. Past start dates include missed occurrences.'}"
-                            FontSize="12"
-                            IsVisible="{Binding CanChangeStartDate}" />
-
-                        <Label
-                            Text="{loc:Tr Key='Changes apply to future expenses only. Expenses created earlier are not changed. A new frequency counts from the next due date.'}"
-                            FontSize="12"
-                            IsVisible="{Binding IsEditing}" />
-
-                        <Button
-                            Text="{Binding SaveButtonText}"
-                            Style="{StaticResource PrimaryButton}"
-                            Clicked="OnSaveClicked" />
-
-                        <Button
-                            Text="{loc:Tr Key='Cancel'}"
-                            Clicked="OnCancelEditClicked"
-                            IsVisible="{Binding IsEditing}" />
-                    </VerticalStackLayout>
-
-                    <Button
-                        Text="{loc:Tr Key='Add another schedule'}"
-                        Clicked="OnAddAnotherClicked"
-                        IsVisible="{Binding IsSaved}"
-                        IsEnabled="{Binding CanStartNew}" />
+                        Text="{loc:Tr Key='Recurring expenses'}"
+                        FontSize="28"
+                        FontFamily="ManropeExtraBold" />
+                    <Label
+                        Text="{Binding Subtitle}"
+                        FontSize="13"
+                        TextColor="{DynamicResource InkMuted}" />
                 </VerticalStackLayout>
-            </ScrollView>
 
-            <CollectionView
-                Grid.Column="1"
-                ItemsSource="{Binding Items}"
-                IsVisible="{Binding ShowResults}"
-                SelectionMode="None">
+                <controls:IconButton
+                    Grid.Column="1"
+                    Filled="True"
+                    Icon="{x:Static controls:Icons.Refresh}"
+                    Clicked="OnRefreshClicked"
+                    IsEnabled="{Binding CanRefresh}" />
 
-                <CollectionView.EmptyView>
-                    <Label
-                        Text="{loc:Tr Key='No recurring expenses yet.'}"
-                        Margin="24"
-                        HorizontalTextAlignment="Center" />
-                </CollectionView.EmptyView>
+                <controls:PillButton
+                    Grid.Column="2"
+                    Text="{loc:Tr Key='Generate due expenses'}"
+                    Clicked="OnGenerateClicked"
+                    IsEnabled="{Binding CanRefresh}" />
+            </Grid>
 
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="models:RecurringExpenseListItem">
-                        <Border
-                            Padding="16"
-                            Margin="0,0,0,8"
-                            StrokeShape="RoundRectangle 18"
-                            Stroke="{DynamicResource Border}"
-                            BackgroundColor="{DynamicResource Surface}">
+            <VerticalStackLayout Grid.Row="1" Spacing="6">
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
 
-                            <VerticalStackLayout Spacing="6">
-                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                <Label
+                    Text="{Binding ErrorMessage}"
+                    IsVisible="{Binding HasError}"
+                    TextColor="{DynamicResource Danger}" />
+
+                <Label
+                    Text="{Binding SuccessMessage}"
+                    IsVisible="{Binding HasSuccess}"
+                    TextColor="{DynamicResource Success}" />
+
+                <Label
+                    Text="{loc:Tr Key='Create a category on the Categories screen first.'}"
+                    IsVisible="{Binding ShowNoCategories}" />
+            </VerticalStackLayout>
+
+            <Grid Grid.Row="2" ColumnDefinitions="400,*" ColumnSpacing="20">
+
+                <!-- The form -->
+                <ScrollView>
+                    <Border Padding="22" VerticalOptions="Start">
+                        <VerticalStackLayout Spacing="14">
+                            <Label
+                                Text="{Binding FormTitle}"
+                                FontSize="15"
+                                FontFamily="ManropeBold" />
+
+                            <VerticalStackLayout Spacing="14" IsEnabled="{Binding CanEdit}">
+
+                                <VerticalStackLayout Spacing="6">
                                     <Label
-                                        Text="{Binding CategoryName}"
-                                        FontSize="16"
-                                        FontFamily="ManropeExtraBold" />
+                                        Text="{loc:Tr Key='Category'}"
+                                        FontSize="12"
+                                        FontFamily="ManropeSemiBold"
+                                        TextColor="{DynamicResource InkMuted}" />
+                                    <controls:DropDown
+                                        Title="{loc:Tr Key='Choose a category'}"
+                                        ItemsSource="{Binding Categories}"
+                                        DisplayMember="Name"
+                                        SelectedItem="{Binding SelectedCategory, Mode=TwoWay}" />
+                                </VerticalStackLayout>
 
-                                    <Label
-                                        Grid.Column="1"
-                                        Text="{Binding Summary}"
-                                        FontFamily="ManropeBold" />
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                                    <VerticalStackLayout Spacing="6">
+                                        <Label
+                                            Text="{loc:Tr Key='Amount per occurrence'}"
+                                            FontSize="12"
+                                            FontFamily="ManropeSemiBold"
+                                            TextColor="{DynamicResource InkMuted}"
+                                            LineBreakMode="TailTruncation" />
+                                        <Entry
+                                            Placeholder="12.50"
+                                            Keyboard="Numeric"
+                                            Text="{Binding AmountText, Mode=TwoWay}" />
+                                    </VerticalStackLayout>
+
+                                    <VerticalStackLayout Grid.Column="1" Spacing="6">
+                                        <Label
+                                            Text="{loc:Tr Key='Frequency'}"
+                                            FontSize="12"
+                                            FontFamily="ManropeSemiBold"
+                                            TextColor="{DynamicResource InkMuted}" />
+                                        <controls:DropDown
+                                            Title="{loc:Tr Key='Choose a frequency'}"
+                                            ItemsSource="{Binding Frequencies}"
+                                            Translate="True"
+                                            SelectedItem="{Binding SelectedFrequency, Mode=TwoWay}" />
+                                    </VerticalStackLayout>
                                 </Grid>
 
-                                <Label
-                                    Text="{Binding Description}"
-                                    LineBreakMode="TailTruncation" />
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                                    <VerticalStackLayout Spacing="6">
+                                        <Label
+                                            Text="{loc:Tr Key='Start date'}"
+                                            FontSize="12"
+                                            FontFamily="ManropeSemiBold"
+                                            TextColor="{DynamicResource InkMuted}" />
+                                        <controls:DateField
+                                            HorizontalOptions="Fill"
+                                            Date="{Binding SelectedStartDate, Mode=TwoWay}"
+                                            MinimumDate="{x:Null}"
+                                            MaximumDate="{x:Null}"
+                                            IsEnabled="{Binding CanChangeStartDate}"
+                                            Format="dd.MM.yyyy" />
+                                    </VerticalStackLayout>
 
-                                <Label
-                                    Text="{Binding StartText}"
-                                    TextColor="{DynamicResource InkMuted}"
-                                    FontSize="12" />
+                                    <VerticalStackLayout Grid.Column="1" Spacing="6">
+                                        <Label
+                                            Text="{loc:Tr Key='End date'}"
+                                            FontSize="12"
+                                            FontFamily="ManropeSemiBold"
+                                            TextColor="{DynamicResource InkMuted}" />
 
-                                <Label
-                                    Text="{Binding NextDueText}"
-                                    TextColor="{DynamicResource InkMuted}"
-                                    FontSize="12" />
+                                        <HorizontalStackLayout Spacing="10" HeightRequest="40">
+                                            <Switch IsToggled="{Binding HasEndDate, Mode=TwoWay}" VerticalOptions="Center" />
+                                            <Label
+                                                Text="{loc:Tr Key='No end date'}"
+                                                TextColor="{DynamicResource InkMuted}"
+                                                VerticalOptions="Center">
+                                                <Label.Triggers>
+                                                    <DataTrigger TargetType="Label" Binding="{Binding HasEndDate}" Value="True">
+                                                        <Setter Property="IsVisible" Value="False" />
+                                                    </DataTrigger>
+                                                </Label.Triggers>
+                                            </Label>
+                                        </HorizontalStackLayout>
+                                    </VerticalStackLayout>
+                                </Grid>
 
-                                <Label
-                                    Text="{Binding EndText}"
+                                <controls:DateField
+                                    HorizontalOptions="Fill"
                                     IsVisible="{Binding HasEndDate}"
-                                    TextColor="{DynamicResource InkMuted}"
-                                    FontSize="12" />
+                                    Date="{Binding SelectedEndDate, Mode=TwoWay}"
+                                    MinimumDate="{x:Null}"
+                                    MaximumDate="{x:Null}"
+                                    Format="dd.MM.yyyy" />
 
-                                <HorizontalStackLayout Spacing="8" Margin="0,8,0,0">
-                                    <Button
-                                        Text="{loc:Tr Key='Edit'}"
-                                        Clicked="OnEditClicked" />
+                                <VerticalStackLayout Spacing="6">
+                                    <Label
+                                        Text="{loc:Tr Key='Description (optional)'}"
+                                        FontSize="12"
+                                        FontFamily="ManropeSemiBold"
+                                        TextColor="{DynamicResource InkMuted}" />
+                                    <Editor
+                                        Text="{Binding Description, Mode=TwoWay}"
+                                        HeightRequest="76" />
+                                </VerticalStackLayout>
 
-                                    <Button
-                                        Text="{loc:Tr Key='Deactivate'}"
-                                        Clicked="OnDeactivateClicked"
-                                        IsVisible="{Binding IsActive}"
-                                        Style="{StaticResource DangerButton}" />
+                                <Border
+                                    StrokeThickness="0"
+                                    StrokeShape="RoundRectangle 12"
+                                    BackgroundColor="{DynamicResource Surface2}"
+                                    Padding="12">
+                                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                        <controls:IconView
+                                            Data="{x:Static controls:Icons.Info}"
+                                            Color="{DynamicResource InkMuted}"
+                                            WidthRequest="16"
+                                            HeightRequest="16"
+                                            VerticalOptions="Start" />
+                                        <Label
+                                            Grid.Column="1"
+                                            Text="{loc:Tr Key='Creating a schedule also generates due expenses through today. Past start dates include missed occurrences.'}"
+                                            FontSize="12"
+                                            TextColor="{DynamicResource InkMuted}"
+                                            IsVisible="{Binding CanChangeStartDate}" />
+                                        <Label
+                                            Grid.Column="1"
+                                            Text="{loc:Tr Key='Changes apply to future expenses only. Expenses created earlier are not changed. A new frequency counts from the next due date.'}"
+                                            FontSize="12"
+                                            TextColor="{DynamicResource InkMuted}"
+                                            IsVisible="{Binding IsEditing}" />
+                                    </Grid>
+                                </Border>
 
-                                    <Button
-                                        Text="{loc:Tr Key='Reactivate'}"
-                                        Clicked="OnReactivateClicked"
-                                        IsVisible="{Binding IsInactive}" />
+                                <controls:PillButton
+                                    Text="{Binding SaveButtonText}"
+                                    Icon="{x:Static controls:Icons.Plus}"
+                                    IsPrimary="True"
+                                    Clicked="OnSaveClicked" />
 
-                                    <Button
-                                        Text="{loc:Tr Key='Delete'}"
-                                        Clicked="OnDeleteClicked"
-                                        IsVisible="{Binding IsInactive}"
-                                        Style="{StaticResource DangerButton}" />
-                                </HorizontalStackLayout>
+                                <controls:PillButton
+                                    Text="{loc:Tr Key='Cancel'}"
+                                    Clicked="OnCancelEditClicked"
+                                    IsVisible="{Binding IsEditing}" />
+                            </VerticalStackLayout>
+
+                            <controls:PillButton
+                                Text="{loc:Tr Key='Add another schedule'}"
+                                Clicked="OnAddAnotherClicked"
+                                IsVisible="{Binding IsSaved}"
+                                IsEnabled="{Binding CanStartNew}" />
+                        </VerticalStackLayout>
+                    </Border>
+                </ScrollView>
+
+                <!-- Schedules and what is coming due -->
+                <ScrollView Grid.Column="1" IsVisible="{Binding ShowResults}">
+                    <VerticalStackLayout Spacing="12">
+
+                        <Label
+                            Text="{loc:Tr Key='No recurring expenses yet.'}"
+                            Margin="24"
+                            TextColor="{DynamicResource InkMuted}"
+                            HorizontalTextAlignment="Center"
+                            IsVisible="{Binding NoItems}" />
+
+                        <VerticalStackLayout Spacing="12" BindableLayout.ItemsSource="{Binding Items}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="models:RecurringExpenseListItem">
+                                    <Border Padding="20,18">
+                                        <Grid ColumnDefinitions="38,*,Auto" ColumnSpacing="14" RowDefinitions="Auto,Auto" RowSpacing="12">
+
+                                            <Border
+                                                WidthRequest="38"
+                                                HeightRequest="38"
+                                                StrokeThickness="0"
+                                                StrokeShape="RoundRectangle 11"
+                                                BackgroundColor="{Binding Tint}">
+                                                <controls:IconView
+                                                    Data="{x:Static controls:Icons.Repeat}"
+                                                    Color="{Binding Color}"
+                                                    WidthRequest="18"
+                                                    HeightRequest="18"
+                                                    HorizontalOptions="Center"
+                                                    VerticalOptions="Center" />
+                                            </Border>
+
+                                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                                                <Label
+                                                    Text="{Binding Title}"
+                                                    FontSize="15"
+                                                    FontFamily="ManropeBold"
+                                                    LineBreakMode="TailTruncation" />
+                                                <Label
+                                                    Text="{Binding SinceText}"
+                                                    FontSize="12"
+                                                    TextColor="{DynamicResource InkMuted}" />
+                                            </VerticalStackLayout>
+
+                                            <VerticalStackLayout Grid.Column="2" VerticalOptions="Center">
+                                                <Label
+                                                    Text="{Binding AmountText}"
+                                                    FontSize="18"
+                                                    FontFamily="ManropeExtraBold"
+                                                    HorizontalTextAlignment="End" />
+                                                <Label
+                                                    Text="{Binding FrequencyText}"
+                                                    FontSize="12"
+                                                    TextColor="{DynamicResource InkMuted}"
+                                                    HorizontalTextAlignment="End" />
+                                            </VerticalStackLayout>
+
+                                            <FlexLayout
+                                                Grid.Row="1"
+                                                Grid.Column="1"
+                                                Grid.ColumnSpan="2"
+                                                Wrap="Wrap"
+                                                AlignItems="Center">
+
+                                                <controls:Chip
+                                                    Text="{Binding NextDueChipText}"
+                                                    Margin="0,0,8,0" />
+
+                                                <controls:Chip
+                                                    Text="{Binding DueInText}"
+                                                    ToneKey="{Binding DueInTone}"
+                                                    IsVisible="{Binding ShowDueIn}"
+                                                    Margin="0,0,8,0" />
+
+                                                <Label
+                                                    Text="{Binding EndText}"
+                                                    IsVisible="{Binding HasEndDate}"
+                                                    FontSize="12"
+                                                    TextColor="{DynamicResource InkMuted}"
+                                                    Margin="0,0,8,0" />
+
+                                                <HorizontalStackLayout Spacing="8" FlexLayout.Grow="1" HorizontalOptions="End">
+                                                    <controls:PillButton
+                                                        IsCompact="True"
+                                                        Text="{loc:Tr Key='Edit'}"
+                                                        Icon="{x:Static controls:Icons.Edit}"
+                                                        Clicked="OnEditClicked" />
+
+                                                    <controls:PillButton
+                                                        IsCompact="True"
+                                                        ToneKey="Danger"
+                                                        Text="{loc:Tr Key='Deactivate'}"
+                                                        IsVisible="{Binding IsActive}"
+                                                        Clicked="OnDeactivateClicked" />
+
+                                                    <controls:PillButton
+                                                        IsCompact="True"
+                                                        Text="{loc:Tr Key='Reactivate'}"
+                                                        IsVisible="{Binding IsInactive}"
+                                                        Clicked="OnReactivateClicked" />
+
+                                                    <controls:PillButton
+                                                        IsCompact="True"
+                                                        ToneKey="Danger"
+                                                        Text="{loc:Tr Key='Delete'}"
+                                                        IsVisible="{Binding IsInactive}"
+                                                        Clicked="OnDeleteClicked" />
+                                                </HorizontalStackLayout>
+                                            </FlexLayout>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+
+                        <Border Padding="20,18" IsVisible="{Binding HasUpcoming}">
+                            <VerticalStackLayout Spacing="0">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label
+                                        Text="{loc:Tr Key='Coming due'}"
+                                        FontSize="15"
+                                        FontFamily="ManropeBold" />
+                                    <Label
+                                        Grid.Column="1"
+                                        Text="{loc:Tr Key='next 30 days'}"
+                                        FontSize="12"
+                                        TextColor="{DynamicResource InkMuted}" />
+                                </Grid>
+
+                                <VerticalStackLayout Margin="0,12,0,0" BindableLayout.ItemsSource="{Binding Upcoming}">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate x:DataType="models:UpcomingItem">
+                                            <VerticalStackLayout>
+                                                <BoxView HeightRequest="1" Color="{DynamicResource Border}" />
+                                                <Grid ColumnDefinitions="56,10,*,Auto" ColumnSpacing="12" Padding="0,10">
+                                                    <VerticalStackLayout>
+                                                        <Label Text="{Binding DayText}" FontFamily="ManropeBold" />
+                                                        <Label
+                                                            Text="{Binding WeekdayText}"
+                                                            FontSize="11"
+                                                            TextColor="{DynamicResource InkMuted}" />
+                                                    </VerticalStackLayout>
+                                                    <BoxView
+                                                        Grid.Column="1"
+                                                        WidthRequest="10"
+                                                        HeightRequest="10"
+                                                        CornerRadius="5"
+                                                        VerticalOptions="Center"
+                                                        Color="{Binding Color}" />
+                                                    <Label Grid.Column="2" Text="{Binding Name}" VerticalOptions="Center" />
+                                                    <Label
+                                                        Grid.Column="3"
+                                                        Text="{Binding AmountText}"
+                                                        FontFamily="ManropeBold"
+                                                        VerticalOptions="Center" />
+                                                </Grid>
+                                            </VerticalStackLayout>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </VerticalStackLayout>
+
+                                <BoxView HeightRequest="1" Color="{DynamicResource Border}" />
+                                <Grid ColumnDefinitions="56,10,*,Auto" ColumnSpacing="12" Padding="0,10,0,0">
+                                    <Label Text="{loc:Tr Key='Total'}" TextColor="{DynamicResource InkMuted}" />
+                                    <Label
+                                        Grid.Column="2"
+                                        Text="{Binding UpcomingCountText}"
+                                        TextColor="{DynamicResource InkMuted}" />
+                                    <Label
+                                        Grid.Column="3"
+                                        Text="{Binding UpcomingSumText}"
+                                        FontFamily="ManropeExtraBold" />
+                                </Grid>
                             </VerticalStackLayout>
                         </Border>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+                    </VerticalStackLayout>
+                </ScrollView>
+            </Grid>
         </Grid>
-    </Grid>
+    </controls:CenteredContainer>
 </ContentPage>
