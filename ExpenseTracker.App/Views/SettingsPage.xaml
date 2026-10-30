@@ -2,6 +2,8 @@
 <ContentPage
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:loc="clr-namespace:ExpenseTracker.App.Services"
+    xmlns:sys="clr-namespace:System;assembly=System.Runtime"
     xmlns:vm="clr-namespace:ExpenseTracker.App.ViewModels"
     x:Class="ExpenseTracker.App.Views.SettingsPage"
     x:DataType="vm:SettingsViewModel"
@@ -17,41 +19,62 @@
             HorizontalOptions="Start">
 
             <Label
-                Text="Settings"
+                Text="{loc:Tr Key='Settings'}"
                 FontSize="26"
                 FontFamily="ManropeExtraBold" />
 
             <VerticalStackLayout Spacing="8">
-                <Label Text="Appearance" FontAttributes="Bold" />
+                <Label Text="{loc:Tr Key='Language'}" FontAttributes="Bold" />
 
                 <Label
-                    Text="Mode follows the system theme, or stays light or dark. The accent sets the color of buttons and the selected menu item. Changes apply at once."
+                    Text="{loc:Tr Key='The language of the screens. The app reloads its screens when you change it.'}"
+                    TextColor="{DynamicResource InkMuted}"
+                    FontSize="12" />
+
+                <Picker
+                    x:Name="LanguagePicker"
+                    WidthRequest="240"
+                    HorizontalOptions="Start"
+                    Title="{loc:Tr Key='Language'}"
+                    ItemsSource="{Binding LanguageOptions}"
+                    ItemDisplayBinding="{Binding Name, x:DataType=loc:LanguageOption}"
+                    SelectedItem="{Binding SelectedLanguage, Mode=TwoWay}"
+                    SelectedIndexChanged="OnLanguageChanged" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="8">
+                <Label Text="{loc:Tr Key='Appearance'}" FontAttributes="Bold" />
+
+                <Label
+                    Text="{loc:Tr Key='Mode follows the system theme, or stays light or dark. The accent sets the color of buttons and the selected menu item. Changes apply at once.'}"
                     TextColor="{DynamicResource InkMuted}"
                     FontSize="12" />
 
                 <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
                     <Picker
                         x:Name="ModePicker"
-                        Title="Mode"
+                        Title="{loc:Tr Key='Mode'}"
                         ItemsSource="{Binding ModeOptions}"
+                        ItemDisplayBinding="{Binding ., x:DataType=sys:Object, Converter={x:Static loc:TrConverter.Instance}}"
                         SelectedItem="{Binding SelectedMode, Mode=TwoWay}"
                         SelectedIndexChanged="OnAppearanceChanged" />
 
                     <Picker
                         x:Name="AccentPicker"
                         Grid.Column="1"
-                        Title="Accent"
+                        Title="{loc:Tr Key='Accent'}"
                         ItemsSource="{Binding AccentOptions}"
+                        ItemDisplayBinding="{Binding ., x:DataType=sys:Object, Converter={x:Static loc:TrConverter.Instance}}"
                         SelectedItem="{Binding SelectedAccent, Mode=TwoWay}"
                         SelectedIndexChanged="OnAppearanceChanged" />
                 </Grid>
             </VerticalStackLayout>
 
             <VerticalStackLayout Spacing="8">
-                <Label Text="Currency" FontAttributes="Bold" />
+                <Label Text="{loc:Tr Key='Currency'}" FontAttributes="Bold" />
 
                 <Label
-                    Text="Three-letter code shown next to amounts, for example EUR, USD or CHF. Changing it does not convert amounts that are already saved."
+                    Text="{loc:Tr Key='Three-letter code shown next to amounts, for example EUR, USD or CHF. Changing it does not convert amounts that are already saved.'}"
                     FontSize="12" />
 
                 <Grid ColumnDefinitions="140,Auto" ColumnSpacing="12">
@@ -62,7 +85,7 @@
 
                     <Button
                         Grid.Column="1"
-                        Text="Save"
+                        Text="{loc:Tr Key='Save'}"
                         Style="{StaticResource PrimaryButton}"
                         Clicked="OnSaveClicked" />
                 </Grid>
@@ -79,10 +102,10 @@
             </VerticalStackLayout>
 
             <VerticalStackLayout Spacing="8">
-                <Label Text="Where your data is" FontAttributes="Bold" />
+                <Label Text="{loc:Tr Key='Where your data is'}" FontAttributes="Bold" />
 
                 <Label
-                    Text="The database, backups, exports, logs and these settings are in one folder:"
+                    Text="{loc:Tr Key='The database, backups, exports, logs and these settings are in one folder:'}"
                     FontSize="12" />
 
                 <Label
