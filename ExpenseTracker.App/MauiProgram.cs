@@ -39,8 +39,12 @@ public static class MauiProgram
             ForeignKeys = true
         }.ToString();
 
-        builder.Services.AddSingleton(new AppSettings(
-            Path.Combine(Path.GetDirectoryName(databasePath)!, "settings.json")));
+        var appSettings = new AppSettings(
+            Path.Combine(Path.GetDirectoryName(databasePath)!, "settings.json"));
+
+        Loc.SetLanguage(appSettings.Language);
+
+        builder.Services.AddSingleton(appSettings);
 
         builder.Services.AddSingleton<ThemeService>();
 

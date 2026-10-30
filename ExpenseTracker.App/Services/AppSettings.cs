@@ -7,7 +7,8 @@ public sealed record SettingsData(
     string Currency = "EUR",
     CsvImportProfile? LastCsvProfile = null,
     ThemeMode ThemeMode = ThemeMode.System,
-    string Accent = "Lavender");
+    string Accent = "Lavender",
+    string Language = "en");
 
 /// <summary>
 /// User settings kept in a small JSON file next to the database.
@@ -40,6 +41,9 @@ public sealed class AppSettings
     /// <summary>Name of the accent palette, one of <see cref="ThemeService.Accents"/>.</summary>
     public string Accent => _data.Accent;
 
+    /// <summary>Code of the language of the screens: en, de, ru or uk.</summary>
+    public string Language => _data.Language;
+
     public static bool IsValidCurrency(string? code) =>
         code is { Length: 3 } && code.All(char.IsLetter);
 
@@ -61,6 +65,14 @@ public sealed class AppSettings
         Save(_data with { ThemeMode = mode, Accent = accent });
     }
 
+    public void SetLanguage(string code)
+    {
+        if (!Loc.IsValid(code))
+            throw new ArgumentException("Unknown language.", nameof(code));
+
+        Save(_data with { Language = code });
+    }
+
     public void SetLastCsvProfile(CsvImportProfile profile)
     {
         ArgumentNullException.ThrowIfNull(profile);
@@ -79,6 +91,7 @@ public sealed class AppSettings
             return data is not null
                    && IsValidCurrency(data.Currency)
                    && ThemeService.Accents.Contains(data.Accent)
+                   && Loc.IsValid(data.Language)
                 ? data
                 : new SettingsData();
         }
