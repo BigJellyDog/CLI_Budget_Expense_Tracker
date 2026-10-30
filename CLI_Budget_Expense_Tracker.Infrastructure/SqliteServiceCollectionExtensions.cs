@@ -40,6 +40,7 @@ public static class SqliteServiceCollectionExtensions
         services.AddSingleton<GenericStatementClassifier>();
         services.AddScoped<RecurringExpenseService>();
         services.AddScoped<DatabaseInitializer>();
+        services.AddScoped<DatabaseResetService>();
         services.AddSingleton(provider =>
         {
             var databasePath = Path.GetFullPath(

@@ -87,6 +87,10 @@ public sealed class AppSettings
         Save(_data with { Language = code });
     }
 
+    /// <summary>All categories are gone: forgets their colors, so the standard ones can be offered again.</summary>
+    public void ForgetCategories() =>
+        Save(_data with { CategoryColors = null, CategoryHex = null, StandardCategoriesSeeded = false });
+
     public void MarkStandardCategoriesSeeded() => Save(_data with { StandardCategoriesSeeded = true });
 
     /// <summary>The category uses a color of the palette; a custom color it had is dropped.</summary>

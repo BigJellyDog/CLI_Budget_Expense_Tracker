@@ -73,6 +73,20 @@ public partial class SettingsPage : ContentPage
             await _viewModel.LoadDemoDataAsync();
     }
 
+    private async void OnClearClicked(object? sender, EventArgs e)
+    {
+        if (!_viewModel.CanClear) return;
+
+        var confirmed = await DisplayAlertAsync(
+            Loc.T("Delete all data?"),
+            Loc.T("Deletes every expense, budget, schedule, rule and category, and starts again with the standard categories. A backup is saved first, so you can undo this with Backup > Restore."),
+            Loc.T("Delete everything"),
+            Loc.T("Cancel"));
+
+        if (confirmed)
+            await _viewModel.ClearAllDataAsync();
+    }
+
     private void OnSaveClicked(object? sender, EventArgs e) =>
         _viewModel.Save();
 }

@@ -8,6 +8,7 @@ public sealed class SettingsViewModel(
     AppSettings settings,
     ThemeService theme,
     DemoDataService demoData,
+    ClearDataService clearData,
     StandardCategories standardCategories,
     AppInitializer initializer,
     ILogger<SettingsViewModel> logger) : ObservableObject
@@ -89,6 +90,8 @@ public sealed class SettingsViewModel(
 
     public bool CanLoadDemo => !IsBusy;
 
+    public bool CanClear => !IsBusy;
+
     /// <summary>Adds a year of sample data. True when it worked.</summary>
     public async Task<bool> LoadDemoDataAsync()
     {
@@ -111,6 +114,37 @@ public sealed class SettingsViewModel(
             logger.LogError(exception, "Failed to load the demo data.");
 
             ErrorMessage = Loc.T("Could not load the demo data. Nothing was lost; a backup was made first.");
+            return false;
+        }
+        finally
+        {
+            IsBusy = false;
+            NotifyState();
+        }
+    }
+
+    /// <summary>Deletes all data and starts over with the standard categories. True when it worked.</summary>
+    public async Task<bool> ClearAllDataAsync()
+    {
+        if (IsBusy) return false;
+
+        IsBusy = true;
+        ErrorMessage = "";
+        SuccessMessage = "";
+        NotifyState();
+
+        try
+        {
+            await clearData.ClearAsync();
+
+            SuccessMessage = Loc.T("All data was deleted. A backup was saved first.");
+            return true;
+        }
+        catch (Exception exception)
+        {
+            logger.LogError(exception, "Failed to clear the data.");
+
+            ErrorMessage = Loc.T("Could not delete the data. Nothing was changed.");
             return false;
         }
         finally
@@ -183,6 +217,7 @@ public sealed class SettingsViewModel(
         OnPropertyChanged(nameof(CurrencyText));
         OnPropertyChanged(nameof(IsBusy));
         OnPropertyChanged(nameof(CanLoadDemo));
+        OnPropertyChanged(nameof(CanClear));
         OnPropertyChanged(nameof(ErrorMessage));
         OnPropertyChanged(nameof(SuccessMessage));
         OnPropertyChanged(nameof(HasError));

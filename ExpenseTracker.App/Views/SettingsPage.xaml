@@ -118,6 +118,23 @@
             </VerticalStackLayout>
 
             <VerticalStackLayout Spacing="8">
+                <Label Text="{loc:Tr Key='Clear all data'}" FontAttributes="Bold" />
+
+                <Label
+                    Text="{loc:Tr Key='Deletes every expense, budget, schedule, rule and category and starts again with the standard categories. Use it to remove the demo data.'}"
+                    TextColor="{DynamicResource InkMuted}"
+                    FontSize="12" />
+
+                <controls:PillButton
+                    Text="{loc:Tr Key='Clear all data'}"
+                    Icon="{x:Static controls:Icons.Trash}"
+                    ToneKey="Danger"
+                    HorizontalOptions="Start"
+                    Clicked="OnClearClicked"
+                    IsEnabled="{Binding CanClear}" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="8">
                 <Label Text="{loc:Tr Key='Where your data is'}" FontAttributes="Bold" />
 
                 <Label

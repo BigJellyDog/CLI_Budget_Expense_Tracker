@@ -51,6 +51,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<ExpenseFilterRequest>();
         builder.Services.AddSingleton<DemoDataService>();
         builder.Services.AddSingleton<StandardCategories>();
+        builder.Services.AddSingleton<ClearDataService>();
 
         builder.Services.AddSingleton(new ExportLocation(
             Path.Combine(Path.GetDirectoryName(databasePath)!, "exports")));
