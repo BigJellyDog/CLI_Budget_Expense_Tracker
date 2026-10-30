@@ -51,6 +51,7 @@ public sealed class BankImportListItem : ObservableObject
 
             _categoryChosen = true;
             ClearRuleNote();
+            OnPropertyChanged(nameof(NeedsCategoryMark));
             _selectionChanged();
         }
     }
@@ -65,6 +66,7 @@ public sealed class BankImportListItem : ObservableObject
     {
         SetProperty(ref _category, category, nameof(Category));
         _categoryChosen = true;
+        OnPropertyChanged(nameof(NeedsCategoryMark));
 
         RuleNote = Loc.F("Category set by rule: contains \"{0}\"", pattern);
         OnPropertyChanged(nameof(RuleNote));
@@ -86,6 +88,7 @@ public sealed class BankImportListItem : ObservableObject
         if (_categoryChosen) return;
 
         SetProperty(ref _category, category, nameof(Category));
+        OnPropertyChanged(nameof(NeedsCategoryMark));
     }
 
     public bool IsSelected
@@ -97,6 +100,7 @@ public sealed class BankImportListItem : ObservableObject
 
             _isSelected = value;
             OnPropertyChanged();
+            OnPropertyChanged(nameof(NeedsCategoryMark));
             _selectionChanged();
         }
     }
@@ -104,9 +108,9 @@ public sealed class BankImportListItem : ObservableObject
     public string Kind => Entry.Kind switch
     {
         BankEntryKind.ExpenseCandidate => Loc.T("Expense candidate"),
-        BankEntryKind.Incoming => "Incoming",
+        BankEntryKind.Incoming => Loc.T("Incoming"),
         BankEntryKind.InternalTransfer => Loc.T("Internal transfer"),
-        BankEntryKind.Ignored => "Ignored",
+        BankEntryKind.Ignored => Loc.T("Ignored"),
         _ => Loc.T("Needs review")
     };
 
@@ -125,4 +129,26 @@ public sealed class BankImportListItem : ObservableObject
             Entry.Source.Fee, Entry.Source.Currency);
 
     public string Reason => Entry.Reason;
+
+    /// <summary>The day and month, for the narrow date column.</summary>
+    public string DateShort => Entry.Source.CompletedAt is { } at ? at.ToString("dd.MM.") : "";
+
+    /// <summary>Records that cannot be imported are shown gray.</summary>
+    public bool IsDim => !CanSelect;
+
+    public bool IsActive => CanSelect;
+
+    /// <summary>Selected, with neither a rule nor a choice: it will get the default category.</summary>
+    public bool NeedsCategoryMark => CanSelect && IsSelected && !_categoryChosen;
+
+    public string SkipText => Entry.Kind == BankEntryKind.Incoming
+        ? Loc.T("Income · skipped")
+        : Loc.T("Skipped");
+}
+
+
+/// <summary>A step of the "How it works" card. State is Done, Current or Todo.</summary>
+public sealed record ImportStep(string Number, string Title, string Text, string State)
+{
+    public bool IsDone => State == "Done";
 }

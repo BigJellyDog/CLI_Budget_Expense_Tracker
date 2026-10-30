@@ -6,7 +6,6 @@
     xmlns:loc="clr-namespace:ExpenseTracker.App.Services"
     xmlns:vm="clr-namespace:ExpenseTracker.App.ViewModels"
     xmlns:models="clr-namespace:ExpenseTracker.App.Models"
-    xmlns:core="clr-namespace:CLI_Budget_Expense_Tracker.Core.Models;assembly=CLI_Budget_Expense_Tracker.Core"
     x:Class="ExpenseTracker.App.Views.BankImportPage"
     x:DataType="vm:BankImportViewModel"
     Shell.NavBarIsVisible="False"
@@ -14,160 +13,22 @@
     NavigationPage.HasBackButton="{Binding IsIdle}"
     BackgroundColor="{DynamicResource Bg}">
 
-    <Grid RowDefinitions="Auto,*">
+    <controls:CenteredContainer Padding="40,28,40,24">
+        <Grid RowDefinitions="Auto,Auto,*" RowSpacing="20">
 
-        <Label
-            Text="{loc:Tr Key='Import CSV'}"
-            FontSize="26"
-            FontFamily="ManropeExtraBold"
-            Padding="24,24,24,0" />
-
-        <Grid
-            Grid.Row="1"
-            Padding="24,8,24,24"
-            RowDefinitions="Auto,Auto,Auto,*"
-            RowSpacing="16">
-
-            <VerticalStackLayout Spacing="8">
-                <controls:DropDown
-                    Title="{loc:Tr Key='File format'}"
-                    ItemsSource="{Binding Formats}"
-                    DisplayMember="Name"
-                    SelectedItem="{Binding SelectedFormat, Mode=TwoWay}"
-                    IsEnabled="{Binding IsIdle}" />
-
-                <HorizontalStackLayout Spacing="12">
-                    <Button
-                        Text="{loc:Tr Key='Choose CSV'}"
-                        Clicked="OnChooseFileClicked"
-                        IsEnabled="{Binding IsIdle}" />
-
-                    <Button
-                        Text="{loc:Tr Key='Auto-categorization rules'}"
-                        Clicked="OnEditRulesClicked"
-                        IsEnabled="{Binding IsIdle}" />
-                </HorizontalStackLayout>
-
-                <Label Text="{Binding FormatHint}" />
-
-                <Label Text="{loc:Tr Key='Choose a file, tick the records to import and set a category for each one (the default category is used until you change it), then press Import selected. Records already imported are skipped.'}" />
-
+            <VerticalStackLayout Spacing="2">
                 <Label
-                    Text="{Binding FileName}"
-                    FontAttributes="Bold"
-                    LineBreakMode="MiddleTruncation" />
-
-                <VerticalStackLayout Spacing="8" IsVisible="{Binding ShowMapping}">
-                    <Label Text="{loc:Tr Key='How is this file written?'}" FontAttributes="Bold" />
-
-                    <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12">
-                        <controls:DropDown
-                            Title="{loc:Tr Key='Delimiter'}"
-                            ItemsSource="{Binding Custom.DelimiterOptions}"
-                            DisplayMember="Name"
-                            SelectedItem="{Binding Custom.SelectedDelimiter, Mode=TwoWay}"
-                            SelectedIndexChanged="OnDelimiterChanged" />
-
-                        <controls:DropDown
-                            Grid.Column="1"
-                            Title="{loc:Tr Key='Number format'}"
-                            ItemsSource="{Binding Custom.CultureOptions}"
-                            DisplayMember="Label"
-                            SelectedItem="{Binding Custom.SelectedCulture, Mode=TwoWay}" />
-
-                        <Entry
-                            Grid.Column="2"
-                            Placeholder="{loc:Tr Key='Date format'}"
-                            Text="{Binding Custom.DateFormat, Mode=TwoWay}" />
-                    </Grid>
-
-                    <Label
-                        Text="{loc:Tr Key='Date format examples: yyyy-MM-dd, dd.MM.yyyy, MM/dd/yyyy (MM is the month, mm is minutes).'}"
-                        FontSize="12" />
-
-                    <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="12">
-                        <controls:DropDown
-                            Title="{loc:Tr Key='Date column'}"
-                            ItemsSource="{Binding Custom.Headers}"
-                            SelectedItem="{Binding Custom.SelectedDateColumn, Mode=TwoWay}" />
-
-                        <controls:DropDown
-                            Grid.Column="1"
-                            Title="{loc:Tr Key='Description column'}"
-                            ItemsSource="{Binding Custom.Headers}"
-                            SelectedItem="{Binding Custom.SelectedDescriptionColumn, Mode=TwoWay}" />
-
-                        <controls:DropDown
-                            Grid.Column="2"
-                            Title="{loc:Tr Key='Amount column'}"
-                            ItemsSource="{Binding Custom.Headers}"
-                            SelectedItem="{Binding Custom.SelectedAmountColumn, Mode=TwoWay}" />
-
-                        <controls:DropDown
-                            Grid.Column="3"
-                            Title="{loc:Tr Key='Currency column'}"
-                            ItemsSource="{Binding Custom.CurrencyHeaders}"
-                            SelectedItem="{Binding Custom.SelectedCurrencyColumn, Mode=TwoWay}" />
-                    </Grid>
-
-                    <Grid ColumnDefinitions="*,140" ColumnSpacing="12">
-                        <controls:DropDown
-                            Title="{loc:Tr Key='Sign of amounts'}"
-                            ItemsSource="{Binding Custom.SignOptions}"
-                            DisplayMember="Label"
-                            SelectedItem="{Binding Custom.SelectedSign, Mode=TwoWay}" />
-
-                        <Entry
-                            Grid.Column="1"
-                            Placeholder="{loc:Tr Key='Currency, e.g. EUR'}"
-                            Text="{Binding Custom.DefaultCurrency, Mode=TwoWay}" />
-                    </Grid>
-
-                    <Button
-                        Text="{loc:Tr Key='Show preview'}"
-                        Clicked="OnShowPreviewClicked"
-                        HorizontalOptions="Start" />
-                </VerticalStackLayout>
+                    Text="{loc:Tr Key='Import CSV'}"
+                    FontSize="28"
+                    FontFamily="ManropeExtraBold" />
+                <Label
+                    Text="{loc:Tr Key='Bank statements are matched to categories by your rules. Records already imported are skipped.'}"
+                    FontSize="13"
+                    TextColor="{DynamicResource InkMuted}" />
             </VerticalStackLayout>
 
-            <VerticalStackLayout
-                Grid.Row="1"
-                Spacing="8"
-                IsVisible="{Binding ShowPreview}">
-
-                <Label Text="{Binding Summary}" />
-
-                <Label
-                    Text="{Binding TotalText}"
-                    FontSize="18"
-                    FontAttributes="Bold" />
-
-                <Label
-                    Text="{loc:Tr Key='Create a category on the Categories screen first, then choose the file again.'}"
-                    IsVisible="{Binding NeedsCategory}" />
-
-                <controls:DropDown
-                    Title="{loc:Tr Key='Default category for all records'}"
-                    ItemsSource="{Binding Categories}"
-                    DisplayMember="Name"
-                    SelectedItem="{Binding SelectedCategory, Mode=TwoWay}" />
-
-                <Label
-                    Text="{Binding SelectionText}"
-                    FontAttributes="Bold" />
-
-                <Button
-                    Text="{loc:Tr Key='Import selected'}"
-                    Style="{StaticResource PrimaryButton}"
-                    Clicked="OnImportClicked"
-                    IsEnabled="{Binding CanImport}"
-                    HorizontalOptions="Start" />
-            </VerticalStackLayout>
-
-            <VerticalStackLayout Grid.Row="2" Spacing="8">
-                <ActivityIndicator
-                    IsRunning="{Binding IsBusy}"
-                    IsVisible="{Binding IsBusy}" />
+            <VerticalStackLayout Grid.Row="1" Spacing="6">
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
 
                 <Label
                     Text="{Binding ErrorMessage}"
@@ -180,100 +41,461 @@
                     TextColor="{DynamicResource Success}" />
             </VerticalStackLayout>
 
-            <CollectionView
-                Grid.Row="3"
-                ItemsSource="{Binding Items}"
-                IsVisible="{Binding ShowPreview}"
-                SelectionMode="None">
+            <Grid Grid.Row="2" ColumnDefinitions="360,*" ColumnSpacing="20">
 
-                <CollectionView.EmptyView>
-                    <Label
-                        Text="{loc:Tr Key='The statement contains no transactions.'}"
-                        Margin="24"
-                        HorizontalTextAlignment="Center" />
-                </CollectionView.EmptyView>
+                <!-- Format, file, steps -->
+                <ScrollView>
+                    <VerticalStackLayout Spacing="16">
 
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="models:BankImportListItem">
-                        <Border
-                            Padding="16"
-                            Margin="0,0,0,8"
-                            StrokeShape="RoundRectangle 18"
-                            Stroke="{DynamicResource Border}"
-                            BackgroundColor="{DynamicResource Surface}">
+                        <Border Padding="20">
+                            <VerticalStackLayout Spacing="12">
+                                <VerticalStackLayout Spacing="6">
+                                    <Label
+                                        Text="{loc:Tr Key='File format'}"
+                                        FontSize="12"
+                                        FontFamily="ManropeSemiBold"
+                                        TextColor="{DynamicResource InkMuted}" />
+                                    <controls:DropDown
+                                        Title="{loc:Tr Key='File format'}"
+                                        ItemsSource="{Binding Formats}"
+                                        DisplayMember="Name"
+                                        SelectedItem="{Binding SelectedFormat, Mode=TwoWay}"
+                                        IsEnabled="{Binding IsIdle}" />
+                                    <Label
+                                        Text="{Binding FormatHint}"
+                                        FontSize="12"
+                                        TextColor="{DynamicResource InkMuted}" />
+                                </VerticalStackLayout>
 
-                            <Grid
-                                ColumnDefinitions="Auto,*,Auto"
-                                RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto"
-                                ColumnSpacing="16"
-                                RowSpacing="6">
+                                <Border
+                                    IsVisible="{Binding HasFile}"
+                                    Padding="12"
+                                    StrokeShape="RoundRectangle 12"
+                                    BackgroundColor="{DynamicResource Bg}">
+                                    <Grid ColumnDefinitions="38,*,Auto" ColumnSpacing="12">
+                                        <Border
+                                            WidthRequest="38"
+                                            HeightRequest="38"
+                                            StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 11"
+                                            BackgroundColor="{DynamicResource AccentSoft}">
+                                            <controls:IconView
+                                                Data="{x:Static controls:Icons.File}"
+                                                Color="{DynamicResource Accent}"
+                                                WidthRequest="18"
+                                                HeightRequest="18"
+                                                HorizontalOptions="Center"
+                                                VerticalOptions="Center" />
+                                        </Border>
+                                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                                            <Label
+                                                Text="{Binding FileName}"
+                                                FontFamily="ManropeBold"
+                                                LineBreakMode="MiddleTruncation" />
+                                            <Label
+                                                Text="{Binding FileInfoText}"
+                                                FontSize="12"
+                                                TextColor="{DynamicResource InkMuted}" />
+                                        </VerticalStackLayout>
+                                        <controls:IconButton
+                                            Grid.Column="2"
+                                            Icon="{x:Static controls:Icons.Close}"
+                                            Clicked="OnCancelClicked" />
+                                    </Grid>
+                                </Border>
 
-                                <CheckBox
-                                    Grid.RowSpan="2"
-                                    IsChecked="{Binding IsSelected, Mode=TwoWay}"
-                                    IsEnabled="{Binding CanSelect}"
-                                    VerticalOptions="Start" />
+                                <controls:PillButton
+                                    Text="{loc:Tr Key='Choose CSV'}"
+                                    Icon="{x:Static controls:Icons.Upload}"
+                                    IsPrimary="{Binding NoFile}"
+                                    Clicked="OnChooseFileClicked"
+                                    IsEnabled="{Binding IsIdle}" />
 
+                                <!-- Columns of another bank's file -->
+                                <VerticalStackLayout Spacing="10" IsVisible="{Binding ShowMapping}">
+                                    <Label
+                                        Text="{loc:Tr Key='How is this file written?'}"
+                                        FontFamily="ManropeBold" />
+
+                                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                                        <controls:DropDown
+                                            Title="{loc:Tr Key='Delimiter'}"
+                                            ItemsSource="{Binding Custom.DelimiterOptions}"
+                                            DisplayMember="Name"
+                                            SelectedItem="{Binding Custom.SelectedDelimiter, Mode=TwoWay}"
+                                            SelectedIndexChanged="OnDelimiterChanged" />
+                                        <controls:DropDown
+                                            Grid.Column="1"
+                                            Title="{loc:Tr Key='Number format'}"
+                                            ItemsSource="{Binding Custom.CultureOptions}"
+                                            DisplayMember="Label"
+                                            SelectedItem="{Binding Custom.SelectedCulture, Mode=TwoWay}" />
+                                    </Grid>
+
+                                    <Entry
+                                        Placeholder="{loc:Tr Key='Date format'}"
+                                        Text="{Binding Custom.DateFormat, Mode=TwoWay}" />
+                                    <Label
+                                        Text="{loc:Tr Key='Date format examples: yyyy-MM-dd, dd.MM.yyyy, MM/dd/yyyy (MM is the month, mm is minutes).'}"
+                                        FontSize="12"
+                                        TextColor="{DynamicResource InkMuted}" />
+
+                                    <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="10" RowSpacing="10">
+                                        <controls:DropDown
+                                            Title="{loc:Tr Key='Date column'}"
+                                            ItemsSource="{Binding Custom.Headers}"
+                                            SelectedItem="{Binding Custom.SelectedDateColumn, Mode=TwoWay}" />
+                                        <controls:DropDown
+                                            Grid.Column="1"
+                                            Title="{loc:Tr Key='Description column'}"
+                                            ItemsSource="{Binding Custom.Headers}"
+                                            SelectedItem="{Binding Custom.SelectedDescriptionColumn, Mode=TwoWay}" />
+                                        <controls:DropDown
+                                            Grid.Row="1"
+                                            Title="{loc:Tr Key='Amount column'}"
+                                            ItemsSource="{Binding Custom.Headers}"
+                                            SelectedItem="{Binding Custom.SelectedAmountColumn, Mode=TwoWay}" />
+                                        <controls:DropDown
+                                            Grid.Row="1"
+                                            Grid.Column="1"
+                                            Title="{loc:Tr Key='Currency column'}"
+                                            ItemsSource="{Binding Custom.CurrencyHeaders}"
+                                            SelectedItem="{Binding Custom.SelectedCurrencyColumn, Mode=TwoWay}" />
+                                    </Grid>
+
+                                    <Grid ColumnDefinitions="*,110" ColumnSpacing="10">
+                                        <controls:DropDown
+                                            Title="{loc:Tr Key='Sign of amounts'}"
+                                            ItemsSource="{Binding Custom.SignOptions}"
+                                            DisplayMember="Label"
+                                            SelectedItem="{Binding Custom.SelectedSign, Mode=TwoWay}" />
+                                        <Entry
+                                            Grid.Column="1"
+                                            Placeholder="EUR"
+                                            Text="{Binding Custom.DefaultCurrency, Mode=TwoWay}" />
+                                    </Grid>
+
+                                    <controls:PillButton
+                                        Text="{loc:Tr Key='Show preview'}"
+                                        IsPrimary="True"
+                                        Clicked="OnShowPreviewClicked" />
+                                </VerticalStackLayout>
+
+                                <VerticalStackLayout Spacing="6" IsVisible="{Binding ShowPreview}">
+                                    <Label
+                                        Text="{loc:Tr Key='Default category'}"
+                                        FontSize="12"
+                                        FontFamily="ManropeSemiBold"
+                                        TextColor="{DynamicResource InkMuted}" />
+                                    <controls:DropDown
+                                        Title="{loc:Tr Key='Default category for all records'}"
+                                        ItemsSource="{Binding Categories}"
+                                        DisplayMember="Name"
+                                        SelectedItem="{Binding SelectedCategory, Mode=TwoWay}" />
+                                    <Label
+                                        Text="{loc:Tr Key='Create a category on the Categories screen first, then choose the file again.'}"
+                                        IsVisible="{Binding NeedsCategory}"
+                                        FontSize="12"
+                                        TextColor="{DynamicResource Warning}" />
+                                </VerticalStackLayout>
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Border Padding="20">
+                            <VerticalStackLayout Spacing="14">
+                                <Label
+                                    Text="{loc:Tr Key='How it works'}"
+                                    FontSize="15"
+                                    FontFamily="ManropeBold" />
+
+                                <VerticalStackLayout Spacing="16" BindableLayout.ItemsSource="{Binding Steps}">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate x:DataType="models:ImportStep">
+                                            <Grid ColumnDefinitions="28,*" ColumnSpacing="12">
+                                                <Border
+                                                    WidthRequest="28"
+                                                    HeightRequest="28"
+                                                    StrokeShape="RoundRectangle 14"
+                                                    StrokeThickness="1"
+                                                    Stroke="{DynamicResource Border}"
+                                                    BackgroundColor="{DynamicResource Surface2}"
+                                                    VerticalOptions="Start">
+                                                    <Border.Triggers>
+                                                        <DataTrigger TargetType="Border" Binding="{Binding State}" Value="Done">
+                                                            <Setter Property="BackgroundColor" Value="{DynamicResource Accent}" />
+                                                            <Setter Property="Stroke" Value="{DynamicResource Accent}" />
+                                                        </DataTrigger>
+                                                        <DataTrigger TargetType="Border" Binding="{Binding State}" Value="Current">
+                                                            <Setter Property="Stroke" Value="{DynamicResource Accent}" />
+                                                        </DataTrigger>
+                                                    </Border.Triggers>
+                                                    <Grid>
+                                                        <Label
+                                                            Text="{Binding Number}"
+                                                            FontFamily="ManropeExtraBold"
+                                                            FontSize="13"
+                                                            TextColor="{DynamicResource InkMuted}"
+                                                            HorizontalOptions="Center"
+                                                            VerticalOptions="Center">
+                                                            <Label.Triggers>
+                                                                <DataTrigger TargetType="Label" Binding="{Binding State}" Value="Current">
+                                                                    <Setter Property="TextColor" Value="{DynamicResource Accent}" />
+                                                                </DataTrigger>
+                                                                <DataTrigger TargetType="Label" Binding="{Binding State}" Value="Done">
+                                                                    <Setter Property="IsVisible" Value="False" />
+                                                                </DataTrigger>
+                                                            </Label.Triggers>
+                                                        </Label>
+                                                        <controls:IconView
+                                                            Data="{x:Static controls:Icons.Check}"
+                                                            Color="{DynamicResource OnAccent}"
+                                                            WidthRequest="14"
+                                                            HeightRequest="14"
+                                                            HorizontalOptions="Center"
+                                                            VerticalOptions="Center"
+                                                            IsVisible="{Binding IsDone}" />
+                                                    </Grid>
+                                                </Border>
+
+                                                <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                                    <Label Text="{Binding Title}" FontFamily="ManropeBold" />
+                                                    <Label
+                                                        Text="{Binding Text}"
+                                                        FontSize="12"
+                                                        TextColor="{DynamicResource InkMuted}" />
+                                                </VerticalStackLayout>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </VerticalStackLayout>
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Border Padding="16,14">
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                                <controls:IconView
+                                    Data="{x:Static controls:Icons.Tag}"
+                                    Color="{DynamicResource Ink}"
+                                    WidthRequest="17"
+                                    HeightRequest="17" />
                                 <Label
                                     Grid.Column="1"
-                                    Text="{Binding Kind}"
-                                    FontAttributes="Bold" />
-
-                                <Label
+                                    Text="{loc:Tr Key='Auto-categorization rules'}"
+                                    FontFamily="ManropeBold"
+                                    VerticalOptions="Center" />
+                                <controls:IconView
                                     Grid.Column="2"
-                                    Text="{Binding Amount}"
-                                    FontAttributes="Bold"
-                                    HorizontalTextAlignment="End" />
-
-                                <Label
-                                    Grid.Row="1"
-                                    Grid.Column="1"
-                                    Grid.ColumnSpan="2"
-                                    Text="{Binding Description}" />
-
-                                <Label
-                                    Grid.Row="2"
-                                    Grid.Column="1"
-                                    Grid.ColumnSpan="2"
-                                    Text="{Binding Date}" />
-
-                                <Label
-                                    Grid.Row="3"
-                                    Grid.Column="1"
-                                    Grid.ColumnSpan="2"
-                                    Text="{Binding Details}"
-                                    FontSize="12" />
-
-                                <Label
-                                    Grid.Row="4"
-                                    Grid.Column="1"
-                                    Grid.ColumnSpan="2"
-                                    Text="{Binding Reason}"
-                                    FontSize="12" />
-
-                                <controls:DropDown
-                                    Grid.Row="5"
-                                    Grid.Column="1"
-                                    Grid.ColumnSpan="2"
-                                    Title="{loc:Tr Key='Category'}"
-                                    ItemsSource="{Binding Categories}"
-                                    DisplayMember="Name"
-                                    SelectedItem="{Binding Category, Mode=TwoWay}"
-                                    IsVisible="{Binding CanSelect}"
-                                    IsEnabled="{Binding CanSelect}" />
-
-                                <Label
-                                    Grid.Row="6"
-                                    Grid.Column="1"
-                                    Grid.ColumnSpan="2"
-                                    Text="{Binding RuleNote}"
-                                    IsVisible="{Binding HasRuleNote}"
-                                    FontSize="12" />
+                                    Data="{x:Static controls:Icons.ChevronRight}"
+                                    Color="{DynamicResource InkMuted}"
+                                    WidthRequest="16"
+                                    HeightRequest="16" />
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnRulesTapped" />
+                                </Grid.GestureRecognizers>
                             </Grid>
                         </Border>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+                    </VerticalStackLayout>
+                </ScrollView>
+
+                <!-- Nothing chosen yet -->
+                <Border
+                    Grid.Column="1"
+                    IsVisible="{Binding NoPreview}"
+                    VerticalOptions="Start"
+                    Padding="40">
+                    <VerticalStackLayout Spacing="14" HorizontalOptions="Center">
+                        <controls:IconView
+                            Data="{x:Static controls:Icons.Upload}"
+                            Color="{DynamicResource InkMuted}"
+                            WidthRequest="32"
+                            HeightRequest="32"
+                            HorizontalOptions="Center" />
+                        <Label
+                            Text="{loc:Tr Key='Choose a CSV file to review its records here.'}"
+                            TextColor="{DynamicResource InkMuted}"
+                            HorizontalTextAlignment="Center" />
+                        <controls:PillButton
+                            Text="{loc:Tr Key='Choose CSV'}"
+                            IsPrimary="True"
+                            HorizontalOptions="Center"
+                            Clicked="OnChooseFileClicked"
+                            IsEnabled="{Binding IsIdle}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- The records to review -->
+                <Border Grid.Column="1" Padding="0" IsVisible="{Binding ShowPreview}">
+                    <Grid RowDefinitions="Auto,Auto,*,Auto">
+
+                        <FlexLayout Wrap="Wrap" AlignItems="Center" Padding="20,14">
+                            <Label
+                                Text="{loc:Tr Key='Review records'}"
+                                FontSize="15"
+                                FontFamily="ManropeBold"
+                                Margin="0,0,14,0" />
+                            <controls:Chip
+                                Text="{Binding MatchedText}"
+                                ToneKey="Success"
+                                IsVisible="{Binding HasMatched}"
+                                Margin="0,0,8,0" />
+                            <controls:Chip
+                                Text="{Binding NeedsCategoryText}"
+                                ToneKey="Warning"
+                                IsVisible="{Binding HasNeedsCategory}"
+                                Margin="0,0,8,0" />
+                            <controls:Chip
+                                Text="{Binding SkippedText}"
+                                IsVisible="{Binding HasSkipped}" />
+                        </FlexLayout>
+
+                        <Grid
+                            Grid.Row="1"
+                            ColumnDefinitions="24,60,*,110,260"
+                            ColumnSpacing="14"
+                            Padding="20,8">
+                            <CheckBox IsChecked="{Binding AllSelected, Mode=TwoWay}" VerticalOptions="Center" />
+                            <Label Grid.Column="1" Text="{loc:Tr Key='Date'}" Style="{StaticResource TableHead}" />
+                            <Label Grid.Column="2" Text="{loc:Tr Key='Description'}" Style="{StaticResource TableHead}" />
+                            <Label
+                                Grid.Column="3"
+                                Text="{loc:Tr Key='Amount'}"
+                                Style="{StaticResource TableHead}"
+                                HorizontalTextAlignment="End" />
+                            <Label Grid.Column="4" Text="{loc:Tr Key='Category'}" Style="{StaticResource TableHead}" />
+                        </Grid>
+
+                        <CollectionView
+                            Grid.Row="2"
+                            ItemsSource="{Binding Items}"
+                            SelectionMode="None">
+
+                            <CollectionView.EmptyView>
+                                <Label
+                                    Text="{loc:Tr Key='The statement contains no transactions.'}"
+                                    Margin="24"
+                                    TextColor="{DynamicResource InkMuted}"
+                                    HorizontalTextAlignment="Center" />
+                            </CollectionView.EmptyView>
+
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="models:BankImportListItem">
+                                    <VerticalStackLayout>
+                                        <BoxView HeightRequest="1" Color="{DynamicResource Border}" />
+                                        <Grid
+                                            ColumnDefinitions="24,60,*,110,260"
+                                            ColumnSpacing="14"
+                                            Padding="20,8"
+                                            MinimumHeightRequest="52">
+
+                                            <CheckBox
+                                                IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                                IsEnabled="{Binding CanSelect}"
+                                                VerticalOptions="Center" />
+
+                                            <Label
+                                                Grid.Column="1"
+                                                Text="{Binding DateShort}"
+                                                TextColor="{DynamicResource InkMuted}"
+                                                VerticalOptions="Center" />
+
+                                            <Label
+                                                Grid.Column="2"
+                                                Text="{Binding Description}"
+                                                FontFamily="ManropeSemiBold"
+                                                LineBreakMode="TailTruncation"
+                                                VerticalOptions="Center">
+                                                <Label.Triggers>
+                                                    <DataTrigger TargetType="Label" Binding="{Binding IsDim}" Value="True">
+                                                        <Setter Property="TextColor" Value="{DynamicResource InkMuted}" />
+                                                    </DataTrigger>
+                                                </Label.Triggers>
+                                            </Label>
+
+                                            <Label
+                                                Grid.Column="3"
+                                                Text="{Binding Amount}"
+                                                FontFamily="ManropeExtraBold"
+                                                HorizontalTextAlignment="End"
+                                                VerticalOptions="Center">
+                                                <Label.Triggers>
+                                                    <DataTrigger TargetType="Label" Binding="{Binding IsDim}" Value="True">
+                                                        <Setter Property="TextColor" Value="{DynamicResource InkMuted}" />
+                                                    </DataTrigger>
+                                                </Label.Triggers>
+                                            </Label>
+
+                                            <Grid
+                                                Grid.Column="4"
+                                                ColumnDefinitions="*,Auto"
+                                                ColumnSpacing="8"
+                                                IsVisible="{Binding IsActive}">
+                                                <controls:DropDown
+                                                    Title="{loc:Tr Key='Choose category'}"
+                                                    ItemsSource="{Binding Categories}"
+                                                    DisplayMember="Name"
+                                                    SelectedItem="{Binding Category, Mode=TwoWay}"
+                                                    IsEnabled="{Binding CanSelect}"
+                                                    HeightRequest="36">
+                                                    <controls:DropDown.Triggers>
+                                                        <DataTrigger TargetType="controls:DropDown" Binding="{Binding NeedsCategoryMark}" Value="True">
+                                                            <Setter Property="StrokeThickness" Value="1" />
+                                                            <Setter Property="Stroke" Value="{DynamicResource Warning}" />
+                                                        </DataTrigger>
+                                                    </controls:DropDown.Triggers>
+                                                </controls:DropDown>
+                                                <controls:Chip
+                                                    Grid.Column="1"
+                                                    Text="{loc:Tr Key='Rule'}"
+                                                    ToneKey="Accent"
+                                                    IsVisible="{Binding HasRuleNote}" />
+                                            </Grid>
+
+                                            <controls:Chip
+                                                Grid.Column="4"
+                                                Text="{Binding SkipText}"
+                                                IsVisible="{Binding IsDim}" />
+                                        </Grid>
+                                    </VerticalStackLayout>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+
+                        <!-- Always visible: what is selected and the import button -->
+                        <Border
+                            Grid.Row="3"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 0"
+                            BackgroundColor="{DynamicResource Surface2}"
+                            Padding="20,14">
+                            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="14">
+                                <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                                    <Label
+                                        Text="{Binding SelectedCountText}"
+                                        FontFamily="ManropeExtraBold"
+                                        VerticalOptions="Center" />
+                                    <Label
+                                        Text="{Binding SelectedTotalText}"
+                                        TextColor="{DynamicResource InkMuted}"
+                                        VerticalOptions="Center" />
+                                </HorizontalStackLayout>
+
+                                <controls:PillButton
+                                    Grid.Column="1"
+                                    Text="{loc:Tr Key='Cancel'}"
+                                    Clicked="OnCancelClicked" />
+
+                                <controls:PillButton
+                                    Grid.Column="2"
+                                    Text="{Binding ImportButtonText}"
+                                    Icon="{x:Static controls:Icons.Download}"
+                                    IsPrimary="True"
+                                    Clicked="OnImportClicked"
+                                    IsEnabled="{Binding CanImport}" />
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Border>
+            </Grid>
         </Grid>
-    </Grid>
+    </controls:CenteredContainer>
 </ContentPage>

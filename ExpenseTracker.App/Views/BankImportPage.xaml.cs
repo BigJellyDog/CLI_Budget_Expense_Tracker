@@ -32,6 +32,12 @@ public partial class BankImportPage : ContentPage
     protected override bool OnBackButtonPressed() =>
         _pickingFile || _viewModel.IsBusy || base.OnBackButtonPressed();
 
+    private void OnRulesTapped(object? sender, TappedEventArgs e) =>
+        OnEditRulesClicked(sender, e);
+
+    private void OnCancelClicked(object? sender, EventArgs e) =>
+        _viewModel.Cancel();
+
     private async void OnImportClicked(object? sender, EventArgs e) =>
         await _viewModel.ImportAsync();
 

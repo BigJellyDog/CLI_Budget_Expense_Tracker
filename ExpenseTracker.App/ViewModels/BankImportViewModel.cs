@@ -122,7 +122,85 @@ public sealed class BankImportViewModel : ObservableObject
         }
     }
 
-    public string ResultMessage { get; private set; } = "";
+    public bool NoPreview => !ShowPreview;
+
+    public bool HasFile => FileName.Length > 0;
+
+    public bool NoFile => !HasFile;
+
+    public string FileInfoText => Items.Count > 0 ? Loc.F("{0} records", Items.Count) : "";
+
+    private int MatchedCount => Items.Count(x => x.HasRuleNote);
+
+    private int NeedCategoryCount => Items.Count(x => x.NeedsCategoryMark);
+
+    private int SkippedCount => Items.Count(x => !x.CanSelect);
+
+    public string MatchedText => Loc.F("{0} matched by rules", MatchedCount);
+
+    public bool HasMatched => MatchedCount > 0;
+
+    public string NeedsCategoryText => Loc.F("{0} use the default category", NeedCategoryCount);
+
+    public bool HasNeedsCategory => NeedCategoryCount > 0;
+
+    public string SkippedText => Loc.F("{0} skipped", SkippedCount);
+
+    public bool HasSkipped => SkippedCount > 0;
+
+    public string SelectedCountText => Loc.F("{0} of {1} selected", Items.Count(x => x.IsSelected), Items.Count);
+
+    public string SelectedTotalText => $"· {Items.Where(x => x.IsSelected).Sum(x => -x.Entry.Source.Amount):N2} {_currency}";
+
+    public string ImportButtonText => Loc.F("Import {0} records", Items.Count(x => x.IsSelected));
+
+    /// <summary>The header box of the table: true when every record that can be imported is ticked.</summary>
+    public bool AllSelected
+    {
+        get
+        {
+            var selectable = Items.Where(x => x.CanSelect).ToArray();
+            return selectable.Length > 0 && selectable.All(x => x.IsSelected);
+        }
+        set
+        {
+            foreach (var item in Items.Where(x => x.CanSelect))
+                item.IsSelected = value;
+
+            NotifySelection();
+        }
+    }
+
+    public IReadOnlyList<ImportStep> Steps
+    {
+        get
+        {
+            var step = _imported ? 4 : ShowPreview ? 2 : 1;
+
+            string State(int number) => number < step ? "Done" : number == step ? "Current" : "Todo";
+
+            return
+            [
+                new("1", Loc.T("Choose format and file"), Loc.T("Pick your bank's format, then select the CSV export."), State(1)),
+                new("2", Loc.T("Check the records"), Loc.T("Untick what you don't need. Rules fill in categories; the rest use the default until you change them."), State(2)),
+                new("3", Loc.T("Import selected"), Loc.T("Duplicates and incoming payments are skipped automatically."), State(3))
+            ];
+        }
+    }
+
+    /// <summary>Throws the preview away and goes back to choosing a file.</summary>
+    public void Cancel()
+    {
+        if (IsBusy) return;
+
+        ClearPreview();
+        _customBytes = null;
+        FileName = "";
+        ErrorMessage = "";
+        NotifyState();
+    }
+
+    public string ResultMessage { get; private set; } = ""; 
 
     public string ErrorMessage { get; private set; } = "";
 
@@ -469,10 +547,27 @@ public sealed class BankImportViewModel : ObservableObject
     {
         OnPropertyChanged(nameof(SelectionText));
         OnPropertyChanged(nameof(CanImport));
+        OnPropertyChanged(nameof(MatchedText));
+        OnPropertyChanged(nameof(HasMatched));
+        OnPropertyChanged(nameof(NeedsCategoryText));
+        OnPropertyChanged(nameof(HasNeedsCategory));
+        OnPropertyChanged(nameof(SelectedCountText));
+        OnPropertyChanged(nameof(SelectedTotalText));
+        OnPropertyChanged(nameof(ImportButtonText));
+        OnPropertyChanged(nameof(AllSelected));
     }
 
     private void NotifyState()
     {
+        NotifySelection();
+
+        OnPropertyChanged(nameof(HasFile));
+        OnPropertyChanged(nameof(NoPreview));
+        OnPropertyChanged(nameof(NoFile));
+        OnPropertyChanged(nameof(FileInfoText));
+        OnPropertyChanged(nameof(SkippedText));
+        OnPropertyChanged(nameof(HasSkipped));
+        OnPropertyChanged(nameof(Steps));
         OnPropertyChanged(nameof(Items));
         OnPropertyChanged(nameof(FileName));
         OnPropertyChanged(nameof(Summary));
