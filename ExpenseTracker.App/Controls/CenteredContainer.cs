@@ -1,10 +1,10 @@
 namespace ExpenseTracker.App.Controls;
 
-/// <summary>Keeps the content no wider than MaxContentWidth and next to the menu, so rows never stretch across a big monitor.</summary>
+/// <summary>Gives the page content the whole width next to the menu (or at most MaxContentWidth), so the side column stays at the right edge.</summary>
 public sealed class CenteredContainer : ContentView
 {
     public static readonly BindableProperty MaxContentWidthProperty = BindableProperty.Create(
-        nameof(MaxContentWidth), typeof(double), typeof(CenteredContainer), 1200d);
+        nameof(MaxContentWidth), typeof(double), typeof(CenteredContainer), double.MaxValue);
 
     public double MaxContentWidth
     {
@@ -18,7 +18,7 @@ public sealed class CenteredContainer : ContentView
 
         if (Content is not View view || width <= 0) return;
 
-        view.HorizontalOptions = LayoutOptions.Start;
+        view.HorizontalOptions = LayoutOptions.Fill;
         view.WidthRequest = Math.Max(0, Math.Min(MaxContentWidth, width - Padding.HorizontalThickness));
     }
 }
