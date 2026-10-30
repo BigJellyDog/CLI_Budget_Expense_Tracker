@@ -2,6 +2,7 @@
 <ContentPage
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:loc="clr-namespace:ExpenseTracker.App.Services"
     xmlns:vm="clr-namespace:ExpenseTracker.App.ViewModels"
     xmlns:models="clr-namespace:ExpenseTracker.App.Models"
     xmlns:core="clr-namespace:CLI_Budget_Expense_Tracker.Core.Models;assembly=CLI_Budget_Expense_Tracker.Core"
@@ -18,14 +19,14 @@
 
         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
             <Label
-                Text="Auto-categorization rules"
+                Text="{loc:Tr Key='Auto-categorization rules'}"
                 FontSize="24"
                 FontAttributes="Bold"
                 VerticalOptions="Center" />
 
             <Button
                 Grid.Column="1"
-                Text="Refresh"
+                Text="{loc:Tr Key='Refresh'}"
                 Clicked="OnRefreshClicked"
                 IsEnabled="{Binding CanRefresh}" />
         </Grid>
@@ -36,11 +37,11 @@
             IsEnabled="{Binding CanEdit}">
 
             <Label
-                Text="When the description of a bank record contains the text, the CSV import preview puts it into the chosen category. Upper and lower case do not matter. If several rules fit, the longest text wins."
+                Text="{loc:Tr Key='When the description of a bank record contains the text, the CSV import preview puts it into the chosen category. Upper and lower case do not matter. If several rules fit, the longest text wins.'}"
                 FontSize="12" />
 
             <Label
-                Text="Create a category on the Categories screen first."
+                Text="{loc:Tr Key='Create a category on the Categories screen first.'}"
                 IsVisible="{Binding ShowNoCategories}" />
 
             <Grid
@@ -48,19 +49,19 @@
                 ColumnSpacing="12">
 
                 <Entry
-                    Placeholder="Contains, e.g. LIDL"
+                    Placeholder="{loc:Tr Key='Contains, e.g. LIDL'}"
                     Text="{Binding PatternText, Mode=TwoWay}" />
 
                 <Picker
                     Grid.Column="1"
-                    Title="Category"
+                    Title="{loc:Tr Key='Category'}"
                     ItemsSource="{Binding Categories}"
                     ItemDisplayBinding="{Binding Name, x:DataType=core:Category}"
                     SelectedItem="{Binding SelectedCategory, Mode=TwoWay}" />
 
                 <Button
                     Grid.Column="2"
-                    Text="Add rule"
+                    Text="{loc:Tr Key='Add rule'}"
                     Style="{StaticResource PrimaryButton}"
                     Clicked="OnAddClicked" />
             </Grid>
@@ -90,7 +91,7 @@
 
             <CollectionView.EmptyView>
                 <Label
-                    Text="No rules yet. Add your first rule above."
+                    Text="{loc:Tr Key='No rules yet. Add your first rule above.'}"
                     Margin="24"
                     HorizontalTextAlignment="Center" />
             </CollectionView.EmptyView>
@@ -122,10 +123,9 @@
 
                             <Button
                                 Grid.Column="2"
-                                Text="Delete"
+                                Text="{loc:Tr Key='Delete'}"
                                 Clicked="OnDeleteClicked"
-                                BackgroundColor="{DynamicResource Danger}"
-                                TextColor="{DynamicResource Bg}" />
+                                    Style="{StaticResource DangerButton}" />
                         </Grid>
                     </Border>
                 </DataTemplate>

@@ -2,6 +2,7 @@
 <ContentPage
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:loc="clr-namespace:ExpenseTracker.App.Services"
     xmlns:vm="clr-namespace:ExpenseTracker.App.ViewModels"
     xmlns:core="clr-namespace:CLI_Budget_Expense_Tracker.Core.Models;assembly=CLI_Budget_Expense_Tracker.Core"
     x:Class="ExpenseTracker.App.Views.CategoriesPage"
@@ -18,20 +19,20 @@
 
         <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
             <Label
-                Text="Categories"
+                Text="{loc:Tr Key='Categories'}"
                 FontSize="26"
                 FontFamily="ManropeExtraBold"
                 VerticalOptions="Center" />
 
             <Button
                 Grid.Column="1"
-                Text="Auto-categorization rules"
+                Text="{loc:Tr Key='Auto-categorization rules'}"
                 Clicked="OnRulesClicked"
                 IsEnabled="{Binding CanRefresh}" />
 
             <Button
                 Grid.Column="2"
-                Text="Refresh"
+                Text="{loc:Tr Key='Refresh'}"
                 Clicked="OnRefreshClicked"
                 IsEnabled="{Binding CanRefresh}" />
         </Grid>
@@ -51,7 +52,7 @@
 
                 <Entry
                     x:Name="CategoryNameEntry"
-                    Placeholder="Category name"
+                    Placeholder="{loc:Tr Key='Category name'}"
                     Text="{Binding NameText, Mode=TwoWay}" />
 
                 <Button
@@ -62,7 +63,7 @@
 
                 <Button
                     Grid.Column="2"
-                    Text="Cancel"
+                    Text="{loc:Tr Key='Cancel'}"
                     Clicked="OnCancelClicked"
                     IsVisible="{Binding IsEditing}" />
             </Grid>
@@ -92,7 +93,7 @@
 
             <CollectionView.EmptyView>
                 <Label
-                    Text="No categories yet. Create your first category above."
+                    Text="{loc:Tr Key='No categories yet. Create your first category above.'}"
                     Margin="24"
                     HorizontalTextAlignment="Center" />
             </CollectionView.EmptyView>
@@ -117,15 +118,14 @@
 
                             <Button
                                 Grid.Column="1"
-                                Text="Rename"
+                                Text="{loc:Tr Key='Rename'}"
                                 Clicked="OnRenameClicked" />
 
                             <Button
                                 Grid.Column="2"
-                                Text="Delete"
+                                Text="{loc:Tr Key='Delete'}"
                                 Clicked="OnDeleteClicked"
-                                BackgroundColor="{DynamicResource Danger}"
-                                TextColor="{DynamicResource Bg}" />
+                                    Style="{StaticResource DangerButton}" />
                         </Grid>
 
                     </Border>

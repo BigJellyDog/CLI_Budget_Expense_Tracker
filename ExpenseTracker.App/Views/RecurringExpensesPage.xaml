@@ -2,6 +2,8 @@
 <ContentPage
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:loc="clr-namespace:ExpenseTracker.App.Services"
+    xmlns:sys="clr-namespace:System;assembly=System.Runtime"
     xmlns:vm="clr-namespace:ExpenseTracker.App.ViewModels"
     xmlns:models="clr-namespace:ExpenseTracker.App.Models"
     xmlns:core="clr-namespace:CLI_Budget_Expense_Tracker.Core.Models;assembly=CLI_Budget_Expense_Tracker.Core"
@@ -22,20 +24,20 @@
             ColumnSpacing="12">
 
             <Label
-                Text="Recurring expenses"
+                Text="{loc:Tr Key='Recurring expenses'}"
                 FontSize="26"
                 FontFamily="ManropeExtraBold"
                 VerticalOptions="Center" />
 
             <Button
                 Grid.Column="1"
-                Text="Refresh"
+                Text="{loc:Tr Key='Refresh'}"
                 Clicked="OnRefreshClicked"
                 IsEnabled="{Binding CanRefresh}" />
 
             <Button
                 Grid.Column="2"
-                Text="Generate due expenses"
+                Text="{loc:Tr Key='Generate due expenses'}"
                 Clicked="OnGenerateClicked"
                 IsEnabled="{Binding CanRefresh}" />
         </Grid>
@@ -56,7 +58,7 @@
                 TextColor="{DynamicResource Success}" />
 
             <Label
-                Text="Create a category on the Categories screen first."
+                Text="{loc:Tr Key='Create a category on the Categories screen first.'}"
                 IsVisible="{Binding ShowNoCategories}" />
         </VerticalStackLayout>
 
@@ -76,29 +78,30 @@
                         Spacing="10"
                         IsEnabled="{Binding CanEdit}">
 
-                        <Label Text="Category" />
+                        <Label Text="{loc:Tr Key='Category'}" />
 
                         <Picker
-                            Title="Choose a category"
+                            Title="{loc:Tr Key='Choose a category'}"
                             ItemsSource="{Binding Categories}"
                             ItemDisplayBinding="{Binding Name, x:DataType=core:Category}"
                             SelectedItem="{Binding SelectedCategory, Mode=TwoWay}" />
 
-                        <Label Text="Amount per occurrence" />
+                        <Label Text="{loc:Tr Key='Amount per occurrence'}" />
 
                         <Entry
                             Placeholder="12.50"
                             Keyboard="Numeric"
                             Text="{Binding AmountText, Mode=TwoWay}" />
 
-                        <Label Text="Frequency" />
+                        <Label Text="{loc:Tr Key='Frequency'}" />
 
                         <Picker
-                            Title="Choose a frequency"
+                            Title="{loc:Tr Key='Choose a frequency'}"
                             ItemsSource="{Binding Frequencies}"
+                            ItemDisplayBinding="{Binding ., x:DataType=sys:Object, Converter={x:Static loc:TrConverter.Instance}}"
                             SelectedItem="{Binding SelectedFrequency, Mode=TwoWay}" />
 
-                        <Label Text="Start date" />
+                        <Label Text="{loc:Tr Key='Start date'}" />
 
                         <DatePicker
                             Date="{Binding SelectedStartDate, Mode=TwoWay}"
@@ -110,7 +113,7 @@
                         <HorizontalStackLayout Spacing="8">
                             <CheckBox IsChecked="{Binding HasEndDate, Mode=TwoWay}" />
                             <Label
-                                Text="End date (optional)"
+                                Text="{loc:Tr Key='End date (optional)'}"
                                 VerticalOptions="Center" />
                         </HorizontalStackLayout>
 
@@ -121,7 +124,7 @@
                             IsEnabled="{Binding HasEndDate}"
                             Format="dd.MM.yyyy" />
 
-                        <Label Text="Description (optional)" />
+                        <Label Text="{loc:Tr Key='Description (optional)'}" />
 
                         <Editor
                             Text="{Binding Description, Mode=TwoWay}"
@@ -129,12 +132,12 @@
                             MinimumHeightRequest="80" />
 
                         <Label
-                            Text="Creating a schedule also generates due expenses through today. Past start dates include missed occurrences."
+                            Text="{loc:Tr Key='Creating a schedule also generates due expenses through today. Past start dates include missed occurrences.'}"
                             FontSize="12"
                             IsVisible="{Binding CanChangeStartDate}" />
 
                         <Label
-                            Text="Changes apply to future expenses only. Expenses created earlier are not changed. A new frequency counts from the next due date."
+                            Text="{loc:Tr Key='Changes apply to future expenses only. Expenses created earlier are not changed. A new frequency counts from the next due date.'}"
                             FontSize="12"
                             IsVisible="{Binding IsEditing}" />
 
@@ -144,13 +147,13 @@
                             Clicked="OnSaveClicked" />
 
                         <Button
-                            Text="Cancel"
+                            Text="{loc:Tr Key='Cancel'}"
                             Clicked="OnCancelEditClicked"
                             IsVisible="{Binding IsEditing}" />
                     </VerticalStackLayout>
 
                     <Button
-                        Text="Add another schedule"
+                        Text="{loc:Tr Key='Add another schedule'}"
                         Clicked="OnAddAnotherClicked"
                         IsVisible="{Binding IsSaved}"
                         IsEnabled="{Binding CanStartNew}" />
@@ -165,7 +168,7 @@
 
                 <CollectionView.EmptyView>
                     <Label
-                        Text="No recurring expenses yet."
+                        Text="{loc:Tr Key='No recurring expenses yet.'}"
                         Margin="24"
                         HorizontalTextAlignment="Center" />
                 </CollectionView.EmptyView>
@@ -179,48 +182,61 @@
                             Stroke="{DynamicResource Border}"
                             BackgroundColor="{DynamicResource Surface}">
 
-                            <VerticalStackLayout Spacing="8">
-                                <Label
-                                    Text="{Binding CategoryName}"
-                                    FontAttributes="Bold" />
+                            <VerticalStackLayout Spacing="6">
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                    <Label
+                                        Text="{Binding CategoryName}"
+                                        FontSize="16"
+                                        FontFamily="ManropeExtraBold" />
 
-                                <Label Text="{Binding Summary}" />
+                                    <Label
+                                        Grid.Column="1"
+                                        Text="{Binding Summary}"
+                                        FontFamily="ManropeBold" />
+                                </Grid>
 
                                 <Label
                                     Text="{Binding Description}"
                                     LineBreakMode="TailTruncation" />
 
                                 <Label
-                                    Text="{Binding StartDate, StringFormat='Start: {0:dd.MM.yyyy}'}" />
+                                    Text="{Binding StartText}"
+                                    TextColor="{DynamicResource InkMuted}"
+                                    FontSize="12" />
 
-                                <Label Text="{Binding NextDueText}" />
+                                <Label
+                                    Text="{Binding NextDueText}"
+                                    TextColor="{DynamicResource InkMuted}"
+                                    FontSize="12" />
 
                                 <Label
                                     Text="{Binding EndText}"
-                                    IsVisible="{Binding HasEndDate}" />
+                                    IsVisible="{Binding HasEndDate}"
+                                    TextColor="{DynamicResource InkMuted}"
+                                    FontSize="12" />
 
-                                <Button
-                                    Text="Edit"
-                                    Clicked="OnEditClicked" />
-                                
-                                <Button
-                                    Text="Deactivate"
-                                    Clicked="OnDeactivateClicked"
-                                    IsVisible="{Binding IsActive}"
-                                    BackgroundColor="{DynamicResource Danger}"
-                                    TextColor="{DynamicResource Bg}" />
+                                <HorizontalStackLayout Spacing="8" Margin="0,8,0,0">
+                                    <Button
+                                        Text="{loc:Tr Key='Edit'}"
+                                        Clicked="OnEditClicked" />
 
-                                <Button
-                                    Text="Reactivate"
-                                    Clicked="OnReactivateClicked"
-                                    IsVisible="{Binding IsInactive}" />
+                                    <Button
+                                        Text="{loc:Tr Key='Deactivate'}"
+                                        Clicked="OnDeactivateClicked"
+                                        IsVisible="{Binding IsActive}"
+                                        Style="{StaticResource DangerButton}" />
 
-                                <Button
-                                    Text="Delete"
-                                    Clicked="OnDeleteClicked"
-                                    IsVisible="{Binding IsInactive}"
-                                    BackgroundColor="{DynamicResource Danger}"
-                                    TextColor="{DynamicResource Bg}" />
+                                    <Button
+                                        Text="{loc:Tr Key='Reactivate'}"
+                                        Clicked="OnReactivateClicked"
+                                        IsVisible="{Binding IsInactive}" />
+
+                                    <Button
+                                        Text="{loc:Tr Key='Delete'}"
+                                        Clicked="OnDeleteClicked"
+                                        IsVisible="{Binding IsInactive}"
+                                        Style="{StaticResource DangerButton}" />
+                                </HorizontalStackLayout>
                             </VerticalStackLayout>
                         </Border>
                     </DataTemplate>

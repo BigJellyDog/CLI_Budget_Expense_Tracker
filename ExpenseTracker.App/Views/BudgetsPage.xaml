@@ -2,6 +2,7 @@
 <ContentPage
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:loc="clr-namespace:ExpenseTracker.App.Services"
     xmlns:vm="clr-namespace:ExpenseTracker.App.ViewModels"
     xmlns:models="clr-namespace:ExpenseTracker.App.Models"
     xmlns:core="clr-namespace:CLI_Budget_Expense_Tracker.Core.Models;assembly=CLI_Budget_Expense_Tracker.Core"
@@ -15,7 +16,7 @@
     <Grid RowDefinitions="Auto,*">
 
         <Label
-            Text="Budgets"
+            Text="{loc:Tr Key='Budgets'}"
             FontSize="26"
             FontFamily="ManropeExtraBold"
             Padding="24,24,24,0" />
@@ -31,7 +32,7 @@
                 ColumnSpacing="12">
 
                 <Button
-                    Text="Previous"
+                    Text="{loc:Tr Key='Previous'}"
                     Clicked="OnPreviousClicked"
                     IsEnabled="{Binding CanPreviousMonth}" />
 
@@ -45,13 +46,13 @@
 
                 <Button
                     Grid.Column="2"
-                    Text="Next"
+                    Text="{loc:Tr Key='Next'}"
                     Clicked="OnNextClicked"
                     IsEnabled="{Binding CanNextMonth}" />
 
                 <Button
                     Grid.Column="3"
-                    Text="Refresh"
+                    Text="{loc:Tr Key='Refresh'}"
                     Clicked="OnRefreshClicked"
                     IsEnabled="{Binding CanRefresh}" />
             </Grid>
@@ -62,11 +63,11 @@
                 IsEnabled="{Binding CanEdit}">
 
                 <Label
-                    Text="Set a limit for this month"
+                    Text="{loc:Tr Key='Set a limit for this month'}"
                     FontAttributes="Bold" />
 
                 <Picker
-                    Title="Choose a category"
+                    Title="{loc:Tr Key='Choose a category'}"
                     ItemsSource="{Binding Categories}"
                     ItemDisplayBinding="{Binding Name, x:DataType=core:Category}"
                     SelectedItem="{Binding SelectedCategory, Mode=TwoWay}" />
@@ -77,21 +78,21 @@
 
                     <Entry
                         x:Name="LimitEntry"
-                        Placeholder="Monthly limit, for example 300"
+                        Placeholder="{loc:Tr Key='Monthly limit, for example 300'}"
                         Keyboard="Numeric"
                         Text="{Binding LimitText, Mode=TwoWay}"
                         IsEnabled="{Binding CanSave}" />
 
                     <Button
                         Grid.Column="1"
-                        Text="Save limit"
+                        Text="{loc:Tr Key='Save limit'}"
                         Style="{StaticResource PrimaryButton}"
                         Clicked="OnSaveClicked"
                         IsEnabled="{Binding CanSave}" />
                 </Grid>
 
                 <Label
-                    Text="A limit of 0 means no spending is budgeted for this category."
+                    Text="{loc:Tr Key='A limit of 0 means no spending is budgeted for this category.'}"
                     FontSize="12" />
             </VerticalStackLayout>
 
@@ -111,7 +112,7 @@
                     TextColor="{DynamicResource Success}" />
 
                 <Label
-                    Text="Create a category on the Categories screen first."
+                    Text="{loc:Tr Key='Create a category on the Categories screen first.'}"
                     IsVisible="{Binding ShowNoCategories}" />
             </VerticalStackLayout>
 
@@ -123,7 +124,7 @@
 
                 <CollectionView.EmptyView>
                     <Label
-                        Text="No budgets set for this month."
+                        Text="{loc:Tr Key='No budgets set for this month.'}"
                         Margin="24"
                         HorizontalTextAlignment="Center" />
                 </CollectionView.EmptyView>
@@ -179,16 +180,15 @@
 
                                 <Button
                                     Grid.Column="1"
-                                    Text="Edit"
+                                    Text="{loc:Tr Key='Edit'}"
                                     Clicked="OnEditClicked"
                                     VerticalOptions="Center" />
                                 <Button
                                     Grid.Column="2"
-                                    Text="Remove limit"
+                                    Text="{loc:Tr Key='Remove limit'}"
                                     Clicked="OnRemoveLimitClicked"
                                     VerticalOptions="Center"
-                                    BackgroundColor="{DynamicResource Danger}"
-                                    TextColor="{DynamicResource Bg}" />
+                                    Style="{StaticResource DangerButton}" />
                             </Grid>
                         </Border>
                     </DataTemplate>

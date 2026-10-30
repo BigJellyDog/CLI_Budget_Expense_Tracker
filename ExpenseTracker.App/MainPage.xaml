@@ -2,6 +2,7 @@
 <ContentPage
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:loc="clr-namespace:ExpenseTracker.App.Services"
     xmlns:vm="clr-namespace:ExpenseTracker.App.ViewModels"
     xmlns:models="clr-namespace:ExpenseTracker.App.Models"
     xmlns:controls="clr-namespace:ExpenseTracker.App.Controls"
@@ -20,7 +21,7 @@
         <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
 
             <Label
-                Text="Expenses"
+                Text="{loc:Tr Key='Expenses'}"
                 FontSize="26"
                 FontFamily="ManropeExtraBold"
                 VerticalOptions="Center" />
@@ -50,7 +51,7 @@
 
             <controls:PillButton
                 Grid.Column="2"
-                Text="Add expense"
+                Text="{loc:Tr Key='Add expense'}"
                 Icon="{x:Static controls:Icons.Plus}"
                 IsPrimary="True"
                 Clicked="OnAddExpenseClicked" />
@@ -114,7 +115,7 @@
             <Border Grid.Column="2" Padding="18,16" StrokeThickness="0">
                 <VerticalStackLayout Spacing="4">
                     <Label
-                        Text="Budgets"
+                        Text="{loc:Tr Key='Budgets'}"
                         FontSize="12"
                         FontFamily="ManropeSemiBold"
                         TextColor="{DynamicResource InkMuted}" />
@@ -156,7 +157,7 @@
 
             <Grid RowDefinitions="Auto,Auto,Auto,Auto,*" RowSpacing="8">
 
-                <Grid ColumnDefinitions="*,150,170,190" ColumnSpacing="8" Padding="6,6,6,0">
+                <Grid ColumnDefinitions="*,150,170,215" ColumnSpacing="8" Padding="6,6,6,0">
 
                     <Border
                         StrokeThickness="0"
@@ -172,7 +173,7 @@
                                 HeightRequest="16" />
                             <Entry
                                 Grid.Column="1"
-                                Placeholder="Search description"
+                                Placeholder="{loc:Tr Key='Search description'}"
                                 BackgroundColor="Transparent"
                                 VerticalOptions="Center"
                                 Text="{Binding SearchText, Mode=TwoWay}"
@@ -252,48 +253,48 @@
 
                 <Grid
                     Grid.Row="2"
-                    ColumnDefinitions="130,130,Auto,Auto,*,Auto,Auto,Auto"
+                    ColumnDefinitions="104,104,Auto,Auto,*,Auto,Auto,Auto"
                     ColumnSpacing="8"
                     Padding="6,0">
 
                     <Entry
-                        Placeholder="Min amount"
+                        Placeholder="{loc:Tr Key='Min amount'}"
                         Keyboard="Numeric"
                         Text="{Binding MinAmountText, Mode=TwoWay}"
                         Completed="OnApplyFiltersClicked" />
 
                     <Entry
                         Grid.Column="1"
-                        Placeholder="Max amount"
+                        Placeholder="{loc:Tr Key='Max amount'}"
                         Keyboard="Numeric"
                         Text="{Binding MaxAmountText, Mode=TwoWay}"
                         Completed="OnApplyFiltersClicked" />
 
                     <controls:PillButton
                         Grid.Column="2"
-                        Text="Apply"
+                        Text="{loc:Tr Key='Apply'}"
                         Clicked="OnApplyFiltersClicked" />
 
                     <controls:PillButton
                         Grid.Column="3"
-                        Text="Reset"
+                        Text="{loc:Tr Key='Reset'}"
                         Clicked="OnResetFiltersClicked" />
 
                     <controls:PillButton
                         Grid.Column="5"
-                        Text="CSV"
+                        Text="{loc:Tr Key='CSV'}"
                         Icon="{x:Static controls:Icons.Download}"
                         Clicked="OnExportCsvClicked" />
 
                     <controls:PillButton
                         Grid.Column="6"
-                        Text="Markdown"
+                        Text="{loc:Tr Key='Markdown'}"
                         Icon="{x:Static controls:Icons.File}"
                         Clicked="OnExportMarkdownClicked" />
 
                     <controls:PillButton
                         Grid.Column="7"
-                        Text="Backup"
+                        Text="{loc:Tr Key='Backup'}"
                         Icon="{x:Static controls:Icons.Database}"
                         Clicked="OnBackupClicked" />
                 </Grid>
@@ -314,7 +315,7 @@
 
                     <CollectionView.EmptyView>
                         <Label
-                            Text="No expenses for this period and filters."
+                            Text="{loc:Tr Key='No expenses for this period and filters.'}"
                             Margin="24"
                             TextColor="{DynamicResource InkMuted}"
                             HorizontalTextAlignment="Center" />

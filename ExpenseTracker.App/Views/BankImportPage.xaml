@@ -2,6 +2,7 @@
 <ContentPage
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:loc="clr-namespace:ExpenseTracker.App.Services"
     xmlns:vm="clr-namespace:ExpenseTracker.App.ViewModels"
     xmlns:models="clr-namespace:ExpenseTracker.App.Models"
     xmlns:core="clr-namespace:CLI_Budget_Expense_Tracker.Core.Models;assembly=CLI_Budget_Expense_Tracker.Core"
@@ -15,7 +16,7 @@
     <Grid RowDefinitions="Auto,*">
 
         <Label
-            Text="Import CSV"
+            Text="{loc:Tr Key='Import CSV'}"
             FontSize="26"
             FontFamily="ManropeExtraBold"
             Padding="24,24,24,0" />
@@ -28,7 +29,7 @@
 
             <VerticalStackLayout Spacing="8">
                 <Picker
-                    Title="File format"
+                    Title="{loc:Tr Key='File format'}"
                     ItemsSource="{Binding Formats}"
                     ItemDisplayBinding="{Binding Name, x:DataType=models:ImportFormatOption}"
                     SelectedItem="{Binding SelectedFormat, Mode=TwoWay}"
@@ -36,19 +37,19 @@
 
                 <HorizontalStackLayout Spacing="12">
                     <Button
-                        Text="Choose CSV"
+                        Text="{loc:Tr Key='Choose CSV'}"
                         Clicked="OnChooseFileClicked"
                         IsEnabled="{Binding IsIdle}" />
 
                     <Button
-                        Text="Auto-categorization rules"
+                        Text="{loc:Tr Key='Auto-categorization rules'}"
                         Clicked="OnEditRulesClicked"
                         IsEnabled="{Binding IsIdle}" />
                 </HorizontalStackLayout>
 
                 <Label Text="{Binding FormatHint}" />
 
-                <Label Text="Choose a file, tick the records to import and set a category for each one (the default category is used until you change it), then press Import selected. Records already imported are skipped." />
+                <Label Text="{loc:Tr Key='Choose a file, tick the records to import and set a category for each one (the default category is used until you change it), then press Import selected. Records already imported are skipped.'}" />
 
                 <Label
                     Text="{Binding FileName}"
@@ -56,11 +57,11 @@
                     LineBreakMode="MiddleTruncation" />
 
                 <VerticalStackLayout Spacing="8" IsVisible="{Binding ShowMapping}">
-                    <Label Text="How is this file written?" FontAttributes="Bold" />
+                    <Label Text="{loc:Tr Key='How is this file written?'}" FontAttributes="Bold" />
 
                     <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12">
                         <Picker
-                            Title="Delimiter"
+                            Title="{loc:Tr Key='Delimiter'}"
                             ItemsSource="{Binding Custom.DelimiterOptions}"
                             ItemDisplayBinding="{Binding Name, x:DataType=models:DelimiterOption}"
                             SelectedItem="{Binding Custom.SelectedDelimiter, Mode=TwoWay}"
@@ -68,61 +69,61 @@
 
                         <Picker
                             Grid.Column="1"
-                            Title="Number format"
+                            Title="{loc:Tr Key='Number format'}"
                             ItemsSource="{Binding Custom.CultureOptions}"
                             ItemDisplayBinding="{Binding Label, x:DataType=models:CultureOption}"
                             SelectedItem="{Binding Custom.SelectedCulture, Mode=TwoWay}" />
 
                         <Entry
                             Grid.Column="2"
-                            Placeholder="Date format"
+                            Placeholder="{loc:Tr Key='Date format'}"
                             Text="{Binding Custom.DateFormat, Mode=TwoWay}" />
                     </Grid>
 
                     <Label
-                        Text="Date format examples: yyyy-MM-dd, dd.MM.yyyy, MM/dd/yyyy (MM is the month, mm is minutes)."
+                        Text="{loc:Tr Key='Date format examples: yyyy-MM-dd, dd.MM.yyyy, MM/dd/yyyy (MM is the month, mm is minutes).'}"
                         FontSize="12" />
 
                     <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="12">
                         <Picker
-                            Title="Date column"
+                            Title="{loc:Tr Key='Date column'}"
                             ItemsSource="{Binding Custom.Headers}"
                             SelectedItem="{Binding Custom.SelectedDateColumn, Mode=TwoWay}" />
 
                         <Picker
                             Grid.Column="1"
-                            Title="Description column"
+                            Title="{loc:Tr Key='Description column'}"
                             ItemsSource="{Binding Custom.Headers}"
                             SelectedItem="{Binding Custom.SelectedDescriptionColumn, Mode=TwoWay}" />
 
                         <Picker
                             Grid.Column="2"
-                            Title="Amount column"
+                            Title="{loc:Tr Key='Amount column'}"
                             ItemsSource="{Binding Custom.Headers}"
                             SelectedItem="{Binding Custom.SelectedAmountColumn, Mode=TwoWay}" />
 
                         <Picker
                             Grid.Column="3"
-                            Title="Currency column"
+                            Title="{loc:Tr Key='Currency column'}"
                             ItemsSource="{Binding Custom.CurrencyHeaders}"
                             SelectedItem="{Binding Custom.SelectedCurrencyColumn, Mode=TwoWay}" />
                     </Grid>
 
                     <Grid ColumnDefinitions="*,140" ColumnSpacing="12">
                         <Picker
-                            Title="Sign of amounts"
+                            Title="{loc:Tr Key='Sign of amounts'}"
                             ItemsSource="{Binding Custom.SignOptions}"
                             ItemDisplayBinding="{Binding Label, x:DataType=models:SignOption}"
                             SelectedItem="{Binding Custom.SelectedSign, Mode=TwoWay}" />
 
                         <Entry
                             Grid.Column="1"
-                            Placeholder="Currency, e.g. EUR"
+                            Placeholder="{loc:Tr Key='Currency, e.g. EUR'}"
                             Text="{Binding Custom.DefaultCurrency, Mode=TwoWay}" />
                     </Grid>
 
                     <Button
-                        Text="Show preview"
+                        Text="{loc:Tr Key='Show preview'}"
                         Clicked="OnShowPreviewClicked"
                         HorizontalOptions="Start" />
                 </VerticalStackLayout>
@@ -141,11 +142,11 @@
                     FontAttributes="Bold" />
 
                 <Label
-                    Text="Create a category on the Categories screen first, then choose the file again."
+                    Text="{loc:Tr Key='Create a category on the Categories screen first, then choose the file again.'}"
                     IsVisible="{Binding NeedsCategory}" />
 
                 <Picker
-                    Title="Default category for all records"
+                    Title="{loc:Tr Key='Default category for all records'}"
                     ItemsSource="{Binding Categories}"
                     ItemDisplayBinding="{Binding Name, x:DataType=core:Category}"
                     SelectedItem="{Binding SelectedCategory, Mode=TwoWay}" />
@@ -155,7 +156,7 @@
                     FontAttributes="Bold" />
 
                 <Button
-                    Text="Import selected"
+                    Text="{loc:Tr Key='Import selected'}"
                     Style="{StaticResource PrimaryButton}"
                     Clicked="OnImportClicked"
                     IsEnabled="{Binding CanImport}"
@@ -186,7 +187,7 @@
 
                 <CollectionView.EmptyView>
                     <Label
-                        Text="The statement contains no transactions."
+                        Text="{loc:Tr Key='The statement contains no transactions.'}"
                         Margin="24"
                         HorizontalTextAlignment="Center" />
                 </CollectionView.EmptyView>
@@ -253,7 +254,7 @@
                                     Grid.Row="5"
                                     Grid.Column="1"
                                     Grid.ColumnSpan="2"
-                                    Title="Category"
+                                    Title="{loc:Tr Key='Category'}"
                                     ItemsSource="{Binding Categories}"
                                     ItemDisplayBinding="{Binding Name, x:DataType=core:Category}"
                                     SelectedItem="{Binding Category, Mode=TwoWay}"
