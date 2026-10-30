@@ -121,6 +121,3 @@ Open:
 - [ ] Windows release build (packaging).
 - [ ] Demo data for screenshots.
 - [ ] Translating the messages that come from the Core project.
-
-The original task list is in
-[`ExpenseTracker.App/ExpenseTracker-TZ-v3.md`](../../ExpenseTracker.App/ExpenseTracker-TZ-v3.md) (Russian).

@@ -122,6 +122,3 @@ Offen:
 - [ ] Windows-Release-Build (Paketierung).
 - [ ] Demodaten für Screenshots.
 - [ ] Übersetzung der Meldungen aus dem Core-Projekt.
-
-Die ursprüngliche Aufgabenliste steht in
-[`ExpenseTracker.App/ExpenseTracker-TZ-v3.md`](../../ExpenseTracker.App/ExpenseTracker-TZ-v3.md) (auf Russisch).

@@ -84,9 +84,3 @@ The database is created and upgraded automatically on the first start.
 | `CLI_Budget_Expense_Tracker.Core` | models, services and interfaces; knows nothing about EF Core or the UI |
 | `CLI_Budget_Expense_Tracker.Infrastructure` | EF Core and SQLite, migrations, repositories, CSV import and export, backups |
 | `ExpenseTracker.App` | the .NET MAUI application: views, view models, controls, services |
-
-## Status
-
-The application works end to end. Not done yet: automated tests, a Windows release build and demo data
-for screenshots. The detailed plan is in
-[`ExpenseTracker.App/ExpenseTracker-TZ-v3.md`](ExpenseTracker.App/ExpenseTracker-TZ-v3.md) (in Russian).
