@@ -8,6 +8,8 @@ public sealed class SettingsViewModel(
     AppSettings settings,
     ThemeService theme,
     DemoDataService demoData,
+    StandardCategories standardCategories,
+    AppInitializer initializer,
     ILogger<SettingsViewModel> logger) : ObservableObject
 {
     public IReadOnlyList<ThemeMode> ModeOptions { get; } = Enum.GetValues<ThemeMode>();
@@ -19,17 +21,18 @@ public sealed class SettingsViewModel(
     public LanguageOption SelectedLanguage { get; set; } =
         Loc.Languages.First(x => x.Code == settings.Language);
 
-    /// <summary>Saves the language. True when it changed and the screens must be rebuilt.</summary>
-    public bool ApplyLanguage()
+    /// <summary>Saves the language and renames the standard categories. True when it changed and the screens must be rebuilt.</summary>
+    public async Task<bool> ApplyLanguageAsync()
     {
         if (SelectedLanguage.Code == settings.Language)
             return false;
+
+        var previous = settings.Language;
 
         try
         {
             settings.SetLanguage(SelectedLanguage.Code);
             Loc.SetLanguage(SelectedLanguage.Code);
-            return true;
         }
         catch (Exception exception)
         {
@@ -40,6 +43,19 @@ public sealed class SettingsViewModel(
             NotifyState();
             return false;
         }
+
+        try
+        {
+            await initializer.InitializeAsync();
+            await Task.Run(() => standardCategories.ChangeLanguageAsync(previous, SelectedLanguage.Code));
+        }
+        catch (Exception exception)
+        {
+            // The screens still change language; the categories keep their old names.
+            logger.LogError(exception, "Failed to rename the standard categories.");
+        }
+
+        return true;
     }
 
     public ThemeMode SelectedMode { get; set; } = settings.ThemeMode;

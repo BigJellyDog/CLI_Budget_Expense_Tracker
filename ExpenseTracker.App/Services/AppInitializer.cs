@@ -34,6 +34,13 @@ public sealed class AppInitializer(
             await using (var scope = scopeFactory.CreateAsyncScope())
             {
                 await scope.ServiceProvider
+                    .GetRequiredService<StandardCategories>()
+                    .SeedAsync();
+            }
+
+            await using (var scope = scopeFactory.CreateAsyncScope())
+            {
+                await scope.ServiceProvider
                     .GetRequiredService<IRecurringExpenseGenerator>()
                     .GenerateAsync();
             }

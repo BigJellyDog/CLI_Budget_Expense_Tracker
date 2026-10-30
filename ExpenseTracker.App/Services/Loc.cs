@@ -47,6 +47,17 @@ public static class Loc
         return string.IsNullOrEmpty(translated) ? text : translated;
     }
 
+    /// <summary>The text in the language with the given code, whatever the current language is.</summary>
+    public static string In(string code, string text)
+    {
+        var index = Array.IndexOf(Codes, code);
+
+        if (index <= 0 || !Translations.All.TryGetValue(text, out var row)) return text;
+
+        var translated = row[index - 1];
+        return string.IsNullOrEmpty(translated) ? text : translated;
+    }
+
     /// <summary>Translates the format, then fills it in.</summary>
     public static string F(string format, params object?[] args) =>
         string.Format(CultureInfo.CurrentCulture, T(format), args);

@@ -10,7 +10,8 @@ public sealed record SettingsData(
     string Accent = "Mint",
     string Language = "en",
     Dictionary<string, int>? CategoryColors = null,
-    Dictionary<string, string>? CategoryHex = null);
+    Dictionary<string, string>? CategoryHex = null,
+    bool StandardCategoriesSeeded = false);
 
 /// <summary>
 /// User settings kept in a small JSON file next to the database.
@@ -45,6 +46,9 @@ public sealed class AppSettings
 
     /// <summary>Code of the language of the screens: en, de, ru or uk.</summary>
     public string Language => _data.Language;
+
+    /// <summary>True once the standard categories were offered to this database (also when it had its own).</summary>
+    public bool StandardCategoriesSeeded => _data.StandardCategoriesSeeded;
 
     /// <summary>The color slot (0-5) the person picked for a category, by category name.</summary>
     public int? CategoryColor(string name) =>
@@ -82,6 +86,8 @@ public sealed class AppSettings
 
         Save(_data with { Language = code });
     }
+
+    public void MarkStandardCategoriesSeeded() => Save(_data with { StandardCategoriesSeeded = true });
 
     /// <summary>The category uses a color of the palette; a custom color it had is dropped.</summary>
     public void SetCategoryColor(string name, int slot)

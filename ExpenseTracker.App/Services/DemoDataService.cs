@@ -96,8 +96,11 @@ public sealed class DemoDataService(
 
         var created = 0;
 
-        async Task<Guid> CategoryAsync(string name)
+        // The standard categories carry their names in the language of the screens, so the demo uses those.
+        async Task<Guid> CategoryAsync(string englishName)
         {
+            var name = Loc.T(englishName);
+
             if (existing.TryGetValue(name, out var id)) return id;
 
             var category = await categoryService.AddAsync(name, cancellationToken);

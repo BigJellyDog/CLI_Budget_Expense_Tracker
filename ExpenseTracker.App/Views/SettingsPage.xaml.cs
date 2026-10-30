@@ -35,20 +35,23 @@ public partial class SettingsPage : ContentPage
         _viewModel.ApplyAppearance();
     }
 
-    private void OnLanguageChanged(object? sender, EventArgs e)
+    private async void OnLanguageChanged(object? sender, EventArgs e)
     {
         if (LanguagePicker.SelectedItem is not LanguageOption language)
             return;
 
         _viewModel.SelectedLanguage = language;
 
-        if (!_viewModel.ApplyLanguage())
+        if (!await _viewModel.ApplyLanguageAsync())
             return;
 
         // Every page reads its texts when it is built, so the shell is built again.
         Dispatcher.Dispatch(() =>
         {
             if (Window is null) return;
+
+            // The culture belongs to the thread; set it again here so month names and numbers follow at once.
+            Loc.SetLanguage(language.Code);
 
             var shell = new AppShell();
             Window.Page = shell;
