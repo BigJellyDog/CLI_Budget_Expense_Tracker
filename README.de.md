@@ -84,3 +84,7 @@ Die Datenbank wird beim ersten Start automatisch angelegt und aktualisiert.
 | `CLI_Budget_Expense_Tracker.Core` | Modelle, Dienste und Schnittstellen; kennt weder EF Core noch die Oberfläche |
 | `CLI_Budget_Expense_Tracker.Infrastructure` | EF Core und SQLite, Migrationen, Repositories, CSV-Import und -Export, Sicherungen |
 | `ExpenseTracker.App` | die .NET-MAUI-Anwendung: Views, ViewModels, Steuerelemente, Dienste |
+
+## Lizenz
+
+MIT, siehe [LICENSE](LICENSE). Komponenten Dritter: [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
