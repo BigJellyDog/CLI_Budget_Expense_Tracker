@@ -12,383 +12,558 @@
     Shell.NavBarIsVisible="False"
     BackgroundColor="{DynamicResource Bg}">
 
-    <Grid
-        Padding="12,20,24,20"
-        RowDefinitions="Auto,Auto,Auto,*"
-        RowSpacing="14">
+    <controls:CenteredContainer Padding="40,28,40,24">
+        <Grid RowDefinitions="Auto,*" RowSpacing="20">
 
-        <!-- Title, month switch, main action -->
-        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
+            <!-- Title, month switch, export, main action -->
+            <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="12">
 
-            <Label
-                Text="{loc:Tr Key='Expenses'}"
-                FontSize="26"
-                FontFamily="ManropeExtraBold"
-                VerticalOptions="Center" />
-
-            <Border
-                Grid.Column="1"
-                Padding="4"
-                StrokeThickness="0"
-                StrokeShape="RoundRectangle 22"
-                BackgroundColor="{DynamicResource Surface}"
-                VerticalOptions="Center">
-
-                <HorizontalStackLayout Spacing="2">
-                    <controls:IconButton Icon="{x:Static controls:Icons.ChevronLeft}" Clicked="OnPreviousClicked" />
-
+                <VerticalStackLayout VerticalOptions="Center" Spacing="2">
                     <Label
-                        Text="{Binding PeriodTitle}"
-                        FontFamily="ManropeBold"
-                        WidthRequest="150"
-                        HorizontalTextAlignment="Center"
-                        VerticalOptions="Center" />
-
-                    <controls:IconButton Icon="{x:Static controls:Icons.ChevronRight}" Clicked="OnNextClicked" />
-                    <controls:IconButton Icon="{x:Static controls:Icons.Refresh}" Clicked="OnRefreshClicked" />
-                </HorizontalStackLayout>
-            </Border>
-
-            <controls:PillButton
-                Grid.Column="2"
-                Text="{loc:Tr Key='Add expense'}"
-                Icon="{x:Static controls:Icons.Plus}"
-                IsPrimary="True"
-                Clicked="OnAddExpenseClicked" />
-        </Grid>
-
-        <!-- Summary cards -->
-        <Grid
-            Grid.Row="1"
-            ColumnDefinitions="1.4*,*,*"
-            ColumnSpacing="12"
-            IsVisible="{Binding ShowResults}">
-
-            <Border Padding="18,16" StrokeThickness="0">
-                <VerticalStackLayout Spacing="4">
-                    <Label
-                        Text="{Binding SpentTitle}"
-                        FontSize="12"
-                        FontFamily="ManropeSemiBold"
-                        TextColor="{DynamicResource InkMuted}" />
-                    <Label
-                        Text="{Binding SpentText}"
-                        FontSize="24"
-                        FontFamily="ManropeExtraBold" />
-                    <controls:StackBar
-                        Segments="{Binding Segments}"
-                        Margin="0,8,0,0" />
-                </VerticalStackLayout>
-            </Border>
-
-            <Border Grid.Column="1" Padding="18,16" StrokeThickness="0">
-                <VerticalStackLayout Spacing="4">
-                    <Label
-                        Text="{Binding DeltaTitle}"
-                        FontSize="12"
-                        FontFamily="ManropeSemiBold"
-                        TextColor="{DynamicResource InkMuted}" />
-                    <Label
-                        Text="{Binding DeltaPercentText}"
-                        FontSize="24"
-                        FontFamily="ManropeExtraBold">
-                        <Label.Triggers>
-                            <DataTrigger TargetType="Label" Binding="{Binding DeltaIsUp}" Value="True">
-                                <Setter Property="TextColor" Value="{DynamicResource Danger}" />
-                            </DataTrigger>
-                        </Label.Triggers>
-                    </Label>
-                    <Label
-                        Text="{Binding DeltaAmountText}"
-                        FontSize="12"
-                        FontFamily="ManropeSemiBold"
-                        TextColor="{DynamicResource Success}">
-                        <Label.Triggers>
-                            <DataTrigger TargetType="Label" Binding="{Binding DeltaIsUp}" Value="True">
-                                <Setter Property="TextColor" Value="{DynamicResource Danger}" />
-                            </DataTrigger>
-                        </Label.Triggers>
-                    </Label>
-                </VerticalStackLayout>
-            </Border>
-
-            <Border Grid.Column="2" Padding="18,16" StrokeThickness="0">
-                <VerticalStackLayout Spacing="4">
-                    <Label
-                        Text="{loc:Tr Key='Budgets'}"
-                        FontSize="12"
-                        FontFamily="ManropeSemiBold"
-                        TextColor="{DynamicResource InkMuted}" />
-                    <Label
-                        Text="{Binding BudgetsText}"
-                        FontSize="24"
+                        Text="{loc:Tr Key='Expenses'}"
+                        FontSize="28"
                         FontFamily="ManropeExtraBold" />
                     <Label
-                        Text="{Binding BudgetsCaption}"
-                        FontSize="12"
-                        FontFamily="ManropeSemiBold"
-                        TextColor="{DynamicResource InkMuted}">
-                        <Label.Triggers>
-                            <DataTrigger TargetType="Label" Binding="{Binding BudgetsAreOver}" Value="True">
-                                <Setter Property="TextColor" Value="{DynamicResource Danger}" />
-                            </DataTrigger>
-                        </Label.Triggers>
-                    </Label>
+                        Text="{Binding Subtitle}"
+                        FontSize="13"
+                        TextColor="{DynamicResource InkMuted}" />
                 </VerticalStackLayout>
-            </Border>
-        </Grid>
 
-        <VerticalStackLayout Grid.Row="2" Spacing="6">
-            <ActivityIndicator
-                IsRunning="{Binding IsBusy}"
-                IsVisible="{Binding IsBusy}" />
+                <controls:MonthSwitch
+                    Grid.Column="1"
+                    Title="{Binding PeriodTitle}"
+                    Month="{Binding Month}"
+                    PreviousClicked="OnPreviousClicked"
+                    NextClicked="OnNextClicked"
+                    MonthPicked="OnMonthPicked" />
 
-            <Label
-                Text="{Binding ErrorMessage}"
-                IsVisible="{Binding HasError}"
-                TextColor="{DynamicResource Danger}" />
-        </VerticalStackLayout>
+                <controls:IconButton
+                    Grid.Column="2"
+                    Filled="True"
+                    Icon="{x:Static controls:Icons.Refresh}"
+                    Clicked="OnRefreshClicked" />
 
-        <!-- Filters and the list -->
-        <Border
-            Grid.Row="3"
-            Padding="8"
-            StrokeThickness="0">
+                <controls:PillButton
+                    x:Name="ExportButton"
+                    Grid.Column="3"
+                    Text="{loc:Tr Key='Export'}"
+                    Icon="{x:Static controls:Icons.Download}"
+                    Clicked="OnExportClicked" />
 
-            <Grid RowDefinitions="Auto,Auto,Auto,Auto,*" RowSpacing="8">
+                <controls:PillButton
+                    Grid.Column="4"
+                    Text="{loc:Tr Key='Add expense'}"
+                    Icon="{x:Static controls:Icons.Plus}"
+                    IsPrimary="True"
+                    Clicked="OnAddExpenseClicked" />
+            </Grid>
 
-                <Grid ColumnDefinitions="*,150,170,215" ColumnSpacing="8" Padding="6,6,6,0">
+            <Grid
+                x:Name="Body"
+                Grid.Row="1"
+                ColumnDefinitions="*,360"
+                ColumnSpacing="20"
+                SizeChanged="OnBodySizeChanged">
 
-                    <Border
-                        StrokeThickness="0"
-                        StrokeShape="RoundRectangle 20"
-                        BackgroundColor="{DynamicResource Bg}"
-                        Padding="14,0"
-                        HeightRequest="40">
-                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
-                            <controls:IconView
-                                Data="{x:Static controls:Icons.Search}"
-                                Color="{DynamicResource InkMuted}"
-                                WidthRequest="16"
-                                HeightRequest="16" />
-                            <Entry
-                                Grid.Column="1"
-                                Placeholder="{loc:Tr Key='Search description'}"
-                                BackgroundColor="Transparent"
-                                VerticalOptions="Center"
-                                Text="{Binding SearchText, Mode=TwoWay}"
-                                Completed="OnApplyFiltersClicked" />
-                        </Grid>
-                    </Border>
+                <!-- Summary and the list -->
+                <Grid RowDefinitions="Auto,Auto,*" RowSpacing="20">
 
-                    <Border
-                        Grid.Column="1"
-                        StrokeThickness="0"
-                        StrokeShape="RoundRectangle 20"
-                        BackgroundColor="{DynamicResource Bg}"
-                        Padding="10,0"
-                        HeightRequest="40">
-                        <controls:DropDown
-                            BackgroundColor="Transparent"
-                            ItemsSource="{Binding PeriodOptions}"
-                            DisplayMember="Name"
-                            SelectedItem="{Binding SelectedPeriod, Mode=TwoWay}"
-                            SelectedIndexChanged="OnPeriodOrSortChanged"
-                            IsEnabled="{Binding CanChangeCategoryFilter}" />
-                    </Border>
+                    <Grid
+                        ColumnDefinitions="*,*,*"
+                        ColumnSpacing="16"
+                        IsVisible="{Binding ShowResults}">
 
-                    <Border
-                        Grid.Column="2"
-                        StrokeThickness="0"
-                        StrokeShape="RoundRectangle 20"
-                        BackgroundColor="{DynamicResource Bg}"
-                        Padding="10,0"
-                        HeightRequest="40">
-                        <controls:DropDown
-                            BackgroundColor="Transparent"
-                            ItemsSource="{Binding CategoryFilters}"
-                            DisplayMember="Name"
-                            SelectedItem="{Binding SelectedCategoryFilter, Mode=TwoWay}"
-                            SelectedIndexChanged="OnCategoryFilterChanged"
-                            IsEnabled="{Binding CanChangeCategoryFilter}" />
-                    </Border>
+                        <Border Padding="20,18">
+                            <VerticalStackLayout Spacing="4">
+                                <Label
+                                    Text="{Binding SpentTitle}"
+                                    FontSize="12"
+                                    FontFamily="ManropeSemiBold"
+                                    TextColor="{DynamicResource InkMuted}" />
+                                <Label
+                                    Text="{Binding SpentText}"
+                                    FontSize="26"
+                                    FontFamily="ManropeExtraBold" />
+                                <Label
+                                    Text="{Binding AveragePerDayText}"
+                                    FontSize="12"
+                                    FontFamily="ManropeSemiBold"
+                                    TextColor="{DynamicResource InkMuted}" />
+                            </VerticalStackLayout>
+                        </Border>
 
-                    <Border
-                        Grid.Column="3"
-                        StrokeThickness="0"
-                        StrokeShape="RoundRectangle 20"
-                        BackgroundColor="{DynamicResource Bg}"
-                        Padding="10,0"
-                        HeightRequest="40">
-                        <controls:DropDown
-                            BackgroundColor="Transparent"
-                            ItemsSource="{Binding SortOptions}"
-                            DisplayMember="Name"
-                            SelectedItem="{Binding SelectedSort, Mode=TwoWay}"
-                            SelectedIndexChanged="OnPeriodOrSortChanged"
-                            IsEnabled="{Binding CanChangeCategoryFilter}" />
-                    </Border>
-                </Grid>
+                        <Border Grid.Column="1" Padding="20,18">
+                            <VerticalStackLayout Spacing="4">
+                                <Label
+                                    Text="{Binding DeltaTitle}"
+                                    FontSize="12"
+                                    FontFamily="ManropeSemiBold"
+                                    TextColor="{DynamicResource InkMuted}" />
+                                <Label
+                                    Text="{Binding DeltaPercentText}"
+                                    FontSize="26"
+                                    FontFamily="ManropeExtraBold">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding DeltaIsUp}" Value="True">
+                                            <Setter Property="TextColor" Value="{DynamicResource Danger}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                                <Label
+                                    Text="{Binding DeltaAmountText}"
+                                    FontSize="12"
+                                    FontFamily="ManropeSemiBold"
+                                    TextColor="{DynamicResource Success}">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding DeltaIsUp}" Value="True">
+                                            <Setter Property="TextColor" Value="{DynamicResource Danger}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                            </VerticalStackLayout>
+                        </Border>
 
-                <Grid
-                    Grid.Row="1"
-                    ColumnDefinitions="*,*"
-                    ColumnSpacing="8"
-                    Padding="6,0"
-                    IsVisible="{Binding IsCustomPeriod}">
+                        <Border Grid.Column="2" Padding="20,18">
+                            <VerticalStackLayout Spacing="4">
+                                <Label
+                                    Text="{Binding ForecastTitle}"
+                                    FontSize="12"
+                                    FontFamily="ManropeSemiBold"
+                                    TextColor="{DynamicResource InkMuted}" />
+                                <Label
+                                    Text="{Binding ForecastText}"
+                                    FontSize="26"
+                                    FontFamily="ManropeExtraBold" />
+                                <Label
+                                    Text="{Binding ForecastCaption}"
+                                    FontSize="12"
+                                    FontFamily="ManropeSemiBold"
+                                    TextColor="{DynamicResource InkMuted}" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </Grid>
 
-                    <controls:DateField
-                        Date="{Binding CustomFrom, Mode=TwoWay}"
-                        MinimumDate="{x:Null}"
-                        MaximumDate="{x:Null}"
-                        Format="dd.MM.yyyy" />
+                    <VerticalStackLayout Grid.Row="1" Spacing="6">
+                        <ActivityIndicator
+                            IsRunning="{Binding IsBusy}"
+                            IsVisible="{Binding IsBusy}" />
 
-                    <controls:DateField
-                        Grid.Column="1"
-                        Date="{Binding CustomTo, Mode=TwoWay}"
-                        MinimumDate="{x:Null}"
-                        MaximumDate="{x:Null}"
-                        Format="dd.MM.yyyy" />
-                </Grid>
-
-                <Grid
-                    Grid.Row="2"
-                    ColumnDefinitions="104,104,Auto,Auto,*,Auto,Auto,Auto"
-                    ColumnSpacing="8"
-                    Padding="6,0">
-
-                    <Entry
-                        Placeholder="{loc:Tr Key='Min amount'}"
-                        Keyboard="Numeric"
-                        Text="{Binding MinAmountText, Mode=TwoWay}"
-                        Completed="OnApplyFiltersClicked" />
-
-                    <Entry
-                        Grid.Column="1"
-                        Placeholder="{loc:Tr Key='Max amount'}"
-                        Keyboard="Numeric"
-                        Text="{Binding MaxAmountText, Mode=TwoWay}"
-                        Completed="OnApplyFiltersClicked" />
-
-                    <controls:PillButton
-                        Grid.Column="2"
-                        Text="{loc:Tr Key='Apply'}"
-                        Clicked="OnApplyFiltersClicked" />
-
-                    <controls:PillButton
-                        Grid.Column="3"
-                        Text="{loc:Tr Key='Reset'}"
-                        Clicked="OnResetFiltersClicked" />
-
-                    <controls:PillButton
-                        Grid.Column="5"
-                        Text="{loc:Tr Key='CSV'}"
-                        Icon="{x:Static controls:Icons.Download}"
-                        Clicked="OnExportCsvClicked" />
-
-                    <controls:PillButton
-                        Grid.Column="6"
-                        Text="{loc:Tr Key='Markdown'}"
-                        Icon="{x:Static controls:Icons.File}"
-                        Clicked="OnExportMarkdownClicked" />
-
-                    <controls:PillButton
-                        Grid.Column="7"
-                        Text="{loc:Tr Key='Backup'}"
-                        Icon="{x:Static controls:Icons.Database}"
-                        Clicked="OnBackupClicked" />
-                </Grid>
-
-                <Label
-                    Grid.Row="3"
-                    Padding="10,0"
-                    Text="{Binding FilterError}"
-                    IsVisible="{Binding HasFilterError}"
-                    TextColor="{DynamicResource Danger}" />
-
-                <CollectionView
-                    Grid.Row="4"
-                    ItemsSource="{Binding Groups}"
-                    IsGrouped="True"
-                    IsVisible="{Binding ShowResults}"
-                    SelectionMode="None">
-
-                    <CollectionView.EmptyView>
                         <Label
-                            Text="{loc:Tr Key='No expenses for this period and filters.'}"
-                            Margin="24"
-                            TextColor="{DynamicResource InkMuted}"
-                            HorizontalTextAlignment="Center" />
-                    </CollectionView.EmptyView>
+                            Text="{Binding ErrorMessage}"
+                            IsVisible="{Binding HasError}"
+                            TextColor="{DynamicResource Danger}" />
+                    </VerticalStackLayout>
 
-                    <CollectionView.GroupHeaderTemplate>
-                        <DataTemplate x:DataType="models:ExpenseDayGroup">
-                            <Label
-                                Text="{Binding Title}"
-                                IsVisible="{Binding HasTitle}"
-                                Padding="14,10,14,2"
-                                FontSize="12"
-                                FontFamily="ManropeBold"
-                                TextColor="{DynamicResource InkMuted}" />
-                        </DataTemplate>
-                    </CollectionView.GroupHeaderTemplate>
+                    <Border Grid.Row="2" Padding="0">
+                        <Grid RowDefinitions="Auto,Auto,Auto,*">
 
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate x:DataType="models:ExpenseListItem">
+                            <!-- Search, category, sort, filter panel -->
                             <Grid
-                                ColumnDefinitions="Auto,*,Auto,Auto,Auto"
-                                ColumnSpacing="12"
-                                Padding="10,5">
+                                ColumnDefinitions="*,150,205,Auto"
+                                ColumnSpacing="10"
+                                Padding="16">
 
                                 <Border
-                                    WidthRequest="36"
-                                    HeightRequest="36"
                                     StrokeThickness="0"
-                                    StrokeShape="RoundRectangle 11"
-                                    BackgroundColor="{DynamicResource Bg}">
-                                    <BoxView
-                                        WidthRequest="10"
-                                        HeightRequest="10"
-                                        CornerRadius="5"
-                                        HorizontalOptions="Center"
-                                        VerticalOptions="Center"
-                                        Color="{Binding CategoryColor}" />
+                                    StrokeShape="RoundRectangle 20"
+                                    BackgroundColor="{DynamicResource Surface2}"
+                                    Padding="14,0"
+                                    HeightRequest="40">
+                                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                                        <controls:IconView
+                                            Data="{x:Static controls:Icons.Search}"
+                                            Color="{DynamicResource InkMuted}"
+                                            WidthRequest="16"
+                                            HeightRequest="16" />
+                                        <Entry
+                                            Grid.Column="1"
+                                            Placeholder="{loc:Tr Key='Search description'}"
+                                            BackgroundColor="Transparent"
+                                            VerticalOptions="Center"
+                                            Text="{Binding SearchText, Mode=TwoWay}"
+                                            Completed="OnApplyFiltersClicked" />
+                                    </Grid>
                                 </Border>
 
-                                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                                <controls:DropDown
+                                    Grid.Column="1"
+                                    ItemsSource="{Binding CategoryFilters}"
+                                    DisplayMember="Name"
+                                    SelectedItem="{Binding SelectedCategoryFilter, Mode=TwoWay}"
+                                    SelectedIndexChanged="OnCategoryFilterChanged"
+                                    IsEnabled="{Binding CanChangeCategoryFilter}" />
+
+                                <controls:DropDown
+                                    Grid.Column="2"
+                                    ItemsSource="{Binding SortOptions}"
+                                    DisplayMember="Name"
+                                    SelectedItem="{Binding SelectedSort, Mode=TwoWay}"
+                                    SelectedIndexChanged="OnPeriodOrSortChanged"
+                                    IsEnabled="{Binding CanChangeCategoryFilter}" />
+
+                                <Border
+                                    Grid.Column="3"
+                                    StrokeThickness="0"
+                                    StrokeShape="RoundRectangle 20"
+                                    BackgroundColor="{DynamicResource Surface2}"
+                                    HeightRequest="40"
+                                    Padding="14,0">
+                                    <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                                        <controls:IconView
+                                            Data="{x:Static controls:Icons.Sliders}"
+                                            Color="{DynamicResource Ink}"
+                                            WidthRequest="15"
+                                            HeightRequest="15" />
+                                        <Label
+                                            Text="{loc:Tr Key='Filter'}"
+                                            FontFamily="ManropeBold"
+                                            VerticalOptions="Center" />
+                                        <Border
+                                            IsVisible="{Binding HasActiveFilters}"
+                                            StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 9"
+                                            BackgroundColor="{DynamicResource Accent}"
+                                            HeightRequest="18"
+                                            MinimumWidthRequest="18"
+                                            Padding="5,0"
+                                            VerticalOptions="Center">
+                                            <Label
+                                                Text="{Binding ActiveFilterCountText}"
+                                                FontSize="11"
+                                                FontFamily="ManropeBold"
+                                                TextColor="{DynamicResource OnAccent}"
+                                                HorizontalOptions="Center"
+                                                VerticalOptions="Center" />
+                                        </Border>
+                                    </HorizontalStackLayout>
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnToggleFiltersTapped" />
+                                    </Border.GestureRecognizers>
+                                </Border>
+                            </Grid>
+
+                            <!-- The hidden filters: period, dates, amount range -->
+                            <Border
+                                Grid.Row="1"
+                                IsVisible="{Binding IsFilterOpen}"
+                                StrokeThickness="0"
+                                BackgroundColor="{DynamicResource Surface2}"
+                                StrokeShape="RoundRectangle 14"
+                                Margin="16,0,16,12"
+                                Padding="14">
+                                <FlexLayout Wrap="Wrap" AlignItems="Center" JustifyContent="Start">
+                                    <controls:DropDown
+                                        WidthRequest="132"
+                                        Margin="0,0,10,0"
+                                        BackgroundColor="{DynamicResource Bg}"
+                                        ItemsSource="{Binding PeriodOptions}"
+                                        DisplayMember="Name"
+                                        SelectedItem="{Binding SelectedPeriod, Mode=TwoWay}"
+                                        SelectedIndexChanged="OnPeriodOrSortChanged"
+                                        IsEnabled="{Binding CanChangeCategoryFilter}" />
+
+                                    <controls:DateField
+                                        Margin="0,0,10,0"
+                                        BackgroundColor="{DynamicResource Bg}"
+                                        IsVisible="{Binding IsCustomPeriod}"
+                                        Date="{Binding CustomFrom, Mode=TwoWay}"
+                                        MinimumDate="{x:Null}"
+                                        MaximumDate="{x:Null}"
+                                        Format="dd.MM.yyyy" />
+
+                                    <controls:DateField
+                                        Margin="0,0,10,0"
+                                        BackgroundColor="{DynamicResource Bg}"
+                                        IsVisible="{Binding IsCustomPeriod}"
+                                        Date="{Binding CustomTo, Mode=TwoWay}"
+                                        MinimumDate="{x:Null}"
+                                        MaximumDate="{x:Null}"
+                                        Format="dd.MM.yyyy" />
+
+                                    <Entry
+                                        WidthRequest="100"
+                                        Margin="0,0,10,0"
+                                        BackgroundColor="{DynamicResource Bg}"
+                                        Placeholder="{loc:Tr Key='Min amount'}"
+                                        Keyboard="Numeric"
+                                        Text="{Binding MinAmountText, Mode=TwoWay}"
+                                        Completed="OnApplyFiltersClicked" />
+
+                                    <Entry
+                                        WidthRequest="100"
+                                        Margin="0,0,10,0"
+                                        BackgroundColor="{DynamicResource Bg}"
+                                        Placeholder="{loc:Tr Key='Max amount'}"
+                                        Keyboard="Numeric"
+                                        Text="{Binding MaxAmountText, Mode=TwoWay}"
+                                        Completed="OnApplyFiltersClicked" />
+
+                                    <controls:PillButton
+                                        Margin="0,0,10,0"
+                                        Text="{loc:Tr Key='Apply'}"
+                                        IsPrimary="True"
+                                        Clicked="OnApplyFiltersClicked" />
+
+                                    <controls:PillButton
+                                        Text="{loc:Tr Key='Reset'}"
+                                        Clicked="OnResetFiltersClicked" />
+                                </FlexLayout>
+                            </Border>
+
+                            <Label
+                                Grid.Row="2"
+                                Padding="20,0,20,8"
+                                Text="{Binding FilterError}"
+                                IsVisible="{Binding HasFilterError}"
+                                TextColor="{DynamicResource Danger}" />
+
+                            <CollectionView
+                                Grid.Row="3"
+                                ItemsSource="{Binding Groups}"
+                                IsGrouped="True"
+                                IsVisible="{Binding ShowResults}"
+                                SelectionMode="None">
+
+                                <CollectionView.EmptyView>
                                     <Label
-                                        Text="{Binding Title}"
+                                        Text="{loc:Tr Key='No expenses for this period and filters.'}"
+                                        Margin="24"
+                                        TextColor="{DynamicResource InkMuted}"
+                                        HorizontalTextAlignment="Center" />
+                                </CollectionView.EmptyView>
+
+                                <CollectionView.GroupHeaderTemplate>
+                                    <DataTemplate x:DataType="models:ExpenseDayGroup">
+                                        <Grid
+                                            ColumnDefinitions="*,Auto"
+                                            Padding="20,14,20,6"
+                                            IsVisible="{Binding HasTitle}">
+                                            <Label
+                                                Text="{Binding Title}"
+                                                FontSize="12"
+                                                FontFamily="ManropeBold"
+                                                TextColor="{DynamicResource InkMuted}" />
+                                            <Label
+                                                Grid.Column="1"
+                                                Text="{Binding TotalText}"
+                                                FontSize="12"
+                                                FontFamily="ManropeBold"
+                                                TextColor="{DynamicResource InkMuted}" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </CollectionView.GroupHeaderTemplate>
+
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="models:ExpenseListItem">
+                                        <Grid
+                                            ColumnDefinitions="38,*,140,76"
+                                            ColumnSpacing="14"
+                                            Padding="20,8"
+                                            Margin="6,0">
+
+                                            <Grid.GestureRecognizers>
+                                                <PointerGestureRecognizer
+                                                    PointerEntered="OnRowPointerEntered"
+                                                    PointerExited="OnRowPointerExited" />
+                                            </Grid.GestureRecognizers>
+
+                                            <Border
+                                                WidthRequest="38"
+                                                HeightRequest="38"
+                                                StrokeThickness="0"
+                                                StrokeShape="RoundRectangle 11"
+                                                BackgroundColor="{Binding Tint}">
+                                                <BoxView
+                                                    WidthRequest="10"
+                                                    HeightRequest="10"
+                                                    CornerRadius="5"
+                                                    HorizontalOptions="Center"
+                                                    VerticalOptions="Center"
+                                                    Color="{Binding CategoryColor}" />
+                                            </Border>
+
+                                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                                                <Label
+                                                    Text="{Binding Title}"
+                                                    FontFamily="ManropeBold"
+                                                    LineBreakMode="TailTruncation" />
+                                                <Label
+                                                    Text="{Binding CategoryName}"
+                                                    FontSize="12"
+                                                    TextColor="{DynamicResource InkMuted}" />
+                                            </VerticalStackLayout>
+
+                                            <Label
+                                                Grid.Column="2"
+                                                Text="{Binding SpentText}"
+                                                FontFamily="ManropeExtraBold"
+                                                HorizontalTextAlignment="End"
+                                                VerticalOptions="Center" />
+
+                                            <HorizontalStackLayout
+                                                Grid.Column="3"
+                                                Opacity="0"
+                                                HorizontalOptions="End"
+                                                VerticalOptions="Center">
+                                                <controls:IconButton
+                                                    Icon="{x:Static controls:Icons.Edit}"
+                                                    Clicked="OnEditExpenseClicked" />
+                                                <controls:IconButton
+                                                    Icon="{x:Static controls:Icons.Trash}"
+                                                    IconColorKey="Danger"
+                                                    Clicked="OnDeleteExpenseClicked" />
+                                            </HorizontalStackLayout>
+                                        </Grid>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <!-- The side column: donut by category and the budgets -->
+                <ScrollView x:Name="SideColumn" Grid.Column="1">
+                    <VerticalStackLayout Spacing="20">
+
+                        <Border Padding="20" IsVisible="{Binding ShowResults}">
+                            <VerticalStackLayout Spacing="14">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label
+                                        Text="{loc:Tr Key='By category'}"
+                                        FontSize="15"
+                                        FontFamily="ManropeBold" />
+                                    <Label
+                                        Grid.Column="1"
+                                        Text="{loc:Tr Key='Report'}"
+                                        FontSize="13"
                                         FontFamily="ManropeBold"
-                                        LineBreakMode="TailTruncation" />
-                                    <Label
-                                        Text="{Binding CategoryName}"
-                                        FontSize="12"
-                                        TextColor="{DynamicResource InkMuted}" />
-                                </VerticalStackLayout>
+                                        TextColor="{DynamicResource Accent}">
+                                        <Label.GestureRecognizers>
+                                            <TapGestureRecognizer Tapped="OnReportLinkTapped" />
+                                        </Label.GestureRecognizers>
+                                    </Label>
+                                </Grid>
+
+                                <Grid HorizontalOptions="Center">
+                                    <controls:DonutChart
+                                        x:Name="Donut"
+                                        Segments="{Binding DonutSegments}"
+                                        SegmentTapped="OnDonutSegmentTapped" />
+
+                                    <VerticalStackLayout
+                                        InputTransparent="True"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Center">
+                                        <Label
+                                            Text="{Binding DonutTotalTitle}"
+                                            FontSize="12"
+                                            FontFamily="ManropeSemiBold"
+                                            TextColor="{DynamicResource InkMuted}"
+                                            HorizontalTextAlignment="Center" />
+                                        <Label
+                                            Text="{Binding DonutTotalText}"
+                                            FontSize="20"
+                                            FontFamily="ManropeExtraBold"
+                                            HorizontalTextAlignment="Center" />
+                                    </VerticalStackLayout>
+                                </Grid>
 
                                 <Label
-                                    Grid.Column="2"
-                                    Text="{Binding SpentText}"
-                                    FontFamily="ManropeBold"
-                                    WidthRequest="130"
-                                    HorizontalTextAlignment="End"
-                                    VerticalOptions="Center" />
+                                    Text="{loc:Tr Key='No expenses for this period and filters.'}"
+                                    IsVisible="{Binding HasNoLegend}"
+                                    TextColor="{DynamicResource InkMuted}"
+                                    HorizontalTextAlignment="Center" />
 
-                                <controls:IconButton
-                                    Grid.Column="3"
-                                    Icon="{x:Static controls:Icons.Edit}"
-                                    Clicked="OnEditExpenseClicked" />
+                                <VerticalStackLayout Spacing="2" BindableLayout.ItemsSource="{Binding Legend}">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate x:DataType="models:LegendItem">
+                                            <Grid
+                                                ColumnDefinitions="10,*,Auto,44"
+                                                ColumnSpacing="10"
+                                                Padding="8,7">
 
-                                <controls:IconButton
-                                    Grid.Column="4"
-                                    Icon="{x:Static controls:Icons.Trash}"
-                                    IconColorKey="Danger"
-                                    Clicked="OnDeleteExpenseClicked" />
-                            </Grid>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
+                                                <Grid.Triggers>
+                                                    <DataTrigger TargetType="Grid" Binding="{Binding IsActive}" Value="True">
+                                                        <Setter Property="BackgroundColor" Value="{DynamicResource Surface2}" />
+                                                    </DataTrigger>
+                                                </Grid.Triggers>
+
+                                                <Grid.GestureRecognizers>
+                                                    <TapGestureRecognizer Tapped="OnLegendTapped" />
+                                                    <PointerGestureRecognizer
+                                                        PointerEntered="OnLegendPointerEntered"
+                                                        PointerExited="OnLegendPointerExited" />
+                                                </Grid.GestureRecognizers>
+
+                                                <BoxView
+                                                    WidthRequest="10"
+                                                    HeightRequest="10"
+                                                    CornerRadius="5"
+                                                    VerticalOptions="Center"
+                                                    Color="{Binding Color}" />
+                                                <Label Grid.Column="1" Text="{Binding Name}" LineBreakMode="TailTruncation" />
+                                                <Label Grid.Column="2" Text="{Binding AmountText}" FontFamily="ManropeBold" />
+                                                <Label
+                                                    Grid.Column="3"
+                                                    Text="{Binding PercentText}"
+                                                    FontSize="12"
+                                                    HorizontalTextAlignment="End"
+                                                    TextColor="{DynamicResource InkMuted}" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </VerticalStackLayout>
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Border Padding="20" IsVisible="{Binding HasBudgetBars}">
+                            <VerticalStackLayout Spacing="14">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label
+                                        Text="{loc:Tr Key='Budgets'}"
+                                        FontSize="15"
+                                        FontFamily="ManropeBold"
+                                        VerticalOptions="Center" />
+                                    <controls:Chip
+                                        Grid.Column="1"
+                                        Text="{Binding BudgetsChipText}"
+                                        ToneKey="{Binding BudgetsChipTone}" />
+                                </Grid>
+
+                                <VerticalStackLayout Spacing="14" BindableLayout.ItemsSource="{Binding BudgetBars}">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate x:DataType="models:BudgetBarItem">
+                                            <VerticalStackLayout Spacing="6">
+                                                <Grid ColumnDefinitions="*,Auto">
+                                                    <Label Text="{Binding Name}" FontFamily="ManropeBold" FontSize="13" />
+                                                    <Label
+                                                        Grid.Column="1"
+                                                        Text="{Binding PercentText}"
+                                                        FontSize="13"
+                                                        TextColor="{DynamicResource InkMuted}">
+                                                        <Label.Triggers>
+                                                            <DataTrigger TargetType="Label" Binding="{Binding PercentKey}" Value="Danger">
+                                                                <Setter Property="TextColor" Value="{DynamicResource Danger}" />
+                                                            </DataTrigger>
+                                                            <DataTrigger TargetType="Label" Binding="{Binding PercentKey}" Value="Warning">
+                                                                <Setter Property="TextColor" Value="{DynamicResource Warning}" />
+                                                            </DataTrigger>
+                                                            <DataTrigger TargetType="Label" Binding="{Binding PercentKey}" Value="Success">
+                                                                <Setter Property="TextColor" Value="{DynamicResource Success}" />
+                                                            </DataTrigger>
+                                                        </Label.Triggers>
+                                                    </Label>
+                                                </Grid>
+                                                <controls:MeterBar Value="{Binding Value}" FillKey="{Binding FillKey}" HeightRequest="6" />
+                                            </VerticalStackLayout>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </VerticalStackLayout>
+                            </VerticalStackLayout>
+                        </Border>
+                    </VerticalStackLayout>
+                </ScrollView>
             </Grid>
-        </Border>
-    </Grid>
+        </Grid>
+    </controls:CenteredContainer>
 </ContentPage>

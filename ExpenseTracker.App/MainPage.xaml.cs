@@ -30,7 +30,12 @@ public partial class MainPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await _viewModel.RefreshAsync();
+
+        // Reports can ask for one category of one month.
+        if (_services.GetRequiredService<ExpenseFilterRequest>().Take() is { } request)
+            await _viewModel.OpenAsync(request.CategoryId, request.Month);
+        else
+            await _viewModel.RefreshAsync();
     }
 
     private void OnPreviousClicked(object? sender, EventArgs e) =>
@@ -38,6 +43,9 @@ public partial class MainPage : ContentPage
 
     private void OnNextClicked(object? sender, EventArgs e) =>
         _viewModel.NextMonthCommand.Execute(null);
+
+    private async void OnMonthPicked(object? sender, DateTime month) =>
+        await _viewModel.SetMonthAsync(month);
 
     private void OnRefreshClicked(object? sender, EventArgs e) =>
         _viewModel.RefreshCommand.Execute(null);
@@ -63,11 +71,74 @@ private async void OnReportsClicked(object? sender, EventArgs e) =>
 private async void OnRecurringExpensesClicked(object? sender, EventArgs e) =>
         await OpenPageAsync<RecurringExpensesPage>();
 
-    private async void OnExportCsvClicked(object? sender, EventArgs e) =>
-        await ExportAsync(ExportFormat.Csv);
+    private void OnExportClicked(object? sender, EventArgs e) =>
+        MenuPopup.Show(
+            ExportButton,
+            [Loc.T("CSV"), Loc.T("Markdown"), Loc.T("Backup")],
+            async index =>
+            {
+                switch (index)
+                {
+                    case 0: await ExportAsync(ExportFormat.Csv); break;
+                    case 1: await ExportAsync(ExportFormat.Markdown); break;
+                    default: await BackupAsync(); break;
+                }
+            });
 
-    private async void OnExportMarkdownClicked(object? sender, EventArgs e) =>
-        await ExportAsync(ExportFormat.Markdown);
+    private void OnToggleFiltersTapped(object? sender, EventArgs e) =>
+        _viewModel.ToggleFilters();
+
+    // Narrow window: the side column would squeeze the list, so it steps aside.
+    private void OnBodySizeChanged(object? sender, EventArgs e)
+    {
+        var wide = Body.Width >= 900;
+
+        SideColumn.IsVisible = wide;
+        Body.ColumnDefinitions[1].Width = wide ? new GridLength(360) : new GridLength(0);
+        Body.ColumnSpacing = wide ? 20 : 0;
+    }
+
+    // The edit and delete icons of a row show only under the pointer.
+    private static void ShowRowActions(object? sender, bool visible)
+    {
+        if (sender is not Grid row) return;
+
+        if (visible)
+            row.SetDynamicResource(BackgroundColorProperty, "Surface2");
+        else
+            row.BackgroundColor = Colors.Transparent;
+
+        if (row.Children.OfType<HorizontalStackLayout>().FirstOrDefault() is { } actions)
+            actions.Opacity = visible ? 1 : 0;
+    }
+
+    private void OnRowPointerEntered(object? sender, PointerEventArgs e) => ShowRowActions(sender, true);
+
+    private void OnRowPointerExited(object? sender, PointerEventArgs e) => ShowRowActions(sender, false);
+
+    private async void OnReportLinkTapped(object? sender, TappedEventArgs e) =>
+        await Shell.Current.GoToAsync("//reports");
+
+    private async void OnDonutSegmentTapped(object? sender, int index)
+    {
+        if (index >= 0 && index < _viewModel.Legend.Count)
+            await _viewModel.SelectCategoryAsync(_viewModel.Legend[index].CategoryId);
+    }
+
+    private async void OnLegendTapped(object? sender, TappedEventArgs e)
+    {
+        if (sender is BindableObject { BindingContext: LegendItem item })
+            await _viewModel.SelectCategoryAsync(item.CategoryId);
+    }
+
+    private void OnLegendPointerEntered(object? sender, PointerEventArgs e)
+    {
+        if (sender is BindableObject { BindingContext: LegendItem item })
+            Donut.HighlightIndex = _viewModel.Legend.ToList().IndexOf(item);
+    }
+
+    private void OnLegendPointerExited(object? sender, PointerEventArgs e) =>
+        Donut.HighlightIndex = -1;
 
     private async Task ExportAsync(ExportFormat format)
     {
@@ -80,7 +151,7 @@ private async void OnRecurringExpensesClicked(object? sender, EventArgs e) =>
             await DisplayAlertAsync(Loc.T("Export done"), path, Loc.T("OK"));
     }
 
-    private async void OnBackupClicked(object? sender, EventArgs e)
+    private async Task BackupAsync()
     {
         if (_openingPage || _confirmingDelete || _viewModel.IsBusy)
             return;

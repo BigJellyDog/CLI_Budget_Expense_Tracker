@@ -28,6 +28,8 @@ public sealed class ExpensesViewModel : ObservableObject
     private decimal? _previousTotal;
     private int _budgetsOver;
     private int _budgetsTotal;
+    private decimal _donutTotal;
+    private readonly TimeProvider _timeProvider;
 
     public ExpensesViewModel(
         IServiceScopeFactory scopeFactory,
@@ -39,6 +41,7 @@ public sealed class ExpensesViewModel : ObservableObject
         ILogger<ExpensesViewModel> logger)
     {
         this._settings = settings;
+        this._timeProvider = timeProvider;
         this._backups = backups;
         this._exportLocation = exportLocation;
         this._scopeFactory = scopeFactory;
@@ -86,7 +89,7 @@ public sealed class ExpensesViewModel : ObservableObject
         get
         {
             if (_previousTotal is not { } previous || !IsMonthPeriod) return "–";
-            if (previous == 0) return _total == 0 ? "0%" : Loc.T("new");
+            if (previous == 0) return "–";
 
             var percent = (_total - previous) / previous * 100m;
             return $"{(percent > 0 ? "+" : "")}{percent:0.#}%";
@@ -100,8 +103,130 @@ public sealed class ExpensesViewModel : ObservableObject
             if (_previousTotal is not { } previous || !IsMonthPeriod) return "";
 
             var diff = _total - previous;
-            return $"{(diff > 0 ? "+" : diff < 0 ? "−" : "")}{Math.Abs(diff):N2} {_settings.Currency}";
+            var word = diff > 0 ? Loc.T("more") : diff < 0 ? Loc.T("less") : "";
+
+            return $"{(diff > 0 ? "+" : diff < 0 ? "−" : "")}{Math.Abs(diff):N2} {_settings.Currency} {word}".TrimEnd();
         }
+    }
+
+    private DateOnly Today => DateOnly.FromDateTime(_timeProvider.GetLocalNow().DateTime);
+
+    private bool IsCurrentMonth => IsMonthPeriod && _month.Year == Today.Year && _month.Month == Today.Month;
+
+    /// <summary>Average spending per day: over the days passed in this month, or all of a past month.</summary>
+    private decimal? AveragePerDay
+    {
+        get
+        {
+            if (!IsMonthPeriod) return null;
+
+            var days = IsCurrentMonth ? Today.Day : _month < Today ? DateTime.DaysInMonth(_month.Year, _month.Month) : 0;
+            return days > 0 ? _total / days : null;
+        }
+    }
+
+    public string AveragePerDayText =>
+        AveragePerDay is { } average ? Loc.F("Ø {0:N2} {1} per day", average, _settings.Currency) : "";
+
+    public string ForecastTitle => IsMonthPeriod ? Loc.F("Forecast for {0}", _month.ToString("MMMM")) : Loc.T("Forecast");
+
+    public string ForecastText =>
+        IsCurrentMonth && AveragePerDay is { } average
+            ? $"{average * DateTime.DaysInMonth(_month.Year, _month.Month):N2} {_settings.Currency}"
+            : "–";
+
+    public string ForecastCaption => IsCurrentMonth ? Loc.T("at the current pace") : "";
+
+    /// <summary>The month that is open, as a date, for the month picker.</summary>
+    public DateTime Month => _month.ToDateTime(TimeOnly.MinValue);
+
+    /// <summary>Shows one category of one month (a click in Reports).</summary>
+    public async Task OpenAsync(Guid categoryId, DateTime month)
+    {
+        if (IsBusy) return;
+
+        _month = new DateOnly(month.Year, month.Month, 1);
+        SelectedPeriod = PeriodOptions[0];
+        SelectedCategoryFilter = CategoryFilters.FirstOrDefault(x => x.CategoryId == categoryId)
+                                 ?? new ExpenseCategoryFilter(categoryId, "");
+
+        OnPropertyChanged(nameof(SelectedPeriod));
+        OnPropertyChanged(nameof(SelectedCategoryFilter));
+
+        await RefreshAsync();
+    }
+
+    /// <summary>Opens a month chosen by hand; the list goes back to the month view.</summary>
+    public async Task SetMonthAsync(DateTime month)
+    {
+        if (IsBusy) return;
+
+        _month = new DateOnly(month.Year, month.Month, 1);
+
+        if (!IsMonthPeriod)
+        {
+            SelectedPeriod = PeriodOptions[0];
+            OnPropertyChanged(nameof(SelectedPeriod));
+        }
+
+        await RefreshAsync();
+    }
+
+    public string Subtitle => Loc.F("{0} · {1} entries", PeriodTitle, Items.Count);
+
+    public IReadOnlyList<DonutSegment> DonutSegments { get; private set; } = [];
+
+    public IReadOnlyList<LegendItem> Legend { get; private set; } = [];
+
+    public bool HasLegend => Legend.Count > 0;
+
+    public bool HasNoLegend => Legend.Count == 0;
+
+    public string DonutTotalTitle => Loc.T("Total");
+
+    public string DonutTotalText => $"{_donutTotal:N2}";
+
+    public IReadOnlyList<BudgetBarItem> BudgetBars { get; private set; } = [];
+
+    public bool HasBudgetBars => IsMonthPeriod && BudgetBars.Count > 0;
+
+    public string BudgetsChipText =>
+        _budgetsOver > 0 ? Loc.F("{0} of {1} over the limit", _budgetsOver, _budgetsTotal) : Loc.T("All within limits");
+
+    public string BudgetsChipTone => _budgetsOver > 0 ? "Danger" : "Success";
+
+    public bool IsFilterOpen { get; set; }
+
+    /// <summary>How many of the hidden filters are in use: period, amount range, custom dates.</summary>
+    public int ActiveFilterCount =>
+        (SelectedPeriod.Period != ExpensePeriod.Month ? 1 : 0)
+        + (string.IsNullOrWhiteSpace(MinAmountText) ? 0 : 1)
+        + (string.IsNullOrWhiteSpace(MaxAmountText) ? 0 : 1);
+
+    public bool HasActiveFilters => ActiveFilterCount > 0;
+
+    public string ActiveFilterCountText => ActiveFilterCount.ToString();
+
+    public void ToggleFilters()
+    {
+        IsFilterOpen = !IsFilterOpen;
+        OnPropertyChanged(nameof(IsFilterOpen));
+    }
+
+    /// <summary>Shows only one category (a tap on the chart or the legend); the same category again shows all.</summary>
+    public async Task SelectCategoryAsync(Guid categoryId)
+    {
+        if (IsBusy) return;
+
+        var target = SelectedCategoryFilter?.CategoryId == categoryId
+            ? CategoryFilters.FirstOrDefault()
+            : CategoryFilters.FirstOrDefault(x => x.CategoryId == categoryId);
+
+        if (target is null) return;
+
+        SelectedCategoryFilter = target;
+        OnPropertyChanged(nameof(SelectedCategoryFilter));
+        await RefreshAsync();
     }
 
     /// <summary>Spending went up compared with the previous month.</summary>
@@ -225,10 +350,26 @@ public sealed class ExpensesViewModel : ObservableObject
 
                 var shown = filter.Query.Apply(report.Expenses);
 
+                // The chart shows every category even while one is picked in the list.
+                var everything = selectedFilter.CategoryId is null
+                    ? report
+                    : await services.GetRequiredService<ExpenseService>()
+                        .GetReportAsync(filter.Start, filter.End, null);
+
                 var names = categories.ToDictionary(
                     x => x.Id,
                     x => x.Name);
 
+                var byCategory = filter.Query.Apply(everything.Expenses)
+                    .GroupBy(x => x.CategoryId)
+                    .Select(g => (
+                        Id: g.Key,
+                        Name: names.GetValueOrDefault(g.Key, Loc.T("Unknown category")),
+                        Amount: g.Sum(x => x.Amount)))
+                    .OrderByDescending(x => x.Amount)
+                    .ToArray();
+
+                IReadOnlyList<(string Name, decimal Spent, decimal Limit)> bars = [];
                 decimal? previousTotal = null;
                 var budgetsOver = 0;
                 var budgetsTotal = 0;
@@ -250,6 +391,16 @@ public sealed class ExpensesViewModel : ObservableObject
 
                     budgetsTotal = statuses.Count;
                     budgetsOver = statuses.Count(x => x.Overspend > 0);
+
+                    bars = statuses
+                        .Where(x => x.Limit is > 0)
+                        .OrderByDescending(x => x.Spent / x.Limit!.Value)
+                        .Take(3)
+                        .Select(x => (
+                            names.GetValueOrDefault(x.CategoryId, Loc.T("Unknown category")),
+                            x.Spent,
+                            x.Limit!.Value))
+                        .ToArray();
                 }
 
                 IReadOnlyList<ExpenseListItem> rows = shown
@@ -270,7 +421,9 @@ public sealed class ExpensesViewModel : ObservableObject
                     SelectedFilter: selectedFilter,
                     PreviousTotal: previousTotal,
                     BudgetsOver: budgetsOver,
-                    BudgetsTotal: budgetsTotal);
+                    BudgetsTotal: budgetsTotal,
+                    ByCategory: byCategory,
+                    Bars: bars);
             });
 
             // Colors come from the theme, which belongs to the UI thread.
@@ -284,6 +437,33 @@ public sealed class ExpensesViewModel : ObservableObject
             _previousTotal = result.PreviousTotal;
             _budgetsOver = result.BudgetsOver;
             _budgetsTotal = result.BudgetsTotal;
+
+            _donutTotal = result.ByCategory.Sum(x => x.Amount);
+            DonutSegments = result.ByCategory
+                .Select(x => new DonutSegment(x.Name, (double)x.Amount, CategoryPalette.ColorFor(x.Name)))
+                .ToArray();
+
+            var picked = result.SelectedFilter.CategoryId;
+            Legend = result.ByCategory
+                .Select(x => new LegendItem(
+                    x.Id,
+                    x.Name,
+                    $"{x.Amount:N2} {_settings.Currency}",
+                    _donutTotal > 0 ? $"{Math.Round(x.Amount / _donutTotal * 100):0} %" : "",
+                    CategoryPalette.ColorFor(x.Name),
+                    picked == x.Id))
+                .ToArray();
+
+            BudgetBars = result.Bars
+                .Select(x =>
+                {
+                    var ratio = x.Limit > 0 ? (double)(x.Spent / x.Limit) : 0;
+                    var key = ratio > 1 ? "Danger" : ratio >= 0.9 ? "Warning" : "Success";
+
+                    return new BudgetBarItem(x.Name, $"{Math.Round(ratio * 100):0} %", Math.Min(ratio, 1), key, key);
+                })
+                .ToArray();
+
             BuildGroups();
 
             CategoryFilters = result.Filters;
@@ -669,9 +849,9 @@ public sealed class ExpensesViewModel : ObservableObject
         Groups = byDate
             ? Items
                 .GroupBy(x => x.Date)
-                .Select(g => new ExpenseDayGroup(g.Key.ToString("ddd, d MMMM"), g))
+                .Select(g => new ExpenseDayGroup(g.Key.ToString("ddd, d MMMM"), g, _settings.Currency))
                 .ToArray()
-            : [new ExpenseDayGroup("", Items)];
+            : [new ExpenseDayGroup("", Items, _settings.Currency)];
     }
 
     private void NotifyState()
@@ -687,6 +867,25 @@ public sealed class ExpensesViewModel : ObservableObject
         OnPropertyChanged(nameof(BudgetsText));
         OnPropertyChanged(nameof(BudgetsCaption));
         OnPropertyChanged(nameof(BudgetsAreOver));
+        OnPropertyChanged(nameof(AveragePerDayText));
+        OnPropertyChanged(nameof(ForecastTitle));
+        OnPropertyChanged(nameof(ForecastText));
+        OnPropertyChanged(nameof(ForecastCaption));
+        OnPropertyChanged(nameof(Subtitle));
+        OnPropertyChanged(nameof(Month));
+        OnPropertyChanged(nameof(DonutSegments));
+        OnPropertyChanged(nameof(Legend));
+        OnPropertyChanged(nameof(HasLegend));
+        OnPropertyChanged(nameof(HasNoLegend));
+        OnPropertyChanged(nameof(DonutTotalTitle));
+        OnPropertyChanged(nameof(DonutTotalText));
+        OnPropertyChanged(nameof(BudgetBars));
+        OnPropertyChanged(nameof(HasBudgetBars));
+        OnPropertyChanged(nameof(BudgetsChipText));
+        OnPropertyChanged(nameof(BudgetsChipTone));
+        OnPropertyChanged(nameof(ActiveFilterCount));
+        OnPropertyChanged(nameof(HasActiveFilters));
+        OnPropertyChanged(nameof(ActiveFilterCountText));
         OnPropertyChanged(nameof(Items));
         OnPropertyChanged(nameof(PeriodTitle));
         OnPropertyChanged(nameof(IsMonthPeriod));
