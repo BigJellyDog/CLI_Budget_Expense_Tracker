@@ -5,6 +5,7 @@ using CLI_Budget_Expense_Tracker.Core.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Controls;
 using Models;
 using Services;
 using Category = CLI_Budget_Expense_Tracker.Core.Models.Category;
@@ -44,6 +45,18 @@ public sealed class BudgetsViewModel : ObservableObject
     public IReadOnlyList<BudgetListItem> Items { get; private set; } = [];
 
     public string MonthTitle => _month.ToString("MMMM yyyy");
+
+    public string FormTitle => Loc.F("Set a limit for {0}", _month.ToString("MMMM"));
+
+    private IEnumerable<BudgetListItem> WithLimit => Items.Where(x => x.HasLimit);
+
+    public string TotalLimitText => $"{WithLimit.Sum(x => x.Limit):N2} {_settings.Currency}";
+
+    public string SpentWithLimitText => $"{WithLimit.Sum(x => x.Spent):N2} {_settings.Currency}";
+
+    public string OverText => Loc.F("{0} of {1}", WithLimit.Count(x => x.IsOverBudget), WithLimit.Count());
+
+    public bool AnyOver => WithLimit.Any(x => x.IsOverBudget);
 
     public string LimitText { get; set; } = "";
 
@@ -94,6 +107,16 @@ public sealed class BudgetsViewModel : ObservableObject
     public Task LoadAsync() => RunAsync(
         ReloadAsync,
         () => Loc.T("Could not load budgets. Try Refresh."));
+
+    public DateTime Month => _month.ToDateTime(TimeOnly.MinValue);
+
+    public async Task SetMonthAsync(DateTime month)
+    {
+        if (IsBusy) return;
+
+        _month = new DateOnly(month.Year, month.Month, 1);
+        await LoadAsync();
+    }
 
     public async Task MoveMonthAsync(int offset)
     {
@@ -175,7 +198,7 @@ public sealed class BudgetsViewModel : ObservableObject
         Guid categoryId,
         Func<Task<bool>> confirmRemoval)
     {
-        if (!CanEdit || Items.All(x => x.CategoryId != categoryId))
+        if (!CanEdit || Items.All(x => x.CategoryId != categoryId || !x.HasLimit))
             return;
 
         var month = _month;
@@ -195,12 +218,7 @@ public sealed class BudgetsViewModel : ObservableObject
                     .DeleteMonthlyLimitAsync(categoryId, month);
             });
 
-            Items = Items
-                .Where(x => x.CategoryId != categoryId)
-                .ToArray();
-
-            if (SelectedCategory?.Id == categoryId)
-                UseSelectedLimit();
+            await ReloadAsync();
 
             SuccessMessage = removed
                 ? Loc.T("Budget limit removed.")
@@ -234,22 +252,40 @@ public sealed class BudgetsViewModel : ObservableObject
                 x => x.Id,
                 x => x.Name);
 
-            IReadOnlyList<BudgetListItem> rows = statuses
+            var monthEnd = new DateOnly(month.Year, month.Month, DateTime.DaysInMonth(month.Year, month.Month));
+
+            var report = await services
+                .GetRequiredService<ExpenseService>()
+                .GetReportAsync(month, monthEnd, null);
+
+            var spent = report.Expenses
+                .GroupBy(x => x.CategoryId)
+                .ToDictionary(g => g.Key, g => g.Sum(x => x.Amount));
+
+            var limits = statuses
                 .Where(x => x.Limit.HasValue)
-                .Select(x => new BudgetListItem(
-                    x.CategoryId,
-                    names.GetValueOrDefault(
-                        x.CategoryId, Loc.T("Unknown category")),
-                    x.Limit!.Value,
-                    x.Spent,
-                    _settings.Currency))
-                .OrderBy(x => x.CategoryName)
+                .ToDictionary(x => x.CategoryId, x => x.Limit!.Value);
+
+            // Categories with a limit first, then the ones without, each by name.
+            IReadOnlyList<BudgetListItem> rows = categories
+                .Select(c => new BudgetListItem(
+                    c.Id,
+                    c.Name,
+                    limits.GetValueOrDefault(c.Id),
+                    spent.GetValueOrDefault(c.Id),
+                    _settings.Currency,
+                    limits.ContainsKey(c.Id)))
+                .OrderBy(x => x.HasLimit ? 0 : 1)
+                .ThenBy(x => x.CategoryName, StringComparer.CurrentCultureIgnoreCase)
                 .ToArray();
 
             return (Categories: categories, Items: rows);
         });
 
-        Items = result.Items;
+        CategoryPalette.Assign(result.Categories.Select(x => x.Name));
+        Items = result.Items
+            .Select(x => x with { Color = CategoryPalette.ColorFor(x.CategoryName) })
+            .ToArray();
         Categories = result.Categories;
         OnPropertyChanged(nameof(Categories));
 
@@ -264,7 +300,7 @@ public sealed class BudgetsViewModel : ObservableObject
     private void UseSelectedLimit()
     {
         var item = Items.SingleOrDefault(
-            x => x.CategoryId == SelectedCategory?.Id);
+            x => x.CategoryId == SelectedCategory?.Id && x.HasLimit);
 
         LimitText = item?.Limit.ToString(
             "0.00",
@@ -307,6 +343,12 @@ public sealed class BudgetsViewModel : ObservableObject
     {
         OnPropertyChanged(nameof(Items));
         OnPropertyChanged(nameof(MonthTitle));
+        OnPropertyChanged(nameof(FormTitle));
+        OnPropertyChanged(nameof(Month));
+        OnPropertyChanged(nameof(TotalLimitText));
+        OnPropertyChanged(nameof(SpentWithLimitText));
+        OnPropertyChanged(nameof(OverText));
+        OnPropertyChanged(nameof(AnyOver));
         OnPropertyChanged(nameof(ErrorMessage));
         OnPropertyChanged(nameof(SuccessMessage));
         OnPropertyChanged(nameof(HasError));

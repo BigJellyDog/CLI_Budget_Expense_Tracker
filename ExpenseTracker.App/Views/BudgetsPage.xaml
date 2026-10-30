@@ -6,7 +6,6 @@
     xmlns:loc="clr-namespace:ExpenseTracker.App.Services"
     xmlns:vm="clr-namespace:ExpenseTracker.App.ViewModels"
     xmlns:models="clr-namespace:ExpenseTracker.App.Models"
-    xmlns:core="clr-namespace:CLI_Budget_Expense_Tracker.Core.Models;assembly=CLI_Budget_Expense_Tracker.Core"
     x:Class="ExpenseTracker.App.Views.BudgetsPage"
     x:DataType="vm:BudgetsViewModel"
     Shell.NavBarIsVisible="False"
@@ -14,93 +13,131 @@
     NavigationPage.HasBackButton="{Binding CanGoBack}"
     BackgroundColor="{DynamicResource Bg}">
 
-    <Grid RowDefinitions="Auto,*">
+    <controls:CenteredContainer Padding="40,28,40,24">
+        <Grid RowDefinitions="Auto,Auto,Auto,*" RowSpacing="20">
 
-        <Label
-            Text="{loc:Tr Key='Budgets'}"
-            FontSize="26"
-            FontFamily="ManropeExtraBold"
-            Padding="24,24,24,0" />
+            <!-- Title, month switch, refresh -->
+            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
 
-        <Grid
-            Grid.Row="1"
-            Padding="24,8,24,24"
-            RowDefinitions="Auto,Auto,Auto,*"
-            RowSpacing="16">
+                <VerticalStackLayout VerticalOptions="Center" Spacing="2">
+                    <Label
+                        Text="{loc:Tr Key='Budgets'}"
+                        FontSize="28"
+                        FontFamily="ManropeExtraBold" />
+                    <Label
+                        Text="{loc:Tr Key='Monthly limits per category'}"
+                        FontSize="13"
+                        TextColor="{DynamicResource InkMuted}" />
+                </VerticalStackLayout>
 
-            <Grid
-                ColumnDefinitions="Auto,*,Auto,Auto"
-                ColumnSpacing="12">
-
-                <Button
-                    Text="{loc:Tr Key='Previous'}"
-                    Clicked="OnPreviousClicked"
-                    IsEnabled="{Binding CanPreviousMonth}" />
-
-                <Label
+                <controls:MonthSwitch
                     Grid.Column="1"
-                    Text="{Binding MonthTitle}"
-                    FontSize="24"
-                    FontAttributes="Bold"
-                    VerticalOptions="Center"
-                    HorizontalOptions="Center" />
+                    Title="{Binding MonthTitle}"
+                    Month="{Binding Month}"
+                    CanGoPrevious="{Binding CanPreviousMonth}"
+                    CanGoNext="{Binding CanNextMonth}"
+                    PreviousClicked="OnPreviousClicked"
+                    NextClicked="OnNextClicked"
+                    MonthPicked="OnMonthPicked" />
 
-                <Button
+                <controls:IconButton
                     Grid.Column="2"
-                    Text="{loc:Tr Key='Next'}"
-                    Clicked="OnNextClicked"
-                    IsEnabled="{Binding CanNextMonth}" />
-
-                <Button
-                    Grid.Column="3"
-                    Text="{loc:Tr Key='Refresh'}"
+                    Filled="True"
+                    Icon="{x:Static controls:Icons.Refresh}"
                     Clicked="OnRefreshClicked"
                     IsEnabled="{Binding CanRefresh}" />
             </Grid>
 
-            <VerticalStackLayout
+            <!-- Totals and the limit form -->
+            <Grid
                 Grid.Row="1"
-                Spacing="8"
-                IsEnabled="{Binding CanEdit}">
+                ColumnDefinitions="*,*,*,2*"
+                ColumnSpacing="16"
+                IsVisible="{Binding ShowResults}">
 
-                <Label
-                    Text="{loc:Tr Key='Set a limit for this month'}"
-                    FontAttributes="Bold" />
+                <Border Padding="20,18">
+                    <VerticalStackLayout Spacing="6">
+                        <Label
+                            Text="{loc:Tr Key='Total limit'}"
+                            FontSize="12"
+                            FontFamily="ManropeSemiBold"
+                            TextColor="{DynamicResource InkMuted}" />
+                        <Label
+                            Text="{Binding TotalLimitText}"
+                            FontSize="22"
+                            FontFamily="ManropeExtraBold" />
+                    </VerticalStackLayout>
+                </Border>
 
-                <controls:DropDown
-                    Title="{loc:Tr Key='Choose a category'}"
-                    ItemsSource="{Binding Categories}"
-                    DisplayMember="Name"
-                    SelectedItem="{Binding SelectedCategory, Mode=TwoWay}" />
+                <Border Grid.Column="1" Padding="20,18">
+                    <VerticalStackLayout Spacing="6">
+                        <Label
+                            Text="{loc:Tr Key='Spent (with limit)'}"
+                            FontSize="12"
+                            FontFamily="ManropeSemiBold"
+                            TextColor="{DynamicResource InkMuted}" />
+                        <Label
+                            Text="{Binding SpentWithLimitText}"
+                            FontSize="22"
+                            FontFamily="ManropeExtraBold" />
+                    </VerticalStackLayout>
+                </Border>
 
-                <Grid
-                    ColumnDefinitions="*,Auto"
-                    ColumnSpacing="12">
+                <Border Grid.Column="2" Padding="20,18">
+                    <VerticalStackLayout Spacing="6">
+                        <Label
+                            Text="{loc:Tr Key='Over the limit'}"
+                            FontSize="12"
+                            FontFamily="ManropeSemiBold"
+                            TextColor="{DynamicResource InkMuted}" />
+                        <Label
+                            Text="{Binding OverText}"
+                            FontSize="22"
+                            FontFamily="ManropeExtraBold">
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding AnyOver}" Value="True">
+                                    <Setter Property="TextColor" Value="{DynamicResource Danger}" />
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+                    </VerticalStackLayout>
+                </Border>
 
-                    <Entry
-                        x:Name="LimitEntry"
-                        Placeholder="{loc:Tr Key='Monthly limit, for example 300'}"
-                        Keyboard="Numeric"
-                        Text="{Binding LimitText, Mode=TwoWay}"
-                        IsEnabled="{Binding CanSave}" />
+                <Border Grid.Column="3" Padding="20,16" IsEnabled="{Binding CanEdit}">
+                    <VerticalStackLayout Spacing="10">
+                        <Label
+                            Text="{Binding FormTitle}"
+                            FontSize="15"
+                            FontFamily="ManropeBold" />
 
-                    <Button
-                        Grid.Column="1"
-                        Text="{loc:Tr Key='Save limit'}"
-                        Style="{StaticResource PrimaryButton}"
-                        Clicked="OnSaveClicked"
-                        IsEnabled="{Binding CanSave}" />
-                </Grid>
+                        <Grid ColumnDefinitions="*,110,Auto" ColumnSpacing="10">
+                            <controls:DropDown
+                                Title="{loc:Tr Key='Choose a category'}"
+                                ItemsSource="{Binding Categories}"
+                                DisplayMember="Name"
+                                SelectedItem="{Binding SelectedCategory, Mode=TwoWay}" />
 
-                <Label
-                    Text="{loc:Tr Key='A limit of 0 means no spending is budgeted for this category.'}"
-                    FontSize="12" />
-            </VerticalStackLayout>
+                            <Entry
+                                x:Name="LimitEntry"
+                                Grid.Column="1"
+                                Placeholder="{loc:Tr Key='e.g. 300'}"
+                                Keyboard="Numeric"
+                                Text="{Binding LimitText, Mode=TwoWay}"
+                                Completed="OnSaveClicked" />
 
-            <VerticalStackLayout Grid.Row="2" Spacing="8">
-                <ActivityIndicator
-                    IsRunning="{Binding IsBusy}"
-                    IsVisible="{Binding IsBusy}" />
+                            <controls:PillButton
+                                Grid.Column="2"
+                                Text="{loc:Tr Key='Save'}"
+                                IsPrimary="True"
+                                Clicked="OnSaveClicked"
+                                IsEnabled="{Binding CanSave}" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
+
+            <VerticalStackLayout Grid.Row="2" Spacing="6">
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
 
                 <Label
                     Text="{Binding ErrorMessage}"
@@ -117,84 +154,158 @@
                     IsVisible="{Binding ShowNoCategories}" />
             </VerticalStackLayout>
 
+            <!-- One card per category -->
             <CollectionView
+                x:Name="Cards"
                 Grid.Row="3"
                 ItemsSource="{Binding Items}"
                 IsVisible="{Binding ShowResults}"
-                SelectionMode="None">
+                SelectionMode="None"
+                SizeChanged="OnCardsSizeChanged">
+
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout
+                        Orientation="Vertical"
+                        Span="3"
+                        HorizontalItemSpacing="16"
+                        VerticalItemSpacing="16" />
+                </CollectionView.ItemsLayout>
 
                 <CollectionView.EmptyView>
                     <Label
                         Text="{loc:Tr Key='No budgets set for this month.'}"
                         Margin="24"
+                        TextColor="{DynamicResource InkMuted}"
                         HorizontalTextAlignment="Center" />
                 </CollectionView.EmptyView>
 
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:BudgetListItem">
-                        <Border
-                            Padding="16"
-                            Margin="0,0,0,8"
-                            StrokeShape="RoundRectangle 18"
-                            Stroke="{DynamicResource Border}"
-                            BackgroundColor="{DynamicResource Surface}">
+                        <Border Padding="18,16" VerticalOptions="Start">
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border" Binding="{Binding HasNoLimit}" Value="True">
+                                    <Setter Property="StrokeDashArray" Value="4,3" />
+                                </DataTrigger>
+                            </Border.Triggers>
 
-                            <Grid
-                                ColumnDefinitions="*,Auto,Auto"
-                                ColumnSpacing="16">
+                            <Grid>
+                                <!-- A category with a limit -->
+                                <VerticalStackLayout Spacing="12" IsVisible="{Binding HasLimit}">
+                                    <Grid ColumnDefinitions="38,*,Auto,Auto" ColumnSpacing="12">
+                                        <Border
+                                            WidthRequest="38"
+                                            HeightRequest="38"
+                                            StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 11"
+                                            BackgroundColor="{Binding Tint}">
+                                            <controls:IconView
+                                                Data="{x:Static controls:Icons.Wallet}"
+                                                Color="{Binding Color}"
+                                                WidthRequest="18"
+                                                HeightRequest="18"
+                                                HorizontalOptions="Center"
+                                                VerticalOptions="Center" />
+                                        </Border>
 
-                                <VerticalStackLayout Spacing="8">
-                                    <Label
-                                        Text="{Binding CategoryName}"
-                                        FontAttributes="Bold" />
+                                        <FlexLayout
+                                            Grid.Column="1"
+                                            Wrap="Wrap"
+                                            AlignItems="Center"
+                                            VerticalOptions="Center">
+                                            <Label
+                                                Text="{Binding CategoryName}"
+                                                FontSize="15"
+                                                FontFamily="ManropeBold"
+                                                Margin="0,0,10,0" />
+                                            <controls:Chip Text="{Binding StatusText}" ToneKey="{Binding StatusTone}" />
+                                        </FlexLayout>
 
-                                    <Label Text="{Binding Summary}" />
+                                        <controls:IconButton
+                                            Grid.Column="2"
+                                            Icon="{x:Static controls:Icons.Edit}"
+                                            Clicked="OnEditClicked" />
 
-                                    <ProgressBar Progress="{Binding Progress}">
-                                    <ProgressBar.Triggers>
-                                        <DataTrigger
-                                            TargetType="ProgressBar"
-                                            Binding="{Binding IsOverBudget}"
-                                            Value="True">
-                                            <Setter Property="ProgressColor" Value="{DynamicResource Danger}" />
-                                        </DataTrigger>
-                                    </ProgressBar.Triggers>
-                                </ProgressBar>
+                                        <controls:IconButton
+                                            Grid.Column="3"
+                                            Icon="{x:Static controls:Icons.More}"
+                                            Clicked="OnMoreClicked" />
+                                    </Grid>
 
-                                    <Label
-                                        Text="{Binding BalanceText}"
-                                        TextColor="{DynamicResource Success}">
+                                    <HorizontalStackLayout Spacing="8">
+                                        <Label
+                                            Text="{Binding AmountText}"
+                                            FontSize="22"
+                                            FontFamily="ManropeExtraBold" />
+                                        <Label
+                                            Text="{Binding LimitText}"
+                                            TextColor="{DynamicResource InkMuted}"
+                                            VerticalOptions="End"
+                                            Margin="0,0,0,3" />
+                                    </HorizontalStackLayout>
 
-                                        <Label.Triggers>
-                                            <DataTrigger
-                                                TargetType="Label"
-                                                Binding="{Binding IsOverBudget}"
-                                                Value="True">
+                                    <controls:MeterBar Value="{Binding Progress}" FillKey="{Binding StatusTone}" />
 
-                                                <Setter
-                                                    Property="TextColor"
-                                                    Value="{DynamicResource Danger}" />
-                                            </DataTrigger>
-                                        </Label.Triggers>
-                                    </Label>
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <Label
+                                            Text="{Binding FooterText}"
+                                            FontSize="13"
+                                            FontFamily="ManropeSemiBold"
+                                            TextColor="{DynamicResource Success}">
+                                            <Label.Triggers>
+                                                <DataTrigger TargetType="Label" Binding="{Binding StatusTone}" Value="Danger">
+                                                    <Setter Property="TextColor" Value="{DynamicResource Danger}" />
+                                                </DataTrigger>
+                                                <DataTrigger TargetType="Label" Binding="{Binding StatusTone}" Value="Warning">
+                                                    <Setter Property="TextColor" Value="{DynamicResource Warning}" />
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                        <Label
+                                            Grid.Column="1"
+                                            Text="{Binding PercentText}"
+                                            FontSize="13"
+                                            TextColor="{DynamicResource InkMuted}" />
+                                    </Grid>
                                 </VerticalStackLayout>
 
-                                <Button
-                                    Grid.Column="1"
-                                    Text="{loc:Tr Key='Edit'}"
-                                    Clicked="OnEditClicked"
-                                    VerticalOptions="Center" />
-                                <Button
-                                    Grid.Column="2"
-                                    Text="{loc:Tr Key='Remove limit'}"
-                                    Clicked="OnRemoveLimitClicked"
-                                    VerticalOptions="Center"
-                                    Style="{StaticResource DangerButton}" />
+                                <!-- A category without a limit -->
+                                <Grid
+                                    ColumnDefinitions="38,*,Auto"
+                                    ColumnSpacing="12"
+                                    IsVisible="{Binding HasNoLimit}">
+                                    <Border
+                                        WidthRequest="38"
+                                        HeightRequest="38"
+                                        StrokeThickness="0"
+                                        StrokeShape="RoundRectangle 11"
+                                        BackgroundColor="{Binding Tint}">
+                                        <controls:IconView
+                                            Data="{x:Static controls:Icons.Plus}"
+                                            Color="{Binding Color}"
+                                            WidthRequest="18"
+                                            HeightRequest="18"
+                                            HorizontalOptions="Center"
+                                            VerticalOptions="Center" />
+                                    </Border>
+
+                                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                                        <Label Text="{Binding CategoryName}" FontFamily="ManropeBold" />
+                                        <Label
+                                            Text="{Binding NoLimitText}"
+                                            FontSize="12"
+                                            TextColor="{DynamicResource InkMuted}" />
+                                    </VerticalStackLayout>
+
+                                    <controls:PillButton
+                                        Grid.Column="2"
+                                        Text="{loc:Tr Key='Set limit'}"
+                                        Clicked="OnEditClicked" />
+                                </Grid>
                             </Grid>
                         </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
         </Grid>
-    </Grid>
+    </controls:CenteredContainer>
 </ContentPage>
