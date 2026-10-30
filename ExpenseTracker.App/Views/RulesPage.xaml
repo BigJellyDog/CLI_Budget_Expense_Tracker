@@ -2,6 +2,7 @@
 <ContentPage
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:ExpenseTracker.App.Controls"
     xmlns:loc="clr-namespace:ExpenseTracker.App.Services"
     xmlns:vm="clr-namespace:ExpenseTracker.App.ViewModels"
     xmlns:models="clr-namespace:ExpenseTracker.App.Models"
@@ -52,11 +53,11 @@
                     Placeholder="{loc:Tr Key='Contains, e.g. LIDL'}"
                     Text="{Binding PatternText, Mode=TwoWay}" />
 
-                <Picker
+                <controls:DropDown
                     Grid.Column="1"
                     Title="{loc:Tr Key='Category'}"
                     ItemsSource="{Binding Categories}"
-                    ItemDisplayBinding="{Binding Name, x:DataType=core:Category}"
+                    DisplayMember="Name"
                     SelectedItem="{Binding SelectedCategory, Mode=TwoWay}" />
 
                 <Button

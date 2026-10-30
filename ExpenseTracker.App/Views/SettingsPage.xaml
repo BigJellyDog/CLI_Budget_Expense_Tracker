@@ -2,6 +2,7 @@
 <ContentPage
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:ExpenseTracker.App.Controls"
     xmlns:loc="clr-namespace:ExpenseTracker.App.Services"
     xmlns:sys="clr-namespace:System;assembly=System.Runtime"
     xmlns:vm="clr-namespace:ExpenseTracker.App.ViewModels"
@@ -31,13 +32,13 @@
                     TextColor="{DynamicResource InkMuted}"
                     FontSize="12" />
 
-                <Picker
+                <controls:DropDown
                     x:Name="LanguagePicker"
                     WidthRequest="240"
                     HorizontalOptions="Start"
                     Title="{loc:Tr Key='Language'}"
                     ItemsSource="{Binding LanguageOptions}"
-                    ItemDisplayBinding="{Binding Name, x:DataType=loc:LanguageOption}"
+                    DisplayMember="Name"
                     SelectedItem="{Binding SelectedLanguage, Mode=TwoWay}"
                     SelectedIndexChanged="OnLanguageChanged" />
             </VerticalStackLayout>
@@ -51,20 +52,20 @@
                     FontSize="12" />
 
                 <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-                    <Picker
+                    <controls:DropDown
                         x:Name="ModePicker"
                         Title="{loc:Tr Key='Mode'}"
                         ItemsSource="{Binding ModeOptions}"
-                        ItemDisplayBinding="{Binding ., x:DataType=sys:Object, Converter={x:Static loc:TrConverter.Instance}}"
+                        Translate="True"
                         SelectedItem="{Binding SelectedMode, Mode=TwoWay}"
                         SelectedIndexChanged="OnAppearanceChanged" />
 
-                    <Picker
+                    <controls:DropDown
                         x:Name="AccentPicker"
                         Grid.Column="1"
                         Title="{loc:Tr Key='Accent'}"
                         ItemsSource="{Binding AccentOptions}"
-                        ItemDisplayBinding="{Binding ., x:DataType=sys:Object, Converter={x:Static loc:TrConverter.Instance}}"
+                        Translate="True"
                         SelectedItem="{Binding SelectedAccent, Mode=TwoWay}"
                         SelectedIndexChanged="OnAppearanceChanged" />
                 </Grid>

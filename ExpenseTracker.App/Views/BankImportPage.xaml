@@ -2,6 +2,7 @@
 <ContentPage
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:ExpenseTracker.App.Controls"
     xmlns:loc="clr-namespace:ExpenseTracker.App.Services"
     xmlns:vm="clr-namespace:ExpenseTracker.App.ViewModels"
     xmlns:models="clr-namespace:ExpenseTracker.App.Models"
@@ -28,10 +29,10 @@
             RowSpacing="16">
 
             <VerticalStackLayout Spacing="8">
-                <Picker
+                <controls:DropDown
                     Title="{loc:Tr Key='File format'}"
                     ItemsSource="{Binding Formats}"
-                    ItemDisplayBinding="{Binding Name, x:DataType=models:ImportFormatOption}"
+                    DisplayMember="Name"
                     SelectedItem="{Binding SelectedFormat, Mode=TwoWay}"
                     IsEnabled="{Binding IsIdle}" />
 
@@ -60,18 +61,18 @@
                     <Label Text="{loc:Tr Key='How is this file written?'}" FontAttributes="Bold" />
 
                     <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12">
-                        <Picker
+                        <controls:DropDown
                             Title="{loc:Tr Key='Delimiter'}"
                             ItemsSource="{Binding Custom.DelimiterOptions}"
-                            ItemDisplayBinding="{Binding Name, x:DataType=models:DelimiterOption}"
+                            DisplayMember="Name"
                             SelectedItem="{Binding Custom.SelectedDelimiter, Mode=TwoWay}"
                             SelectedIndexChanged="OnDelimiterChanged" />
 
-                        <Picker
+                        <controls:DropDown
                             Grid.Column="1"
                             Title="{loc:Tr Key='Number format'}"
                             ItemsSource="{Binding Custom.CultureOptions}"
-                            ItemDisplayBinding="{Binding Label, x:DataType=models:CultureOption}"
+                            DisplayMember="Label"
                             SelectedItem="{Binding Custom.SelectedCulture, Mode=TwoWay}" />
 
                         <Entry
@@ -85,24 +86,24 @@
                         FontSize="12" />
 
                     <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="12">
-                        <Picker
+                        <controls:DropDown
                             Title="{loc:Tr Key='Date column'}"
                             ItemsSource="{Binding Custom.Headers}"
                             SelectedItem="{Binding Custom.SelectedDateColumn, Mode=TwoWay}" />
 
-                        <Picker
+                        <controls:DropDown
                             Grid.Column="1"
                             Title="{loc:Tr Key='Description column'}"
                             ItemsSource="{Binding Custom.Headers}"
                             SelectedItem="{Binding Custom.SelectedDescriptionColumn, Mode=TwoWay}" />
 
-                        <Picker
+                        <controls:DropDown
                             Grid.Column="2"
                             Title="{loc:Tr Key='Amount column'}"
                             ItemsSource="{Binding Custom.Headers}"
                             SelectedItem="{Binding Custom.SelectedAmountColumn, Mode=TwoWay}" />
 
-                        <Picker
+                        <controls:DropDown
                             Grid.Column="3"
                             Title="{loc:Tr Key='Currency column'}"
                             ItemsSource="{Binding Custom.CurrencyHeaders}"
@@ -110,10 +111,10 @@
                     </Grid>
 
                     <Grid ColumnDefinitions="*,140" ColumnSpacing="12">
-                        <Picker
+                        <controls:DropDown
                             Title="{loc:Tr Key='Sign of amounts'}"
                             ItemsSource="{Binding Custom.SignOptions}"
-                            ItemDisplayBinding="{Binding Label, x:DataType=models:SignOption}"
+                            DisplayMember="Label"
                             SelectedItem="{Binding Custom.SelectedSign, Mode=TwoWay}" />
 
                         <Entry
@@ -145,10 +146,10 @@
                     Text="{loc:Tr Key='Create a category on the Categories screen first, then choose the file again.'}"
                     IsVisible="{Binding NeedsCategory}" />
 
-                <Picker
+                <controls:DropDown
                     Title="{loc:Tr Key='Default category for all records'}"
                     ItemsSource="{Binding Categories}"
-                    ItemDisplayBinding="{Binding Name, x:DataType=core:Category}"
+                    DisplayMember="Name"
                     SelectedItem="{Binding SelectedCategory, Mode=TwoWay}" />
 
                 <Label
@@ -250,13 +251,13 @@
                                     Text="{Binding Reason}"
                                     FontSize="12" />
 
-                                <Picker
+                                <controls:DropDown
                                     Grid.Row="5"
                                     Grid.Column="1"
                                     Grid.ColumnSpan="2"
                                     Title="{loc:Tr Key='Category'}"
                                     ItemsSource="{Binding Categories}"
-                                    ItemDisplayBinding="{Binding Name, x:DataType=core:Category}"
+                                    DisplayMember="Name"
                                     SelectedItem="{Binding Category, Mode=TwoWay}"
                                     IsVisible="{Binding CanSelect}"
                                     IsEnabled="{Binding CanSelect}" />
