@@ -104,6 +104,12 @@ text wins.
 
 ![Categories](../images/en/categories.png)
 
+A new database starts with 18 standard categories (Food, Restaurants, Transport, Housing, Utilities, Health,
+Entertainment, Shopping, Clothing, Education, Travel, Gifts, Pets, Personal care, Insurance, Sports, Subscriptions,
+Other). They are named in the language of the screens, and when you change the language in Settings, the ones that
+still carry their standard name are renamed too (a category you renamed yourself is left alone). You can rename,
+recolor or delete them like any other.
+
 The screen has two parts. On the left is a compact list with a search field: categories with spending in the
 month first (largest first), then the unused ones. Arrows or a click on the month at the top change the month. On
 the right is everything about the category you chose.

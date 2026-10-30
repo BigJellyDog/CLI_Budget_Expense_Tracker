@@ -114,6 +114,12 @@ Kleinschreibung spielt keine Rolle. Passen mehrere Regeln, gewinnt der längste 
 
 ![Kategorien](../images/de/categories.png)
 
+Eine neue Datenbank beginnt mit 18 Standardkategorien (Lebensmittel, Restaurants, Verkehr, Wohnen, Nebenkosten,
+Gesundheit, Unterhaltung, Einkäufe, Kleidung, Bildung, Reisen, Geschenke, Haustiere, Körperpflege, Versicherungen,
+Sport, Abos, Sonstiges). Sie tragen Namen in der Sprache der Bildschirme, und beim Wechsel der Sprache in den
+Einstellungen werden die, die noch ihren Standardnamen tragen, mit umbenannt (eine selbst umbenannte Kategorie bleibt
+unverändert). Sie lassen sich wie jede andere umbenennen, umfärben oder löschen.
+
 Der Bildschirm hat zwei Teile. Links steht eine kompakte Liste mit Suchfeld: zuerst Kategorien mit Ausgaben im
 Monat (größte zuerst), danach die ungenutzten. Die Pfeile oder ein Klick auf den Monat oben wechseln den Monat.
 Rechts steht alles zur gewählten Kategorie.
