@@ -187,6 +187,9 @@ For payments that repeat: rent, subscriptions, insurance.
 - **Demo data**: **Load demo data** adds a year of sample expenses, budgets, recurring schedules and rules,
   counted back from today, so every screen has something to show. Your own data stays; a backup is made first.
   Loading it twice adds more expenses.
+- **Clear all data**: deletes every expense, budget, schedule, rule and category and starts again with the standard
+  categories, for example to remove the demo data. A backup is saved first; you can undo it with **Backup →
+  Restore from backup** on the Expenses screen.
 - **Where your data is**: the folder with the database, backups, exports, logs and settings.
 
 ## 9. Your data

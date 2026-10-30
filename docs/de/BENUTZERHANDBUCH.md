@@ -200,6 +200,9 @@ Für Zahlungen, die sich wiederholen: Miete, Abonnements, Versicherungen.
 - **Demodaten**: **Demodaten laden** fügt Beispielausgaben, Budgets, Wiederholungspläne und Regeln für ein Jahr hinzu,
   von heute rückwärts gerechnet, damit jeder Bildschirm etwas zeigt. Ihre eigenen Daten bleiben erhalten; zuvor wird
   eine Sicherung erstellt. Zweimaliges Laden fügt weitere Ausgaben hinzu.
+- **Alle Daten löschen**: löscht alle Ausgaben, Budgets, Pläne, Regeln und Kategorien und beginnt wieder mit den
+  Standardkategorien, zum Beispiel um die Demodaten zu entfernen. Zuvor wird eine Sicherung gespeichert; mit
+  **Sicherung → Aus Sicherung wiederherstellen** auf dem Ausgaben-Bildschirm machen Sie es rückgängig.
 - **Wo Ihre Daten liegen**: der Ordner mit Datenbank, Sicherungen, Exporten, Protokollen und Einstellungen.
 
 ## 9. Ihre Daten

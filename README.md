@@ -55,8 +55,8 @@ The German versions are in [`docs/de`](docs/de).
 
 A ready-to-run Windows build (64-bit, no installation, no .NET needed) is on the
 [Releases page](https://github.com/BigJellyDog/CLI_Budget_Expense_Tracker/releases/latest): download the zip,
-extract it and start `ExpenseTracker.App.exe`. The app starts empty: open **Settings → Load demo data** to fill
-every screen with a year of sample data.
+extract it and start `ExpenseTracker.App.exe`. The app starts with 18 standard categories and no expenses: open **Settings → Load demo data**
+to fill every screen with a year of sample data, and **Clear all data** to remove it again.
 
 ## Quick start (from source)
 
