@@ -6,8 +6,8 @@ using CLI_Budget_Expense_Tracker.Core.Models;
 public sealed record SettingsData(
     string Currency = "EUR",
     CsvImportProfile? LastCsvProfile = null,
-    ThemeMode ThemeMode = ThemeMode.System,
-    string Accent = "Lavender",
+    ThemeMode ThemeMode = ThemeMode.Black,
+    string Accent = "Mint",
     string Language = "en",
     Dictionary<string, int>? CategoryColors = null,
     Dictionary<string, string>? CategoryHex = null);

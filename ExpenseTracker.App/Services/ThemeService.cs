@@ -108,7 +108,7 @@ public sealed class ThemeService(AppSettings settings)
         IsDark = dark;
 
         if (!Palettes.TryGetValue(settings.Accent, out var pair))
-            pair = Palettes["Lavender"];
+            pair = Palettes["Mint"];
 
         var palette = dark ? pair.Dark : pair.Light;
 
