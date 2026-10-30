@@ -8,7 +8,7 @@
     x:DataType="vm:ExpenseEditorViewModel"
     Title="{Binding PageTitle}"
     NavigationPage.HasBackButton="{Binding CanGoBack}"
-    BackgroundColor="{AppThemeBinding Light=#F5F6FA, Dark=#151821}">
+    BackgroundColor="{DynamicResource Bg}">
 
     <ScrollView>
         <VerticalStackLayout
@@ -23,17 +23,17 @@
             <Label
                 Text="{Binding ErrorMessage}"
                 IsVisible="{Binding HasError}"
-                TextColor="{AppThemeBinding Light=#B42318, Dark=#FFB4AB}" />
+                TextColor="{DynamicResource Danger}" />
 
             <Label
                 Text="{Binding SavedMessage}"
                 IsVisible="{Binding IsSaved}"
-                TextColor="{AppThemeBinding Light=#18794E, Dark=#75D6A6}" />
+                TextColor="{DynamicResource Success}" />
 
             <Label
                 Text="{Binding LimitWarning}"
                 IsVisible="{Binding HasLimitWarning}"
-                TextColor="{AppThemeBinding Light=#B54708, Dark=#FEC84B}" />
+                TextColor="{DynamicResource Warning}" />
 
             <Button
                 Text="Add another expense"
@@ -72,6 +72,7 @@
                     <Button
                         Grid.Column="1"
                         Text="Create category"
+                        Style="{StaticResource PrimaryButton}"
                         Clicked="OnAddCategoryClicked" />
                 </Grid>
 
@@ -119,6 +120,7 @@
 
                 <Button
                     Text="{Binding SaveButtonText}"
+                    Style="{StaticResource PrimaryButton}"
                     Clicked="OnSaveClicked" />
             </VerticalStackLayout>
         </VerticalStackLayout>

@@ -9,7 +9,7 @@
     x:DataType="vm:RulesViewModel"
     Title="Auto-categorization rules"
     NavigationPage.HasBackButton="{Binding CanGoBack}"
-    BackgroundColor="{AppThemeBinding Light=#F5F6FA, Dark=#151821}">
+    BackgroundColor="{DynamicResource Bg}">
 
     <Grid
         Padding="24"
@@ -61,6 +61,7 @@
                 <Button
                     Grid.Column="2"
                     Text="Add rule"
+                    Style="{StaticResource PrimaryButton}"
                     Clicked="OnAddClicked" />
             </Grid>
         </VerticalStackLayout>
@@ -73,12 +74,12 @@
             <Label
                 Text="{Binding ErrorMessage}"
                 IsVisible="{Binding HasError}"
-                TextColor="{AppThemeBinding Light=#B42318, Dark=#FFB4AB}" />
+                TextColor="{DynamicResource Danger}" />
 
             <Label
                 Text="{Binding SuccessMessage}"
                 IsVisible="{Binding HasSuccess}"
-                TextColor="{AppThemeBinding Light=#18794E, Dark=#75D6A6}" />
+                TextColor="{DynamicResource Success}" />
         </VerticalStackLayout>
 
         <CollectionView
@@ -99,9 +100,9 @@
                     <Border
                         Padding="16"
                         Margin="0,0,0,8"
-                        StrokeShape="RoundRectangle 10"
-                        Stroke="{AppThemeBinding Light=#D8DDE8, Dark=#384054}"
-                        BackgroundColor="{AppThemeBinding Light=White, Dark=#202532}">
+                        StrokeShape="RoundRectangle 18"
+                        Stroke="{DynamicResource Border}"
+                        BackgroundColor="{DynamicResource Surface}">
 
                         <Grid
                             ColumnDefinitions="*,*,Auto"
@@ -123,8 +124,8 @@
                                 Grid.Column="2"
                                 Text="Delete"
                                 Clicked="OnDeleteClicked"
-                                BackgroundColor="{AppThemeBinding Light=#B42318, Dark=#A32A25}"
-                                TextColor="White" />
+                                BackgroundColor="{DynamicResource Danger}"
+                                TextColor="{DynamicResource Bg}" />
                         </Grid>
                     </Border>
                 </DataTemplate>

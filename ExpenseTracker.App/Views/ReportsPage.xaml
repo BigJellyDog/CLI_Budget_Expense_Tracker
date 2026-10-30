@@ -6,149 +6,159 @@
     xmlns:models="clr-namespace:ExpenseTracker.App.Models"
     x:Class="ExpenseTracker.App.Views.ReportsPage"
     x:DataType="vm:ReportsViewModel"
+    Shell.NavBarIsVisible="False"
     Title="Reports"
     NavigationPage.HasBackButton="{Binding CanGoBack}"
-    BackgroundColor="{AppThemeBinding Light=#F5F6FA, Dark=#151821}">
+    BackgroundColor="{DynamicResource Bg}">
 
-    <ScrollView>
-        <VerticalStackLayout
-            Padding="24"
-            Spacing="16"
-            MaximumWidthRequest="800">
+    <Grid RowDefinitions="Auto,*">
 
-            <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="12">
-                <Button
-                    Text="Previous"
-                    Clicked="OnPreviousClicked"
-                    IsEnabled="{Binding CanPreviousMonth}" />
+        <Label
+            Text="Reports"
+            FontSize="26"
+            FontFamily="ManropeExtraBold"
+            Padding="24,24,24,0" />
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout
+                Padding="12,8,24,24"
+                Spacing="16"
+                MaximumWidthRequest="800">
+
+                <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="12">
+                    <Button
+                        Text="Previous"
+                        Clicked="OnPreviousClicked"
+                        IsEnabled="{Binding CanPreviousMonth}" />
+
+                    <Label
+                        Grid.Column="1"
+                        Text="{Binding MonthTitle}"
+                        FontSize="20"
+                        FontAttributes="Bold"
+                        HorizontalTextAlignment="Center"
+                        VerticalOptions="Center" />
+
+                    <Button
+                        Grid.Column="2"
+                        Text="Next"
+                        Clicked="OnNextClicked"
+                        IsEnabled="{Binding CanNextMonth}" />
+
+                    <Button
+                        Grid.Column="3"
+                        Text="Refresh"
+                        Clicked="OnRefreshClicked"
+                        IsEnabled="{Binding CanNavigate}" />
+                </Grid>
+
+                <ActivityIndicator
+                    IsRunning="{Binding IsBusy}"
+                    IsVisible="{Binding IsBusy}" />
 
                 <Label
-                    Grid.Column="1"
-                    Text="{Binding MonthTitle}"
-                    FontSize="20"
-                    FontAttributes="Bold"
-                    HorizontalTextAlignment="Center"
-                    VerticalOptions="Center" />
+                    Text="{Binding ErrorMessage}"
+                    IsVisible="{Binding HasError}"
+                    TextColor="{DynamicResource Danger}" />
 
-                <Button
-                    Grid.Column="2"
-                    Text="Next"
-                    Clicked="OnNextClicked"
-                    IsEnabled="{Binding CanNextMonth}" />
+                <VerticalStackLayout Spacing="16" IsVisible="{Binding ShowResults}">
 
-                <Button
-                    Grid.Column="3"
-                    Text="Refresh"
-                    Clicked="OnRefreshClicked"
-                    IsEnabled="{Binding CanNavigate}" />
-            </Grid>
+                    <VerticalStackLayout Spacing="4">
+                        <Label
+                            Text="{Binding TotalText}"
+                            FontSize="22"
+                            FontAttributes="Bold" />
+                        <Label Text="{Binding ComparisonText}" />
+                        <Label Text="{Binding AverageText}" />
+                        <Label
+                            Text="{Binding ForecastText}"
+                            IsVisible="{Binding HasForecast}" />
+                    </VerticalStackLayout>
 
-            <ActivityIndicator
-                IsRunning="{Binding IsBusy}"
-                IsVisible="{Binding IsBusy}" />
-
-            <Label
-                Text="{Binding ErrorMessage}"
-                IsVisible="{Binding HasError}"
-                TextColor="{AppThemeBinding Light=#B42318, Dark=#FFB4AB}" />
-
-            <VerticalStackLayout Spacing="16" IsVisible="{Binding ShowResults}">
-
-                <VerticalStackLayout Spacing="4">
                     <Label
-                        Text="{Binding TotalText}"
-                        FontSize="22"
+                        Text="No expenses for this month or the month before."
+                        IsVisible="{Binding ShowEmpty}" />
+
+                    <Label
+                        Text="By category"
+                        FontSize="18"
                         FontAttributes="Bold" />
-                    <Label Text="{Binding ComparisonText}" />
-                    <Label Text="{Binding AverageText}" />
+
+                    <VerticalStackLayout
+                        BindableLayout.ItemsSource="{Binding Categories}"
+                        Spacing="8">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="models:CategoryReportItem">
+                                <Border
+                                    Padding="16"
+                                    StrokeShape="RoundRectangle 18"
+                                    Stroke="{DynamicResource Border}"
+                                    BackgroundColor="{DynamicResource Surface}">
+                                    <Grid
+                                        ColumnDefinitions="*,Auto,Auto"
+                                        RowDefinitions="Auto,Auto,Auto"
+                                        ColumnSpacing="16"
+                                        RowSpacing="6">
+                                        <Label
+                                            Text="{Binding CategoryName}"
+                                            FontAttributes="Bold" />
+                                        <Label
+                                            Grid.Column="1"
+                                            Text="{Binding TotalText}"
+                                            FontAttributes="Bold" />
+                                        <Label
+                                            Grid.Column="2"
+                                            Text="{Binding ChangeText}"
+                                            MinimumWidthRequest="56"
+                                            HorizontalTextAlignment="End" />
+                                        <ProgressBar
+                                            Grid.Row="1"
+                                            Grid.ColumnSpan="3"
+                                            Progress="{Binding Share}" />
+                                        <Label
+                                            Grid.Row="2"
+                                            Grid.ColumnSpan="3"
+                                            Text="{Binding PreviousText}"
+                                            FontSize="12" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+
                     <Label
-                        Text="{Binding ForecastText}"
-                        IsVisible="{Binding HasForecast}" />
-                </VerticalStackLayout>
+                        Text="Largest expenses"
+                        FontSize="18"
+                        FontAttributes="Bold" />
 
-                <Label
-                    Text="No expenses for this month or the month before."
-                    IsVisible="{Binding ShowEmpty}" />
-
-                <Label
-                    Text="By category"
-                    FontSize="18"
-                    FontAttributes="Bold" />
-
-                <VerticalStackLayout
-                    BindableLayout.ItemsSource="{Binding Categories}"
-                    Spacing="8">
-                    <BindableLayout.ItemTemplate>
-                        <DataTemplate x:DataType="models:CategoryReportItem">
-                            <Border
-                                Padding="16"
-                                StrokeShape="RoundRectangle 10"
-                                Stroke="{AppThemeBinding Light=#D8DDE8, Dark=#384054}"
-                                BackgroundColor="{AppThemeBinding Light=White, Dark=#202532}">
-                                <Grid
-                                    ColumnDefinitions="*,Auto,Auto"
-                                    RowDefinitions="Auto,Auto,Auto"
-                                    ColumnSpacing="16"
-                                    RowSpacing="6">
-                                    <Label
-                                        Text="{Binding CategoryName}"
-                                        FontAttributes="Bold" />
-                                    <Label
-                                        Grid.Column="1"
-                                        Text="{Binding TotalText}"
-                                        FontAttributes="Bold" />
-                                    <Label
-                                        Grid.Column="2"
-                                        Text="{Binding ChangeText}"
-                                        MinimumWidthRequest="56"
-                                        HorizontalTextAlignment="End" />
-                                    <ProgressBar
-                                        Grid.Row="1"
-                                        Grid.ColumnSpan="3"
-                                        Progress="{Binding Share}" />
-                                    <Label
-                                        Grid.Row="2"
-                                        Grid.ColumnSpan="3"
-                                        Text="{Binding PreviousText}"
-                                        FontSize="12" />
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </BindableLayout.ItemTemplate>
-                </VerticalStackLayout>
-
-                <Label
-                    Text="Largest expenses"
-                    FontSize="18"
-                    FontAttributes="Bold" />
-
-                <VerticalStackLayout
-                    BindableLayout.ItemsSource="{Binding TopExpenses}"
-                    Spacing="8">
-                    <BindableLayout.ItemTemplate>
-                        <DataTemplate x:DataType="models:TopExpenseItem">
-                            <Border
-                                Padding="16"
-                                StrokeShape="RoundRectangle 10"
-                                Stroke="{AppThemeBinding Light=#D8DDE8, Dark=#384054}"
-                                BackgroundColor="{AppThemeBinding Light=White, Dark=#202532}">
-                                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
-                                    <Label Text="{Binding Title}" FontAttributes="Bold" />
-                                    <Label
-                                        Grid.Column="1"
-                                        Text="{Binding AmountText}"
-                                        FontAttributes="Bold" />
-                                    <Label
-                                        Grid.Row="1"
-                                        Grid.ColumnSpan="2"
-                                        Text="{Binding DateText}"
-                                        FontSize="12" />
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </BindableLayout.ItemTemplate>
+                    <VerticalStackLayout
+                        BindableLayout.ItemsSource="{Binding TopExpenses}"
+                        Spacing="8">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="models:TopExpenseItem">
+                                <Border
+                                    Padding="16"
+                                    StrokeShape="RoundRectangle 18"
+                                    Stroke="{DynamicResource Border}"
+                                    BackgroundColor="{DynamicResource Surface}">
+                                    <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+                                        <Label Text="{Binding Title}" FontAttributes="Bold" />
+                                        <Label
+                                            Grid.Column="1"
+                                            Text="{Binding AmountText}"
+                                            FontAttributes="Bold" />
+                                        <Label
+                                            Grid.Row="1"
+                                            Grid.ColumnSpan="2"
+                                            Text="{Binding DateText}"
+                                            FontSize="12" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
                 </VerticalStackLayout>
             </VerticalStackLayout>
-        </VerticalStackLayout>
-    </ScrollView>
+        </ScrollView>
+    </Grid>
 </ContentPage>

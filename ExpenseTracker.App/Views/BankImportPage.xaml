@@ -7,259 +7,271 @@
     xmlns:core="clr-namespace:CLI_Budget_Expense_Tracker.Core.Models;assembly=CLI_Budget_Expense_Tracker.Core"
     x:Class="ExpenseTracker.App.Views.BankImportPage"
     x:DataType="vm:BankImportViewModel"
+    Shell.NavBarIsVisible="False"
     Title="Bank CSV import"
     NavigationPage.HasBackButton="{Binding IsIdle}"
-    BackgroundColor="{AppThemeBinding Light=#F5F6FA, Dark=#151821}">
+    BackgroundColor="{DynamicResource Bg}">
 
-    <Grid
-        Padding="24"
-        RowDefinitions="Auto,Auto,Auto,*"
-        RowSpacing="16">
+    <Grid RowDefinitions="Auto,*">
 
-        <VerticalStackLayout Spacing="8">
-            <Picker
-                Title="File format"
-                ItemsSource="{Binding Formats}"
-                ItemDisplayBinding="{Binding Name, x:DataType=models:ImportFormatOption}"
-                SelectedItem="{Binding SelectedFormat, Mode=TwoWay}"
-                IsEnabled="{Binding IsIdle}" />
+        <Label
+            Text="Import CSV"
+            FontSize="26"
+            FontFamily="ManropeExtraBold"
+            Padding="24,24,24,0" />
 
-            <HorizontalStackLayout Spacing="12">
-                <Button
-                    Text="Choose CSV"
-                    Clicked="OnChooseFileClicked"
+        <Grid
+            Grid.Row="1"
+            Padding="24,8,24,24"
+            RowDefinitions="Auto,Auto,Auto,*"
+            RowSpacing="16">
+
+            <VerticalStackLayout Spacing="8">
+                <Picker
+                    Title="File format"
+                    ItemsSource="{Binding Formats}"
+                    ItemDisplayBinding="{Binding Name, x:DataType=models:ImportFormatOption}"
+                    SelectedItem="{Binding SelectedFormat, Mode=TwoWay}"
                     IsEnabled="{Binding IsIdle}" />
 
-                <Button
-                    Text="Auto-categorization rules"
-                    Clicked="OnEditRulesClicked"
-                    IsEnabled="{Binding IsIdle}" />
-            </HorizontalStackLayout>
+                <HorizontalStackLayout Spacing="12">
+                    <Button
+                        Text="Choose CSV"
+                        Clicked="OnChooseFileClicked"
+                        IsEnabled="{Binding IsIdle}" />
 
-            <Label Text="{Binding FormatHint}" />
+                    <Button
+                        Text="Auto-categorization rules"
+                        Clicked="OnEditRulesClicked"
+                        IsEnabled="{Binding IsIdle}" />
+                </HorizontalStackLayout>
 
-            <Label Text="Choose a file, tick the records to import and set a category for each one (the default category is used until you change it), then press Import selected. Records already imported are skipped." />
+                <Label Text="{Binding FormatHint}" />
 
-            <Label
-                Text="{Binding FileName}"
-                FontAttributes="Bold"
-                LineBreakMode="MiddleTruncation" />
-
-            <VerticalStackLayout Spacing="8" IsVisible="{Binding ShowMapping}">
-                <Label Text="How is this file written?" FontAttributes="Bold" />
-
-                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12">
-                    <Picker
-                        Title="Delimiter"
-                        ItemsSource="{Binding Custom.DelimiterOptions}"
-                        ItemDisplayBinding="{Binding Name, x:DataType=models:DelimiterOption}"
-                        SelectedItem="{Binding Custom.SelectedDelimiter, Mode=TwoWay}"
-                        SelectedIndexChanged="OnDelimiterChanged" />
-
-                    <Picker
-                        Grid.Column="1"
-                        Title="Number format"
-                        ItemsSource="{Binding Custom.CultureOptions}"
-                        ItemDisplayBinding="{Binding Label, x:DataType=models:CultureOption}"
-                        SelectedItem="{Binding Custom.SelectedCulture, Mode=TwoWay}" />
-
-                    <Entry
-                        Grid.Column="2"
-                        Placeholder="Date format"
-                        Text="{Binding Custom.DateFormat, Mode=TwoWay}" />
-                </Grid>
+                <Label Text="Choose a file, tick the records to import and set a category for each one (the default category is used until you change it), then press Import selected. Records already imported are skipped." />
 
                 <Label
-                    Text="Date format examples: yyyy-MM-dd, dd.MM.yyyy, MM/dd/yyyy (MM is the month, mm is minutes)."
-                    FontSize="12" />
+                    Text="{Binding FileName}"
+                    FontAttributes="Bold"
+                    LineBreakMode="MiddleTruncation" />
 
-                <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="12">
-                    <Picker
-                        Title="Date column"
-                        ItemsSource="{Binding Custom.Headers}"
-                        SelectedItem="{Binding Custom.SelectedDateColumn, Mode=TwoWay}" />
+                <VerticalStackLayout Spacing="8" IsVisible="{Binding ShowMapping}">
+                    <Label Text="How is this file written?" FontAttributes="Bold" />
 
-                    <Picker
-                        Grid.Column="1"
-                        Title="Description column"
-                        ItemsSource="{Binding Custom.Headers}"
-                        SelectedItem="{Binding Custom.SelectedDescriptionColumn, Mode=TwoWay}" />
+                    <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12">
+                        <Picker
+                            Title="Delimiter"
+                            ItemsSource="{Binding Custom.DelimiterOptions}"
+                            ItemDisplayBinding="{Binding Name, x:DataType=models:DelimiterOption}"
+                            SelectedItem="{Binding Custom.SelectedDelimiter, Mode=TwoWay}"
+                            SelectedIndexChanged="OnDelimiterChanged" />
 
-                    <Picker
-                        Grid.Column="2"
-                        Title="Amount column"
-                        ItemsSource="{Binding Custom.Headers}"
-                        SelectedItem="{Binding Custom.SelectedAmountColumn, Mode=TwoWay}" />
+                        <Picker
+                            Grid.Column="1"
+                            Title="Number format"
+                            ItemsSource="{Binding Custom.CultureOptions}"
+                            ItemDisplayBinding="{Binding Label, x:DataType=models:CultureOption}"
+                            SelectedItem="{Binding Custom.SelectedCulture, Mode=TwoWay}" />
 
-                    <Picker
-                        Grid.Column="3"
-                        Title="Currency column"
-                        ItemsSource="{Binding Custom.CurrencyHeaders}"
-                        SelectedItem="{Binding Custom.SelectedCurrencyColumn, Mode=TwoWay}" />
-                </Grid>
+                        <Entry
+                            Grid.Column="2"
+                            Placeholder="Date format"
+                            Text="{Binding Custom.DateFormat, Mode=TwoWay}" />
+                    </Grid>
 
-                <Grid ColumnDefinitions="*,140" ColumnSpacing="12">
-                    <Picker
-                        Title="Sign of amounts"
-                        ItemsSource="{Binding Custom.SignOptions}"
-                        ItemDisplayBinding="{Binding Label, x:DataType=models:SignOption}"
-                        SelectedItem="{Binding Custom.SelectedSign, Mode=TwoWay}" />
+                    <Label
+                        Text="Date format examples: yyyy-MM-dd, dd.MM.yyyy, MM/dd/yyyy (MM is the month, mm is minutes)."
+                        FontSize="12" />
 
-                    <Entry
-                        Grid.Column="1"
-                        Placeholder="Currency, e.g. EUR"
-                        Text="{Binding Custom.DefaultCurrency, Mode=TwoWay}" />
-                </Grid>
+                    <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="12">
+                        <Picker
+                            Title="Date column"
+                            ItemsSource="{Binding Custom.Headers}"
+                            SelectedItem="{Binding Custom.SelectedDateColumn, Mode=TwoWay}" />
+
+                        <Picker
+                            Grid.Column="1"
+                            Title="Description column"
+                            ItemsSource="{Binding Custom.Headers}"
+                            SelectedItem="{Binding Custom.SelectedDescriptionColumn, Mode=TwoWay}" />
+
+                        <Picker
+                            Grid.Column="2"
+                            Title="Amount column"
+                            ItemsSource="{Binding Custom.Headers}"
+                            SelectedItem="{Binding Custom.SelectedAmountColumn, Mode=TwoWay}" />
+
+                        <Picker
+                            Grid.Column="3"
+                            Title="Currency column"
+                            ItemsSource="{Binding Custom.CurrencyHeaders}"
+                            SelectedItem="{Binding Custom.SelectedCurrencyColumn, Mode=TwoWay}" />
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*,140" ColumnSpacing="12">
+                        <Picker
+                            Title="Sign of amounts"
+                            ItemsSource="{Binding Custom.SignOptions}"
+                            ItemDisplayBinding="{Binding Label, x:DataType=models:SignOption}"
+                            SelectedItem="{Binding Custom.SelectedSign, Mode=TwoWay}" />
+
+                        <Entry
+                            Grid.Column="1"
+                            Placeholder="Currency, e.g. EUR"
+                            Text="{Binding Custom.DefaultCurrency, Mode=TwoWay}" />
+                    </Grid>
+
+                    <Button
+                        Text="Show preview"
+                        Clicked="OnShowPreviewClicked"
+                        HorizontalOptions="Start" />
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout
+                Grid.Row="1"
+                Spacing="8"
+                IsVisible="{Binding ShowPreview}">
+
+                <Label Text="{Binding Summary}" />
+
+                <Label
+                    Text="{Binding TotalText}"
+                    FontSize="18"
+                    FontAttributes="Bold" />
+
+                <Label
+                    Text="Create a category on the Categories screen first, then choose the file again."
+                    IsVisible="{Binding NeedsCategory}" />
+
+                <Picker
+                    Title="Default category for all records"
+                    ItemsSource="{Binding Categories}"
+                    ItemDisplayBinding="{Binding Name, x:DataType=core:Category}"
+                    SelectedItem="{Binding SelectedCategory, Mode=TwoWay}" />
+
+                <Label
+                    Text="{Binding SelectionText}"
+                    FontAttributes="Bold" />
 
                 <Button
-                    Text="Show preview"
-                    Clicked="OnShowPreviewClicked"
+                    Text="Import selected"
+                    Style="{StaticResource PrimaryButton}"
+                    Clicked="OnImportClicked"
+                    IsEnabled="{Binding CanImport}"
                     HorizontalOptions="Start" />
             </VerticalStackLayout>
-        </VerticalStackLayout>
 
-        <VerticalStackLayout
-            Grid.Row="1"
-            Spacing="8"
-            IsVisible="{Binding ShowPreview}">
+            <VerticalStackLayout Grid.Row="2" Spacing="8">
+                <ActivityIndicator
+                    IsRunning="{Binding IsBusy}"
+                    IsVisible="{Binding IsBusy}" />
 
-            <Label Text="{Binding Summary}" />
-
-            <Label
-                Text="{Binding TotalText}"
-                FontSize="18"
-                FontAttributes="Bold" />
-
-            <Label
-                Text="Create a category on the Categories screen first, then choose the file again."
-                IsVisible="{Binding NeedsCategory}" />
-
-            <Picker
-                Title="Default category for all records"
-                ItemsSource="{Binding Categories}"
-                ItemDisplayBinding="{Binding Name, x:DataType=core:Category}"
-                SelectedItem="{Binding SelectedCategory, Mode=TwoWay}" />
-
-            <Label
-                Text="{Binding SelectionText}"
-                FontAttributes="Bold" />
-
-            <Button
-                Text="Import selected"
-                Clicked="OnImportClicked"
-                IsEnabled="{Binding CanImport}"
-                HorizontalOptions="Start" />
-        </VerticalStackLayout>
-
-        <VerticalStackLayout Grid.Row="2" Spacing="8">
-            <ActivityIndicator
-                IsRunning="{Binding IsBusy}"
-                IsVisible="{Binding IsBusy}" />
-
-            <Label
-                Text="{Binding ErrorMessage}"
-                IsVisible="{Binding HasError}"
-                TextColor="{AppThemeBinding Light=#B42318, Dark=#FFB4AB}" />
-
-            <Label
-                Text="{Binding ResultMessage}"
-                IsVisible="{Binding HasResult}"
-                TextColor="{AppThemeBinding Light=#18794E, Dark=#75D6A6}" />
-        </VerticalStackLayout>
-
-        <CollectionView
-            Grid.Row="3"
-            ItemsSource="{Binding Items}"
-            IsVisible="{Binding ShowPreview}"
-            SelectionMode="None">
-
-            <CollectionView.EmptyView>
                 <Label
-                    Text="The statement contains no transactions."
-                    Margin="24"
-                    HorizontalTextAlignment="Center" />
-            </CollectionView.EmptyView>
+                    Text="{Binding ErrorMessage}"
+                    IsVisible="{Binding HasError}"
+                    TextColor="{DynamicResource Danger}" />
 
-            <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="models:BankImportListItem">
-                    <Border
-                        Padding="16"
-                        Margin="0,0,0,8"
-                        StrokeShape="RoundRectangle 10"
-                        Stroke="{AppThemeBinding Light=#D8DDE8, Dark=#384054}"
-                        BackgroundColor="{AppThemeBinding Light=White, Dark=#202532}">
+                <Label
+                    Text="{Binding ResultMessage}"
+                    IsVisible="{Binding HasResult}"
+                    TextColor="{DynamicResource Success}" />
+            </VerticalStackLayout>
 
-                        <Grid
-                            ColumnDefinitions="Auto,*,Auto"
-                            RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto"
-                            ColumnSpacing="16"
-                            RowSpacing="6">
+            <CollectionView
+                Grid.Row="3"
+                ItemsSource="{Binding Items}"
+                IsVisible="{Binding ShowPreview}"
+                SelectionMode="None">
 
-                            <CheckBox
-                                Grid.RowSpan="2"
-                                IsChecked="{Binding IsSelected, Mode=TwoWay}"
-                                IsEnabled="{Binding CanSelect}"
-                                VerticalOptions="Start" />
+                <CollectionView.EmptyView>
+                    <Label
+                        Text="The statement contains no transactions."
+                        Margin="24"
+                        HorizontalTextAlignment="Center" />
+                </CollectionView.EmptyView>
 
-                            <Label
-                                Grid.Column="1"
-                                Text="{Binding Kind}"
-                                FontAttributes="Bold" />
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:BankImportListItem">
+                        <Border
+                            Padding="16"
+                            Margin="0,0,0,8"
+                            StrokeShape="RoundRectangle 18"
+                            Stroke="{DynamicResource Border}"
+                            BackgroundColor="{DynamicResource Surface}">
 
-                            <Label
-                                Grid.Column="2"
-                                Text="{Binding Amount}"
-                                FontAttributes="Bold"
-                                HorizontalTextAlignment="End" />
+                            <Grid
+                                ColumnDefinitions="Auto,*,Auto"
+                                RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto"
+                                ColumnSpacing="16"
+                                RowSpacing="6">
 
-                            <Label
-                                Grid.Row="1"
-                                Grid.Column="1"
-                                Grid.ColumnSpan="2"
-                                Text="{Binding Description}" />
+                                <CheckBox
+                                    Grid.RowSpan="2"
+                                    IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                    IsEnabled="{Binding CanSelect}"
+                                    VerticalOptions="Start" />
 
-                            <Label
-                                Grid.Row="2"
-                                Grid.Column="1"
-                                Grid.ColumnSpan="2"
-                                Text="{Binding Date}" />
+                                <Label
+                                    Grid.Column="1"
+                                    Text="{Binding Kind}"
+                                    FontAttributes="Bold" />
 
-                            <Label
-                                Grid.Row="3"
-                                Grid.Column="1"
-                                Grid.ColumnSpan="2"
-                                Text="{Binding Details}"
-                                FontSize="12" />
+                                <Label
+                                    Grid.Column="2"
+                                    Text="{Binding Amount}"
+                                    FontAttributes="Bold"
+                                    HorizontalTextAlignment="End" />
 
-                            <Label
-                                Grid.Row="4"
-                                Grid.Column="1"
-                                Grid.ColumnSpan="2"
-                                Text="{Binding Reason}"
-                                FontSize="12" />
+                                <Label
+                                    Grid.Row="1"
+                                    Grid.Column="1"
+                                    Grid.ColumnSpan="2"
+                                    Text="{Binding Description}" />
 
-                            <Picker
-                                Grid.Row="5"
-                                Grid.Column="1"
-                                Grid.ColumnSpan="2"
-                                Title="Category"
-                                ItemsSource="{Binding Categories}"
-                                ItemDisplayBinding="{Binding Name, x:DataType=core:Category}"
-                                SelectedItem="{Binding Category, Mode=TwoWay}"
-                                IsVisible="{Binding CanSelect}"
-                                IsEnabled="{Binding CanSelect}" />
+                                <Label
+                                    Grid.Row="2"
+                                    Grid.Column="1"
+                                    Grid.ColumnSpan="2"
+                                    Text="{Binding Date}" />
 
-                            <Label
-                                Grid.Row="6"
-                                Grid.Column="1"
-                                Grid.ColumnSpan="2"
-                                Text="{Binding RuleNote}"
-                                IsVisible="{Binding HasRuleNote}"
-                                FontSize="12" />
-                        </Grid>
-                    </Border>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+                                <Label
+                                    Grid.Row="3"
+                                    Grid.Column="1"
+                                    Grid.ColumnSpan="2"
+                                    Text="{Binding Details}"
+                                    FontSize="12" />
+
+                                <Label
+                                    Grid.Row="4"
+                                    Grid.Column="1"
+                                    Grid.ColumnSpan="2"
+                                    Text="{Binding Reason}"
+                                    FontSize="12" />
+
+                                <Picker
+                                    Grid.Row="5"
+                                    Grid.Column="1"
+                                    Grid.ColumnSpan="2"
+                                    Title="Category"
+                                    ItemsSource="{Binding Categories}"
+                                    ItemDisplayBinding="{Binding Name, x:DataType=core:Category}"
+                                    SelectedItem="{Binding Category, Mode=TwoWay}"
+                                    IsVisible="{Binding CanSelect}"
+                                    IsEnabled="{Binding CanSelect}" />
+
+                                <Label
+                                    Grid.Row="6"
+                                    Grid.Column="1"
+                                    Grid.ColumnSpan="2"
+                                    Text="{Binding RuleNote}"
+                                    IsVisible="{Binding HasRuleNote}"
+                                    FontSize="12" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Grid>
     </Grid>
 </ContentPage>
