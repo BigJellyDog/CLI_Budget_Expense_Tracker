@@ -53,7 +53,6 @@ public static class PopupMenu
 
         var panel = new StackPanel { Spacing = 2, RequestedTheme = Theme };
 
-        var hover = Brush("Surface2");
         var soft = Brush("AccentSoft");
         var none = new SolidColorBrush(Microsoft.UI.Colors.Transparent);
 
@@ -61,41 +60,37 @@ public static class PopupMenu
         {
             var index = i;
             var isSelected = i == selected;
-            var fill = isSelected ? soft : none;
 
-            var button = new Microsoft.UI.Xaml.Controls.Button
+            // A plain border, not a Button: the Button template paints its own hover color.
+            var text = new TextBlock
             {
-                Content = texts[i],
-                HorizontalAlignment = HorizontalAlignment.Stretch,
-                HorizontalContentAlignment = HorizontalAlignment.Left,
-                Padding = new Thickness(14, 9, 14, 9),
-                MinHeight = 36,
-                CornerRadius = new CornerRadius(12),
-                BorderThickness = new Thickness(0),
-                Background = fill,
-                Foreground = Brush("Ink"),
+                Text = texts[i],
+                Foreground = Brush(isSelected ? "Accent" : "Ink"),
                 FontFamily = new FontFamily("Manrope"),
                 FontSize = 14,
-                FontWeight = isSelected ? FontWeights.Bold : FontWeights.Medium
+                FontWeight = isSelected ? FontWeights.Bold : FontWeights.Medium,
+                VerticalAlignment = VerticalAlignment.Center
             };
 
-            button.Resources["ButtonBackground"] = fill;
-            button.Resources["ButtonBackgroundPointerOver"] = isSelected ? soft : hover;
-            button.Resources["ButtonBackgroundPressed"] = isSelected ? soft : hover;
-            button.Resources["ButtonForeground"] = Brush("Ink");
-            button.Resources["ButtonForegroundPointerOver"] = Brush("Ink");
-            button.Resources["ButtonForegroundPressed"] = Brush("Ink");
-            button.Resources["ButtonBorderBrush"] = none;
-            button.Resources["ButtonBorderBrushPointerOver"] = none;
-            button.Resources["ButtonBorderBrushPressed"] = none;
+            var item = new Border
+            {
+                Child = text,
+                Background = none,
+                CornerRadius = new CornerRadius(12),
+                Padding = new Thickness(14, 9, 14, 9),
+                MinHeight = 36
+            };
 
-            button.Click += (_, _) =>
+            // Only the row under the pointer is green; the chosen row differs by its text.
+            item.PointerEntered += (_, _) => item.Background = soft;
+            item.PointerExited += (_, _) => item.Background = none;
+            item.Tapped += (_, _) =>
             {
                 flyout.Hide();
                 chosen(index);
             };
 
-            panel.Children.Add(button);
+            panel.Children.Add(item);
         }
 
         flyout.Content = new ScrollViewer
@@ -140,7 +135,7 @@ public static class PopupMenu
             SelectedBorderBrush = accent,
             SelectedHoverBorderBrush = accent,
             SelectedPressedBorderBrush = accent,
-            HoverBorderBrush = muted,
+            HoverBorderBrush = accent,
             PressedBorderBrush = accent,
             OutOfScopeForeground = muted,
             OutOfScopeBackground = none,
