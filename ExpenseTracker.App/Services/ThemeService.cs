@@ -71,6 +71,9 @@ public sealed class ThemeService(AppSettings settings)
 
     private Application? _application;
 
+    /// <summary>True while a dark palette (Dark, Black, or System following a dark system) is in use.</summary>
+    public static bool IsDark { get; private set; } = true;
+
     /// <summary>Applies the saved choice and follows the system theme while the mode is System.</summary>
     public void Attach(Application application)
     {
@@ -101,6 +104,8 @@ public sealed class ThemeService(AppSettings settings)
             ThemeMode.Dark or ThemeMode.Black => true,
             _ => application.RequestedTheme != AppTheme.Light
         };
+
+        IsDark = dark;
 
         if (!Palettes.TryGetValue(settings.Accent, out var pair))
             pair = Palettes["Lavender"];

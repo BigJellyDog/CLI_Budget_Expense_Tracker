@@ -1,5 +1,6 @@
 namespace ExpenseTracker.App.Platforms.Windows;
 
+using ExpenseTracker.App.Services;
 using Microsoft.Maui.Handlers;
 using Microsoft.Maui.Platform;
 using Microsoft.UI.Xaml;
@@ -26,20 +27,34 @@ public static class NativeControlTheme
             DatePickerHandler.Mapper.AppendToMapping(key, (handler, view) => ThemeDatePicker(handler.PlatformView, view));
         }
 
+        PickerHandler.Mapper.AppendToMapping("Title", (handler, view) => ThemePickerTitle(handler.PlatformView, view));
+        PickerHandler.Mapper.AppendToMapping("TitleColor", (handler, view) => ThemePickerTitle(handler.PlatformView, view));
+
         foreach (var key in TextKeys)
         {
             EntryHandler.Mapper.AppendToMapping(key, (handler, view) =>
             {
                 if (view is Microsoft.Maui.Controls.Entry entry)
-                    ThemeTextBox(handler.PlatformView, entry.BackgroundColor, entry.TextColor, entry.PlaceholderColor);
+                    ThemeTextBox(handler.PlatformView, entry.BackgroundColor, entry.TextColor, entry.PlaceholderColor, 20);
             });
 
             EditorHandler.Mapper.AppendToMapping(key, (handler, view) =>
             {
                 if (view is Microsoft.Maui.Controls.Editor editor)
-                    ThemeTextBox(handler.PlatformView, editor.BackgroundColor, editor.TextColor, editor.PlaceholderColor);
+                    ThemeTextBox(handler.PlatformView, editor.BackgroundColor, editor.TextColor, editor.PlaceholderColor, 14);
             });
         }
+    }
+
+    private static void ThemePickerTitle(ComboBox native, object view)
+    {
+        if (view is not Microsoft.Maui.Controls.Picker picker) return;
+
+        // The title is a hint inside the box, not a heading above it.
+        native.Header = null;
+        native.HeaderTemplate = null;
+        native.PlaceholderText = picker.Title ?? "";
+        native.PlaceholderForeground = new SolidColorBrush(Token("InkMuted").ToWindowsColor());
     }
 
     private static void ThemeButton(FrameworkElement native, object view)
@@ -72,9 +87,51 @@ public static class NativeControlTheme
         SetAll(native, "ComboBox", "Foreground", text, text, text, text);
         SetAll(native, "ComboBox", "BorderBrush", none, none, none, none);
 
+        ThemeDropDown(native);
+
         if (native is Microsoft.UI.Xaml.Controls.Control control)
+        {
             control.VerticalContentAlignment = VerticalAlignment.Center;
+            control.CornerRadius = new CornerRadius(20);
+        }
     }
+
+    /// <summary>The list that opens under a Picker: the app surface, rounded, with the accent on the chosen row.</summary>
+    private static void ThemeDropDown(FrameworkElement native)
+    {
+        var surface = Token("Surface");
+        var line = Token("Border");
+        var ink = Token("Ink");
+        var soft = Token("AccentSoft");
+        var accent = Token("Accent");
+        var hover = Token("Surface2");
+        var none = Microsoft.Maui.Graphics.Colors.Transparent;
+
+        Set(native, "ComboBoxDropDownBackground", surface);
+        Set(native, "ComboBoxDropDownBorderBrush", line);
+
+        Set(native, "ComboBoxItemBackground", none);
+        Set(native, "ComboBoxItemBackgroundPointerOver", hover);
+        Set(native, "ComboBoxItemBackgroundPressed", hover);
+        Set(native, "ComboBoxItemBackgroundSelected", soft);
+        Set(native, "ComboBoxItemBackgroundSelectedPointerOver", soft);
+        Set(native, "ComboBoxItemBackgroundSelectedPressed", soft);
+
+        foreach (var state in new[] { "", "PointerOver", "Pressed", "Selected", "SelectedPointerOver", "SelectedPressed" })
+            Set(native, "ComboBoxItemForeground" + state, ink);
+
+        Set(native, "ComboBoxItemPillFillBrush", accent);
+        Set(native, "ComboBoxItemPillFillBrushPressed", accent);
+
+        native.Resources["OverlayCornerRadius"] = new CornerRadius(16);
+        native.RequestedTheme = ThemeService.IsDark ? ElementTheme.Dark : ElementTheme.Light;
+    }
+
+    private static Microsoft.Maui.Graphics.Color Token(string key) =>
+        Microsoft.Maui.Controls.Application.Current?.Resources.TryGetValue(key, out var value) == true
+        && value is Microsoft.Maui.Graphics.Color color
+            ? color
+            : Microsoft.Maui.Graphics.Colors.Gray;
 
     private static void ThemeDatePicker(FrameworkElement native, object view)
     {
@@ -89,27 +146,39 @@ public static class NativeControlTheme
         SetAll(native, "CalendarDatePicker", "Foreground", text, text, text, text);
         SetAll(native, "CalendarDatePicker", "BorderBrush", none, none, none, none);
 
+        native.RequestedTheme = ThemeService.IsDark ? ElementTheme.Dark : ElementTheme.Light;
+
         if (native is Microsoft.UI.Xaml.Controls.Control control)
+        {
             control.VerticalContentAlignment = VerticalAlignment.Center;
+            control.CornerRadius = new CornerRadius(20);
+        }
     }
 
     private static void ThemeTextBox(
         TextBox box,
         Microsoft.Maui.Graphics.Color? backColor,
         Microsoft.Maui.Graphics.Color? textColor,
-        Microsoft.Maui.Graphics.Color? placeholderColor)
+        Microsoft.Maui.Graphics.Color? placeholderColor,
+        double radius)
     {
         var back = backColor ?? Microsoft.Maui.Graphics.Colors.Transparent;
         var text = textColor ?? Microsoft.Maui.Graphics.Colors.White;
-        var hover = Mix(back, text, 0.06f);
+        var hover = back.Alpha == 0 ? back : Mix(back, text, 0.06f);
+        var none = Microsoft.Maui.Graphics.Colors.Transparent;
+
+        // A field with no fill sits inside a rounded panel of its own: it gets no ring either.
+        var ring = back.Alpha == 0 ? none : Token("Accent");
 
         SetAll(box, "TextControl", "Background", back, hover, back, back);
         SetAll(box, "TextControl", "Foreground", text, text, text, text);
-        SetAll(box, "TextControl", "BorderBrush",
-            Microsoft.Maui.Graphics.Colors.Transparent,
-            Microsoft.Maui.Graphics.Colors.Transparent,
-            Mix(back, text, 0.35f),
-            Microsoft.Maui.Graphics.Colors.Transparent);
+        SetAll(box, "TextControl", "BorderBrush", none, none, ring, none);
+
+        // The default is a square box with a heavy line under it while typing.
+        box.Resources["TextControlBorderThemeThickness"] = new Thickness(0);
+        box.Resources["TextControlBorderThemeThicknessFocused"] = new Thickness(back.Alpha == 0 ? 0 : 1.5);
+        box.BorderThickness = new Thickness(0);
+        box.CornerRadius = new CornerRadius(radius);
 
         if (placeholderColor is not null)
             SetAll(box, "TextControl", "PlaceholderForeground",

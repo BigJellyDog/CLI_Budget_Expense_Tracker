@@ -58,6 +58,18 @@
         <Setter Property="MinimumHeightRequest" Value="40"/>
     </Style>
 
+    <!-- Destructive actions: quiet until noticed, red text on the soft surface. -->
+    <Style x:Key="DangerButton" TargetType="Button">
+        <Setter Property="TextColor" Value="{DynamicResource Danger}" />
+        <Setter Property="BackgroundColor" Value="{DynamicResource Surface2}" />
+        <Setter Property="FontFamily" Value="ManropeBold"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="BorderWidth" Value="0"/>
+        <Setter Property="CornerRadius" Value="20"/>
+        <Setter Property="Padding" Value="18,10"/>
+        <Setter Property="MinimumHeightRequest" Value="40"/>
+    </Style>
+
     <!-- Entries of the left menu. -->
     <Style x:Key="NavButton" TargetType="Button">
         <Setter Property="TextColor" Value="{DynamicResource InkMuted}" />
@@ -162,6 +174,17 @@
         <Setter Property="BackgroundColor" Value="{DynamicResource Surface2}" />
         <Setter Property="FontFamily" Value="ManropeMedium" />
         <Setter Property="FontSize" Value="14" />
+    </Style>
+
+    <!-- Scrolling stays (wheel, touch, keys); the bars are not drawn. -->
+    <Style TargetType="ScrollView">
+        <Setter Property="VerticalScrollBarVisibility" Value="Never" />
+        <Setter Property="HorizontalScrollBarVisibility" Value="Never" />
+    </Style>
+
+    <Style TargetType="CollectionView">
+        <Setter Property="VerticalScrollBarVisibility" Value="Never" />
+        <Setter Property="HorizontalScrollBarVisibility" Value="Never" />
     </Style>
 
     <Style TargetType="Slider">
