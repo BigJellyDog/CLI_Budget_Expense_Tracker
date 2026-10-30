@@ -23,7 +23,7 @@
                     <Label
                         Text="{loc:Tr Key='Budgets'}"
                         FontSize="28"
-                        FontFamily="ManropeExtraBold" />
+                        FontFamily="NunitoExtraBold" />
                     <Label
                         Text="{loc:Tr Key='Monthly limits per category'}"
                         FontSize="13"
@@ -60,12 +60,12 @@
                         <Label
                             Text="{loc:Tr Key='Total limit'}"
                             FontSize="12"
-                            FontFamily="ManropeSemiBold"
+                            FontFamily="NunitoSemiBold"
                             TextColor="{DynamicResource InkMuted}" />
                         <Label
                             Text="{Binding TotalLimitText}"
                             FontSize="22"
-                            FontFamily="ManropeExtraBold" />
+                            FontFamily="NunitoExtraBold" />
                     </VerticalStackLayout>
                 </Border>
 
@@ -74,12 +74,12 @@
                         <Label
                             Text="{loc:Tr Key='Spent (with limit)'}"
                             FontSize="12"
-                            FontFamily="ManropeSemiBold"
+                            FontFamily="NunitoSemiBold"
                             TextColor="{DynamicResource InkMuted}" />
                         <Label
                             Text="{Binding SpentWithLimitText}"
                             FontSize="22"
-                            FontFamily="ManropeExtraBold" />
+                            FontFamily="NunitoExtraBold" />
                     </VerticalStackLayout>
                 </Border>
 
@@ -88,12 +88,12 @@
                         <Label
                             Text="{loc:Tr Key='Over the limit'}"
                             FontSize="12"
-                            FontFamily="ManropeSemiBold"
+                            FontFamily="NunitoSemiBold"
                             TextColor="{DynamicResource InkMuted}" />
                         <Label
                             Text="{Binding OverText}"
                             FontSize="22"
-                            FontFamily="ManropeExtraBold">
+                            FontFamily="NunitoExtraBold">
                             <Label.Triggers>
                                 <DataTrigger TargetType="Label" Binding="{Binding AnyOver}" Value="True">
                                     <Setter Property="TextColor" Value="{DynamicResource Danger}" />
@@ -108,7 +108,7 @@
                         <Label
                             Text="{Binding FormTitle}"
                             FontSize="15"
-                            FontFamily="ManropeBold" />
+                            FontFamily="NunitoBold" />
 
                         <Grid ColumnDefinitions="*,110,Auto" ColumnSpacing="10">
                             <controls:DropDown
@@ -215,7 +215,7 @@
                                             <Label
                                                 Text="{Binding CategoryName}"
                                                 FontSize="15"
-                                                FontFamily="ManropeBold"
+                                                FontFamily="NunitoBold"
                                                 Margin="0,0,10,0" />
                                             <controls:Chip Text="{Binding StatusText}" ToneKey="{Binding StatusTone}" />
                                         </FlexLayout>
@@ -235,7 +235,7 @@
                                         <Label
                                             Text="{Binding AmountText}"
                                             FontSize="22"
-                                            FontFamily="ManropeExtraBold" />
+                                            FontFamily="NunitoExtraBold" />
                                         <Label
                                             Text="{Binding LimitText}"
                                             TextColor="{DynamicResource InkMuted}"
@@ -249,7 +249,7 @@
                                         <Label
                                             Text="{Binding FooterText}"
                                             FontSize="13"
-                                            FontFamily="ManropeSemiBold"
+                                            FontFamily="NunitoSemiBold"
                                             TextColor="{DynamicResource Success}">
                                             <Label.Triggers>
                                                 <DataTrigger TargetType="Label" Binding="{Binding StatusTone}" Value="Danger">
@@ -289,7 +289,7 @@
                                     </Border>
 
                                     <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
-                                        <Label Text="{Binding CategoryName}" FontFamily="ManropeBold" />
+                                        <Label Text="{Binding CategoryName}" FontFamily="NunitoBold" />
                                         <Label
                                             Text="{Binding NoLimitText}"
                                             FontSize="12"

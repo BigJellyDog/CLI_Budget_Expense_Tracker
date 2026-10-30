@@ -22,7 +22,7 @@
                     <Label
                         Text="{loc:Tr Key='Expenses'}"
                         FontSize="28"
-                        FontFamily="ManropeExtraBold" />
+                        FontFamily="NunitoExtraBold" />
                     <Label
                         Text="{Binding Subtitle}"
                         FontSize="13"
@@ -78,16 +78,16 @@
                                 <Label
                                     Text="{Binding SpentTitle}"
                                     FontSize="12"
-                                    FontFamily="ManropeSemiBold"
+                                    FontFamily="NunitoSemiBold"
                                     TextColor="{DynamicResource InkMuted}" />
                                 <Label
                                     Text="{Binding SpentText}"
                                     FontSize="26"
-                                    FontFamily="ManropeExtraBold" />
+                                    FontFamily="NunitoExtraBold" />
                                 <Label
                                     Text="{Binding AveragePerDayText}"
                                     FontSize="12"
-                                    FontFamily="ManropeSemiBold"
+                                    FontFamily="NunitoSemiBold"
                                     TextColor="{DynamicResource InkMuted}" />
                             </VerticalStackLayout>
                         </Border>
@@ -97,12 +97,12 @@
                                 <Label
                                     Text="{Binding DeltaTitle}"
                                     FontSize="12"
-                                    FontFamily="ManropeSemiBold"
+                                    FontFamily="NunitoSemiBold"
                                     TextColor="{DynamicResource InkMuted}" />
                                 <Label
                                     Text="{Binding DeltaPercentText}"
                                     FontSize="26"
-                                    FontFamily="ManropeExtraBold">
+                                    FontFamily="NunitoExtraBold">
                                     <Label.Triggers>
                                         <DataTrigger TargetType="Label" Binding="{Binding DeltaIsUp}" Value="True">
                                             <Setter Property="TextColor" Value="{DynamicResource Danger}" />
@@ -112,7 +112,7 @@
                                 <Label
                                     Text="{Binding DeltaAmountText}"
                                     FontSize="12"
-                                    FontFamily="ManropeSemiBold"
+                                    FontFamily="NunitoSemiBold"
                                     TextColor="{DynamicResource Success}">
                                     <Label.Triggers>
                                         <DataTrigger TargetType="Label" Binding="{Binding DeltaIsUp}" Value="True">
@@ -128,16 +128,16 @@
                                 <Label
                                     Text="{Binding ForecastTitle}"
                                     FontSize="12"
-                                    FontFamily="ManropeSemiBold"
+                                    FontFamily="NunitoSemiBold"
                                     TextColor="{DynamicResource InkMuted}" />
                                 <Label
                                     Text="{Binding ForecastText}"
                                     FontSize="26"
-                                    FontFamily="ManropeExtraBold" />
+                                    FontFamily="NunitoExtraBold" />
                                 <Label
                                     Text="{Binding ForecastCaption}"
                                     FontSize="12"
-                                    FontFamily="ManropeSemiBold"
+                                    FontFamily="NunitoSemiBold"
                                     TextColor="{DynamicResource InkMuted}" />
                             </VerticalStackLayout>
                         </Border>
@@ -216,7 +216,7 @@
                                             HeightRequest="15" />
                                         <Label
                                             Text="{loc:Tr Key='Filter'}"
-                                            FontFamily="ManropeBold"
+                                            FontFamily="NunitoBold"
                                             VerticalOptions="Center" />
                                         <Border
                                             IsVisible="{Binding HasActiveFilters}"
@@ -230,7 +230,7 @@
                                             <Label
                                                 Text="{Binding ActiveFilterCountText}"
                                                 FontSize="11"
-                                                FontFamily="ManropeBold"
+                                                FontFamily="NunitoBold"
                                                 TextColor="{DynamicResource OnAccent}"
                                                 HorizontalOptions="Center"
                                                 VerticalOptions="Center" />
@@ -341,13 +341,13 @@
                                             <Label
                                                 Text="{Binding Title}"
                                                 FontSize="12"
-                                                FontFamily="ManropeBold"
+                                                FontFamily="NunitoBold"
                                                 TextColor="{DynamicResource InkMuted}" />
                                             <Label
                                                 Grid.Column="1"
                                                 Text="{Binding TotalText}"
                                                 FontSize="12"
-                                                FontFamily="ManropeBold"
+                                                FontFamily="NunitoBold"
                                                 TextColor="{DynamicResource InkMuted}" />
                                         </Grid>
                                     </DataTemplate>
@@ -385,7 +385,7 @@
                                             <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
                                                 <Label
                                                     Text="{Binding Title}"
-                                                    FontFamily="ManropeBold"
+                                                    FontFamily="NunitoBold"
                                                     LineBreakMode="TailTruncation" />
                                                 <Label
                                                     Text="{Binding CategoryName}"
@@ -396,7 +396,7 @@
                                             <Label
                                                 Grid.Column="2"
                                                 Text="{Binding SpentText}"
-                                                FontFamily="ManropeExtraBold"
+                                                FontFamily="NunitoExtraBold"
                                                 HorizontalTextAlignment="End"
                                                 VerticalOptions="Center" />
 
@@ -431,12 +431,12 @@
                                     <Label
                                         Text="{loc:Tr Key='By category'}"
                                         FontSize="15"
-                                        FontFamily="ManropeBold" />
+                                        FontFamily="NunitoBold" />
                                     <Label
                                         Grid.Column="1"
                                         Text="{loc:Tr Key='Report'}"
                                         FontSize="13"
-                                        FontFamily="ManropeBold"
+                                        FontFamily="NunitoBold"
                                         TextColor="{DynamicResource Accent}">
                                         <Label.GestureRecognizers>
                                             <TapGestureRecognizer Tapped="OnReportLinkTapped" />
@@ -457,13 +457,13 @@
                                         <Label
                                             Text="{Binding DonutTotalTitle}"
                                             FontSize="12"
-                                            FontFamily="ManropeSemiBold"
+                                            FontFamily="NunitoSemiBold"
                                             TextColor="{DynamicResource InkMuted}"
                                             HorizontalTextAlignment="Center" />
                                         <Label
                                             Text="{Binding DonutTotalText}"
                                             FontSize="20"
-                                            FontFamily="ManropeExtraBold"
+                                            FontFamily="NunitoExtraBold"
                                             HorizontalTextAlignment="Center" />
                                     </VerticalStackLayout>
                                 </Grid>
@@ -502,7 +502,7 @@
                                                     VerticalOptions="Center"
                                                     Color="{Binding Color}" />
                                                 <Label Grid.Column="1" Text="{Binding Name}" LineBreakMode="TailTruncation" />
-                                                <Label Grid.Column="2" Text="{Binding AmountText}" FontFamily="ManropeBold" />
+                                                <Label Grid.Column="2" Text="{Binding AmountText}" FontFamily="NunitoBold" />
                                                 <Label
                                                     Grid.Column="3"
                                                     Text="{Binding PercentText}"
@@ -522,7 +522,7 @@
                                     <Label
                                         Text="{loc:Tr Key='Budgets'}"
                                         FontSize="15"
-                                        FontFamily="ManropeBold"
+                                        FontFamily="NunitoBold"
                                         VerticalOptions="Center" />
                                     <controls:Chip
                                         Grid.Column="1"
@@ -535,7 +535,7 @@
                                         <DataTemplate x:DataType="models:BudgetBarItem">
                                             <VerticalStackLayout Spacing="6">
                                                 <Grid ColumnDefinitions="*,Auto">
-                                                    <Label Text="{Binding Name}" FontFamily="ManropeBold" FontSize="13" />
+                                                    <Label Text="{Binding Name}" FontFamily="NunitoBold" FontSize="13" />
                                                     <Label
                                                         Grid.Column="1"
                                                         Text="{Binding PercentText}"

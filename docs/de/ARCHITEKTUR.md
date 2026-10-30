@@ -101,7 +101,7 @@ ExpenseTracker.App/
 +-- Controls/            wiederverwendbare Steuerelemente (siehe 4.4)
 +-- Services/            App-Dienste (siehe 4.2)
 +-- Platforms/Windows/   native Windows-Teile: Gestaltung nativer Steuerelemente, Popups
-+-- Resources/           Stile, Farb-Token, Manrope-Schriften
++-- Resources/           Stile, Farb-Token, Nunito-Schriften
 ```
 
 Das Muster ist **MVVM**. Ein ViewModel hält Zustand und Befehle eines Bildschirms, liest und schreibt über

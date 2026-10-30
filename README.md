@@ -75,7 +75,7 @@ The database is created and upgraded automatically on the first start.
 | UI | .NET MAUI (Windows), XAML, Shell navigation, MVVM with CommunityToolkit.Mvvm |
 | Data | EF Core + SQLite, code-first migrations |
 | Drawing | `GraphicsView` / `IDrawable` for icons, donut chart and bars (no chart library) |
-| Font | Manrope (five weights, bundled) |
+| Font | Nunito (five weights, bundled) |
 | CI | GitHub Actions (build on `windows-latest`) |
 
 ## Project structure

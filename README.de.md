@@ -75,7 +75,7 @@ Die Datenbank wird beim ersten Start automatisch angelegt und aktualisiert.
 | Oberfläche | .NET MAUI (Windows), XAML, Shell-Navigation, MVVM mit CommunityToolkit.Mvvm |
 | Daten | EF Core + SQLite, Code-First-Migrationen |
 | Zeichnen | `GraphicsView` / `IDrawable` für Icons, Ringdiagramm und Balken (keine Diagrammbibliothek) |
-| Schrift | Manrope (fünf Schnitte, eingebunden) |
+| Schrift | Nunito (fünf Schnitte, eingebunden) |
 | CI | GitHub Actions (Build auf `windows-latest`) |
 
 ## Projektstruktur

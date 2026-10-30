@@ -22,7 +22,7 @@
                     <Label
                         Text="{loc:Tr Key='Categories'}"
                         FontSize="28"
-                        FontFamily="ManropeExtraBold" />
+                        FontFamily="NunitoExtraBold" />
                     <Label
                         Text="{Binding Subtitle}"
                         FontSize="13"
@@ -98,7 +98,7 @@
                                 <Label
                                     Text="{Binding UsedCaption}"
                                     FontSize="11"
-                                    FontFamily="ManropeBold"
+                                    FontFamily="NunitoBold"
                                     CharacterSpacing="0.6"
                                     TextTransform="Uppercase"
                                     TextColor="{DynamicResource InkMuted}"
@@ -136,14 +136,14 @@
                                                     <Label
                                                         Grid.Column="1"
                                                         Text="{Binding Name}"
-                                                        FontFamily="ManropeSemiBold"
+                                                        FontFamily="NunitoSemiBold"
                                                         VerticalOptions="Center"
                                                         LineBreakMode="TailTruncation" />
                                                     <Label
                                                         Grid.Column="2"
                                                         Text="{Binding AmountText}"
                                                         FontSize="13"
-                                                        FontFamily="ManropeBold"
+                                                        FontFamily="NunitoBold"
                                                         VerticalOptions="Center" />
                                                 </Grid>
                                             </Border>
@@ -154,7 +154,7 @@
                                 <Label
                                     Text="{Binding UnusedCaption}"
                                     FontSize="11"
-                                    FontFamily="ManropeBold"
+                                    FontFamily="NunitoBold"
                                     CharacterSpacing="0.6"
                                     TextTransform="Uppercase"
                                     TextColor="{DynamicResource InkMuted}"
@@ -192,7 +192,7 @@
                                                     <Label
                                                         Grid.Column="1"
                                                         Text="{Binding Name}"
-                                                        FontFamily="ManropeSemiBold"
+                                                        FontFamily="NunitoSemiBold"
                                                         TextColor="{DynamicResource InkMuted}"
                                                         VerticalOptions="Center"
                                                         LineBreakMode="TailTruncation" />
@@ -200,7 +200,7 @@
                                                         Grid.Column="2"
                                                         Text="{Binding AmountText}"
                                                         FontSize="13"
-                                                        FontFamily="ManropeBold"
+                                                        FontFamily="NunitoBold"
                                                         TextColor="{DynamicResource InkMuted}"
                                                         VerticalOptions="Center" />
                                                 </Grid>
@@ -244,7 +244,7 @@
                                     Grid.Column="1"
                                     Text="{Binding Selected.Name}"
                                     FontSize="24"
-                                    FontFamily="ManropeExtraBold"
+                                    FontFamily="NunitoExtraBold"
                                     VerticalOptions="Center"
                                     LineBreakMode="TailTruncation" />
 
@@ -266,26 +266,26 @@
                             <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="12">
                                 <Border Padding="16,14" StrokeShape="RoundRectangle 12" BackgroundColor="{DynamicResource Bg}">
                                     <VerticalStackLayout Spacing="4">
-                                        <Label Text="{Binding MonthTitle}" FontSize="12" FontFamily="ManropeSemiBold" TextColor="{DynamicResource InkMuted}" />
-                                        <Label Text="{Binding Selected.AmountText}" FontSize="20" FontFamily="ManropeExtraBold" />
+                                        <Label Text="{Binding MonthTitle}" FontSize="12" FontFamily="NunitoSemiBold" TextColor="{DynamicResource InkMuted}" />
+                                        <Label Text="{Binding Selected.AmountText}" FontSize="20" FontFamily="NunitoExtraBold" />
                                     </VerticalStackLayout>
                                 </Border>
                                 <Border Grid.Column="1" Padding="16,14" StrokeShape="RoundRectangle 12" BackgroundColor="{DynamicResource Bg}">
                                     <VerticalStackLayout Spacing="4">
-                                        <Label Text="{loc:Tr Key='Share of month'}" FontSize="12" FontFamily="ManropeSemiBold" TextColor="{DynamicResource InkMuted}" />
-                                        <Label Text="{Binding Selected.ShareText}" FontSize="20" FontFamily="ManropeExtraBold" />
+                                        <Label Text="{loc:Tr Key='Share of month'}" FontSize="12" FontFamily="NunitoSemiBold" TextColor="{DynamicResource InkMuted}" />
+                                        <Label Text="{Binding Selected.ShareText}" FontSize="20" FontFamily="NunitoExtraBold" />
                                     </VerticalStackLayout>
                                 </Border>
                                 <Border Grid.Column="2" Padding="16,14" StrokeShape="RoundRectangle 12" BackgroundColor="{DynamicResource Bg}">
                                     <VerticalStackLayout Spacing="4">
-                                        <Label Text="{loc:Tr Key='Entries'}" FontSize="12" FontFamily="ManropeSemiBold" TextColor="{DynamicResource InkMuted}" />
-                                        <Label Text="{Binding Selected.CountText}" FontSize="20" FontFamily="ManropeExtraBold" />
+                                        <Label Text="{loc:Tr Key='Entries'}" FontSize="12" FontFamily="NunitoSemiBold" TextColor="{DynamicResource InkMuted}" />
+                                        <Label Text="{Binding Selected.CountText}" FontSize="20" FontFamily="NunitoExtraBold" />
                                     </VerticalStackLayout>
                                 </Border>
                                 <Border Grid.Column="3" Padding="16,14" StrokeShape="RoundRectangle 12" BackgroundColor="{DynamicResource Bg}">
                                     <VerticalStackLayout Spacing="4">
-                                        <Label Text="{loc:Tr Key='Avg / entry'}" FontSize="12" FontFamily="ManropeSemiBold" TextColor="{DynamicResource InkMuted}" />
-                                        <Label Text="{Binding Selected.AverageText}" FontSize="20" FontFamily="ManropeExtraBold" />
+                                        <Label Text="{loc:Tr Key='Avg / entry'}" FontSize="12" FontFamily="NunitoSemiBold" TextColor="{DynamicResource InkMuted}" />
+                                        <Label Text="{Binding Selected.AverageText}" FontSize="20" FontFamily="NunitoExtraBold" />
                                     </VerticalStackLayout>
                                 </Border>
                             </Grid>
@@ -293,7 +293,7 @@
                             <!-- Color and links -->
                             <Grid ColumnDefinitions="250,*" ColumnSpacing="28">
                                 <VerticalStackLayout Spacing="4">
-                                    <Label Text="{loc:Tr Key='Color'}" FontSize="15" FontFamily="ManropeBold" />
+                                    <Label Text="{loc:Tr Key='Color'}" FontSize="15" FontFamily="NunitoBold" />
                                     <Label
                                         Text="{loc:Tr Key='Pick one of the colors, or mix your own with the last one.'}"
                                         FontSize="12"
@@ -346,7 +346,7 @@
                                 </VerticalStackLayout>
 
                                 <VerticalStackLayout Grid.Column="1" Spacing="10">
-                                    <Label Text="{loc:Tr Key='Linked'}" FontSize="15" FontFamily="ManropeBold" />
+                                    <Label Text="{loc:Tr Key='Linked'}" FontSize="15" FontFamily="NunitoBold" />
 
                                     <Border Padding="16,14" StrokeShape="RoundRectangle 12" BackgroundColor="{DynamicResource Bg}">
                                         <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
@@ -357,7 +357,7 @@
                                                 HeightRequest="18"
                                                 VerticalOptions="Center" />
                                             <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
-                                                <Label Text="{loc:Tr Key='Monthly budget'}" FontFamily="ManropeBold" />
+                                                <Label Text="{loc:Tr Key='Monthly budget'}" FontFamily="NunitoBold" />
                                                 <Label
                                                     Text="{Binding Selected.BudgetText}"
                                                     FontSize="12"
@@ -383,7 +383,7 @@
                                                 HeightRequest="18"
                                                 VerticalOptions="Center" />
                                             <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
-                                                <Label Text="{loc:Tr Key='Auto-categorization rules'}" FontFamily="ManropeBold" />
+                                                <Label Text="{loc:Tr Key='Auto-categorization rules'}" FontFamily="NunitoBold" />
                                                 <Label
                                                     Text="{Binding Selected.RulesText}"
                                                     FontSize="12"
@@ -415,7 +415,7 @@
                                         HeightRequest="18"
                                         VerticalOptions="Center" />
                                     <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
-                                        <Label Text="{loc:Tr Key='Delete category'}" FontFamily="ManropeBold" />
+                                        <Label Text="{loc:Tr Key='Delete category'}" FontFamily="NunitoBold" />
                                         <Label
                                             Text="{loc:Tr Key='Its entries can be moved to a category you choose first.'}"
                                             FontSize="12"

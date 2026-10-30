@@ -40,7 +40,7 @@ public sealed class Sidebar : ContentView
             Content = new Label
             {
                 Text = "€",
-                FontFamily = "ManropeExtraBold",
+                FontFamily = "NunitoExtraBold",
                 HorizontalOptions = LayoutOptions.Center,
                 VerticalOptions = LayoutOptions.Center
             }
@@ -52,7 +52,7 @@ public sealed class Sidebar : ContentView
         {
             Text = Loc.T("Expenses"),
             FontSize = 16,
-            FontFamily = "ManropeExtraBold",
+            FontFamily = "NunitoExtraBold",
             VerticalOptions = LayoutOptions.Center
         };
 

@@ -43,7 +43,7 @@ public sealed class PillButton : Border
         nameof(Command), typeof(ICommand), typeof(PillButton), null);
 
     private readonly IconView _icon = new() { IsVisible = false, WidthRequest = 16, HeightRequest = 16 };
-    private readonly Label _label = new() { VerticalOptions = LayoutOptions.Center, FontFamily = "ManropeBold", IsVisible = false };
+    private readonly Label _label = new() { VerticalOptions = LayoutOptions.Center, FontFamily = "NunitoBold", IsVisible = false };
     private bool _hover;
 
     public PillButton()

@@ -22,7 +22,7 @@
             <Label
                 Text="{loc:Tr Key='Settings'}"
                 FontSize="26"
-                FontFamily="ManropeExtraBold" />
+                FontFamily="NunitoExtraBold" />
 
             <VerticalStackLayout Spacing="8">
                 <Label Text="{loc:Tr Key='Language'}" FontAttributes="Bold" />

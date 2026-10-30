@@ -23,7 +23,7 @@ In Rider oder Visual Studio: Lösung öffnen, `ExpenseTracker.App` wählen, Run.
 Eine laufende App sperrt `ExpenseTracker.App.exe`; beenden Sie sie vor dem nächsten Build, sonst endet der Build mit
 der Meldung „Datei wird von einem anderen Prozess verwendet“.
 
-Beim Start schreibt die App eine harmlose Zeile wie `Error loading font 'ms-appx:///Manrope-….ttf'` ins Protokoll.
+Beim Start schreibt die App eine harmlose Zeile wie `Error loading font 'ms-appx:///Nunito-….ttf'` ins Protokoll.
 Die Schriften sind korrekt registriert und werden wie erwartet dargestellt.
 
 ## 3. Wo die App während der Entwicklung ihre Daten ablegt

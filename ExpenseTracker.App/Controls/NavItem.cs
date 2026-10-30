@@ -28,7 +28,7 @@ public sealed class NavItem : Border
         HeightRequest = 40;
         Padding = new Thickness(14, 0);
 
-        _label.FontFamily = "ManropeSemiBold";
+        _label.FontFamily = "NunitoSemiBold";
 
         Content = new HorizontalStackLayout
         {

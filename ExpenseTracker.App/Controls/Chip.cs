@@ -32,7 +32,7 @@ public sealed class Chip : Border
     private readonly Label _label = new()
     {
         FontSize = 12,
-        FontFamily = "ManropeBold",
+        FontFamily = "NunitoBold",
         VerticalOptions = LayoutOptions.Center
     };
 

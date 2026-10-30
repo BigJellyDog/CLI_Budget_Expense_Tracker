@@ -67,7 +67,7 @@ public static class PopupMenu
             {
                 Text = texts[i],
                 Foreground = Brush(isSelected ? "Accent" : "Ink"),
-                FontFamily = new FontFamily("Manrope"),
+                FontFamily = new FontFamily("Nunito"),
                 FontSize = 14,
                 FontWeight = isSelected ? FontWeights.Bold : FontWeights.Medium,
                 VerticalAlignment = VerticalAlignment.Center
@@ -140,9 +140,9 @@ public static class PopupMenu
             PressedBorderBrush = accent,
             OutOfScopeForeground = muted,
             OutOfScopeBackground = none,
-            DayItemFontFamily = new FontFamily("Manrope"),
-            MonthYearItemFontFamily = new FontFamily("Manrope"),
-            FirstOfMonthLabelFontFamily = new FontFamily("Manrope")
+            DayItemFontFamily = new FontFamily("Nunito"),
+            MonthYearItemFontFamily = new FontFamily("Nunito"),
+            FirstOfMonthLabelFontFamily = new FontFamily("Nunito")
         };
 
         // The fill of "today" and the ring of the chosen day come from the accent brushes.
@@ -196,7 +196,7 @@ public static class PopupMenu
         var root = new StackPanel { Spacing = 10, RequestedTheme = Theme };
         var title = new TextBlock
         {
-            FontFamily = new FontFamily("Manrope"),
+            FontFamily = new FontFamily("Nunito"),
             FontSize = 15,
             FontWeight = FontWeights.Bold,
             Foreground = Brush("Ink"),
@@ -251,7 +251,7 @@ public static class PopupMenu
                     Child = new TextBlock
                     {
                         Text = label,
-                        FontFamily = new FontFamily("Manrope"),
+                        FontFamily = new FontFamily("Nunito"),
                         FontSize = 14,
                         FontWeight = isSelected ? FontWeights.Bold : FontWeights.Medium,
                         Foreground = Brush(isSelected ? "OnAccent" : "Ink"),
@@ -331,7 +331,7 @@ public static class PopupMenu
             Padding = new Thickness(18, 8, 18, 8),
             Background = Brush("Accent"),
             Foreground = Brush("OnAccent"),
-            FontFamily = new FontFamily("Manrope"),
+            FontFamily = new FontFamily("Nunito"),
             FontWeight = FontWeights.Bold
         };
 

@@ -20,7 +20,7 @@
                 <Label
                     Text="{loc:Tr Key='Import CSV'}"
                     FontSize="28"
-                    FontFamily="ManropeExtraBold" />
+                    FontFamily="NunitoExtraBold" />
                 <Label
                     Text="{loc:Tr Key='Bank statements are matched to categories by your rules. Records already imported are skipped.'}"
                     FontSize="13"
@@ -53,7 +53,7 @@
                                     <Label
                                         Text="{loc:Tr Key='File format'}"
                                         FontSize="12"
-                                        FontFamily="ManropeSemiBold"
+                                        FontFamily="NunitoSemiBold"
                                         TextColor="{DynamicResource InkMuted}" />
                                     <controls:DropDown
                                         Title="{loc:Tr Key='File format'}"
@@ -90,7 +90,7 @@
                                         <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
                                             <Label
                                                 Text="{Binding FileName}"
-                                                FontFamily="ManropeBold"
+                                                FontFamily="NunitoBold"
                                                 LineBreakMode="MiddleTruncation" />
                                             <Label
                                                 Text="{Binding FileInfoText}"
@@ -115,7 +115,7 @@
                                 <VerticalStackLayout Spacing="10" IsVisible="{Binding ShowMapping}">
                                     <Label
                                         Text="{loc:Tr Key='How is this file written?'}"
-                                        FontFamily="ManropeBold" />
+                                        FontFamily="NunitoBold" />
 
                                     <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
                                         <controls:DropDown
@@ -185,7 +185,7 @@
                                     <Label
                                         Text="{loc:Tr Key='Default category'}"
                                         FontSize="12"
-                                        FontFamily="ManropeSemiBold"
+                                        FontFamily="NunitoSemiBold"
                                         TextColor="{DynamicResource InkMuted}" />
                                     <controls:DropDown
                                         Title="{loc:Tr Key='Default category for all records'}"
@@ -206,7 +206,7 @@
                                 <Label
                                     Text="{loc:Tr Key='How it works'}"
                                     FontSize="15"
-                                    FontFamily="ManropeBold" />
+                                    FontFamily="NunitoBold" />
 
                                 <VerticalStackLayout Spacing="16" BindableLayout.ItemsSource="{Binding Steps}">
                                     <BindableLayout.ItemTemplate>
@@ -232,7 +232,7 @@
                                                     <Grid>
                                                         <Label
                                                             Text="{Binding Number}"
-                                                            FontFamily="ManropeExtraBold"
+                                                            FontFamily="NunitoExtraBold"
                                                             FontSize="13"
                                                             TextColor="{DynamicResource InkMuted}"
                                                             HorizontalOptions="Center"
@@ -258,7 +258,7 @@
                                                 </Border>
 
                                                 <VerticalStackLayout Grid.Column="1" Spacing="2">
-                                                    <Label Text="{Binding Title}" FontFamily="ManropeBold" />
+                                                    <Label Text="{Binding Title}" FontFamily="NunitoBold" />
                                                     <Label
                                                         Text="{Binding Text}"
                                                         FontSize="12"
@@ -281,7 +281,7 @@
                                 <Label
                                     Grid.Column="1"
                                     Text="{loc:Tr Key='Auto-categorization rules'}"
-                                    FontFamily="ManropeBold"
+                                    FontFamily="NunitoBold"
                                     VerticalOptions="Center" />
                                 <controls:IconView
                                     Grid.Column="2"
@@ -331,7 +331,7 @@
                             <Label
                                 Text="{loc:Tr Key='Review records'}"
                                 FontSize="15"
-                                FontFamily="ManropeBold"
+                                FontFamily="NunitoBold"
                                 Margin="0,0,14,0" />
                             <controls:Chip
                                 Text="{Binding MatchedText}"
@@ -401,7 +401,7 @@
                                             <Label
                                                 Grid.Column="2"
                                                 Text="{Binding Description}"
-                                                FontFamily="ManropeSemiBold"
+                                                FontFamily="NunitoSemiBold"
                                                 LineBreakMode="TailTruncation"
                                                 VerticalOptions="Center">
                                                 <Label.Triggers>
@@ -414,7 +414,7 @@
                                             <Label
                                                 Grid.Column="3"
                                                 Text="{Binding Amount}"
-                                                FontFamily="ManropeExtraBold"
+                                                FontFamily="NunitoExtraBold"
                                                 HorizontalTextAlignment="End"
                                                 VerticalOptions="Center">
                                                 <Label.Triggers>
@@ -471,7 +471,7 @@
                                 <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
                                     <Label
                                         Text="{Binding SelectedCountText}"
-                                        FontFamily="ManropeExtraBold"
+                                        FontFamily="NunitoExtraBold"
                                         VerticalOptions="Center" />
                                     <Label
                                         Text="{Binding SelectedTotalText}"

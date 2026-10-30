@@ -100,7 +100,7 @@ ExpenseTracker.App/
 +-- Controls/            reusable controls (see 4.4)
 +-- Services/            app services (see 4.2)
 +-- Platforms/Windows/   native Windows code: theming of native controls, popups
-+-- Resources/           styles, color tokens, Manrope fonts
++-- Resources/           styles, color tokens, Nunito fonts
 ```
 
 The pattern is **MVVM**. A view model holds the state and the commands of a screen, reads and writes through

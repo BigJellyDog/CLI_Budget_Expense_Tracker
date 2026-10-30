@@ -18,11 +18,11 @@ public static class MauiProgram
 
         builder.UseMauiApp<App>().ConfigureFonts(fonts =>
         {
-            fonts.AddFont("Manrope-Regular.ttf", "ManropeRegular");
-            fonts.AddFont("Manrope-Medium.ttf", "ManropeMedium");
-            fonts.AddFont("Manrope-SemiBold.ttf", "ManropeSemiBold");
-            fonts.AddFont("Manrope-Bold.ttf", "ManropeBold");
-            fonts.AddFont("Manrope-ExtraBold.ttf", "ManropeExtraBold");
+            fonts.AddFont("Nunito-Regular.ttf", "NunitoRegular");
+            fonts.AddFont("Nunito-Medium.ttf", "NunitoMedium");
+            fonts.AddFont("Nunito-SemiBold.ttf", "NunitoSemiBold");
+            fonts.AddFont("Nunito-Bold.ttf", "NunitoBold");
+            fonts.AddFont("Nunito-ExtraBold.ttf", "NunitoExtraBold");
         });
 
 #if WINDOWS

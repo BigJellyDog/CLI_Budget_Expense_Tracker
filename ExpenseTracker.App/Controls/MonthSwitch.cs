@@ -28,7 +28,7 @@ public sealed class MonthSwitch : Border
     private readonly IconButton _next = new() { Icon = Icons.ChevronRight };
     private readonly Label _title = new()
     {
-        FontFamily = "ManropeBold",
+        FontFamily = "NunitoBold",
         WidthRequest = 140,
         HorizontalTextAlignment = TextAlignment.Center,
         VerticalOptions = LayoutOptions.Center
