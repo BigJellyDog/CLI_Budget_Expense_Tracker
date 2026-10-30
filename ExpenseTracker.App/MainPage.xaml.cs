@@ -1,6 +1,7 @@
 ﻿namespace ExpenseTracker.App;
 
 using Microsoft.Extensions.DependencyInjection;
+using Controls;
 using Models;
 using Services;
 using ViewModels;
@@ -148,7 +149,7 @@ private async void OnRecurringExpensesClicked(object? sender, EventArgs e) =>
     private async void OnCategoryFilterChanged(object? sender, EventArgs e)
     {
         if (!_viewModel.CanChangeCategoryFilter
-            || sender is not Picker
+            || sender is not DropDown
             {
                 SelectedItem: ExpenseCategoryFilter filter
             })

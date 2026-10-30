@@ -188,10 +188,10 @@
                         BackgroundColor="{DynamicResource Bg}"
                         Padding="10,0"
                         HeightRequest="40">
-                        <Picker
+                        <controls:DropDown
                             BackgroundColor="Transparent"
                             ItemsSource="{Binding PeriodOptions}"
-                            ItemDisplayBinding="{Binding Name, x:DataType=models:PeriodOption}"
+                            DisplayMember="Name"
                             SelectedItem="{Binding SelectedPeriod, Mode=TwoWay}"
                             SelectedIndexChanged="OnPeriodOrSortChanged"
                             IsEnabled="{Binding CanChangeCategoryFilter}" />
@@ -204,10 +204,10 @@
                         BackgroundColor="{DynamicResource Bg}"
                         Padding="10,0"
                         HeightRequest="40">
-                        <Picker
+                        <controls:DropDown
                             BackgroundColor="Transparent"
                             ItemsSource="{Binding CategoryFilters}"
-                            ItemDisplayBinding="{Binding Name, x:DataType=models:ExpenseCategoryFilter}"
+                            DisplayMember="Name"
                             SelectedItem="{Binding SelectedCategoryFilter, Mode=TwoWay}"
                             SelectedIndexChanged="OnCategoryFilterChanged"
                             IsEnabled="{Binding CanChangeCategoryFilter}" />
@@ -220,10 +220,10 @@
                         BackgroundColor="{DynamicResource Bg}"
                         Padding="10,0"
                         HeightRequest="40">
-                        <Picker
+                        <controls:DropDown
                             BackgroundColor="Transparent"
                             ItemsSource="{Binding SortOptions}"
-                            ItemDisplayBinding="{Binding Name, x:DataType=models:SortOption}"
+                            DisplayMember="Name"
                             SelectedItem="{Binding SelectedSort, Mode=TwoWay}"
                             SelectedIndexChanged="OnPeriodOrSortChanged"
                             IsEnabled="{Binding CanChangeCategoryFilter}" />
@@ -237,13 +237,13 @@
                     Padding="6,0"
                     IsVisible="{Binding IsCustomPeriod}">
 
-                    <DatePicker
+                    <controls:DateField
                         Date="{Binding CustomFrom, Mode=TwoWay}"
                         MinimumDate="{x:Null}"
                         MaximumDate="{x:Null}"
                         Format="dd.MM.yyyy" />
 
-                    <DatePicker
+                    <controls:DateField
                         Grid.Column="1"
                         Date="{Binding CustomTo, Mode=TwoWay}"
                         MinimumDate="{x:Null}"
