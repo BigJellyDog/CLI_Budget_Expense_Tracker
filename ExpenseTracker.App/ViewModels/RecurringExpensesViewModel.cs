@@ -59,6 +59,12 @@ public sealed class RecurringExpensesViewModel : ObservableObject
 
     public bool HasEndDate { get; set; }
 
+    public void UseEndDate()
+    {
+        HasEndDate = true;
+        OnPropertyChanged(nameof(HasEndDate));
+    }
+
     public DateTime? SelectedEndDate { get; set; }
 
     public bool IsEditing => _editingScheduleId.HasValue;

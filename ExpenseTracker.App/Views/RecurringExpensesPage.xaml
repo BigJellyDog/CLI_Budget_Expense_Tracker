@@ -2,6 +2,7 @@
 <ContentPage
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:ExpenseTracker.App.Controls"
     xmlns:loc="clr-namespace:ExpenseTracker.App.Services"
     xmlns:sys="clr-namespace:System;assembly=System.Runtime"
     xmlns:vm="clr-namespace:ExpenseTracker.App.ViewModels"
@@ -80,10 +81,10 @@
 
                         <Label Text="{loc:Tr Key='Category'}" />
 
-                        <Picker
+                        <controls:DropDown
                             Title="{loc:Tr Key='Choose a category'}"
                             ItemsSource="{Binding Categories}"
-                            ItemDisplayBinding="{Binding Name, x:DataType=core:Category}"
+                            DisplayMember="Name"
                             SelectedItem="{Binding SelectedCategory, Mode=TwoWay}" />
 
                         <Label Text="{loc:Tr Key='Amount per occurrence'}" />
@@ -95,15 +96,15 @@
 
                         <Label Text="{loc:Tr Key='Frequency'}" />
 
-                        <Picker
+                        <controls:DropDown
                             Title="{loc:Tr Key='Choose a frequency'}"
                             ItemsSource="{Binding Frequencies}"
-                            ItemDisplayBinding="{Binding ., x:DataType=sys:Object, Converter={x:Static loc:TrConverter.Instance}}"
+                            Translate="True"
                             SelectedItem="{Binding SelectedFrequency, Mode=TwoWay}" />
 
                         <Label Text="{loc:Tr Key='Start date'}" />
 
-                        <DatePicker
+                        <controls:DateField
                             Date="{Binding SelectedStartDate, Mode=TwoWay}"
                             MinimumDate="{x:Null}"
                             MaximumDate="{x:Null}"
@@ -117,11 +118,11 @@
                                 VerticalOptions="Center" />
                         </HorizontalStackLayout>
 
-                        <DatePicker
+                        <controls:DateField
                             Date="{Binding SelectedEndDate, Mode=TwoWay}"
                             MinimumDate="{x:Null}"
                             MaximumDate="{x:Null}"
-                            IsEnabled="{Binding HasEndDate}"
+                            DateSelected="OnEndDateSelected"
                             Format="dd.MM.yyyy" />
 
                         <Label Text="{loc:Tr Key='Description (optional)'}" />

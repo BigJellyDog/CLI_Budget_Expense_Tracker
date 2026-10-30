@@ -26,6 +26,10 @@ public partial class RecurringExpensesPage : ContentPage
     protected override bool OnBackButtonPressed() =>
         _viewModel.IsBusy || base.OnBackButtonPressed();
 
+    // Picking an end date means the schedule has one: the box is ticked for the person.
+    private void OnEndDateSelected(object? sender, EventArgs e) =>
+        _viewModel.UseEndDate();
+
     private async void OnRefreshClicked(object? sender, EventArgs e) =>
         await _viewModel.LoadAsync();
 
