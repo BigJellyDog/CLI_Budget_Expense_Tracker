@@ -1,9 +1,11 @@
 namespace ExpenseTracker.App.Views;
 
+using ExpenseTracker.App.Controls;
 using ExpenseTracker.App.Services;
 
 using CLI_Budget_Expense_Tracker.Core.Models;
 using Microsoft.Extensions.DependencyInjection;
+using Models;
 using ViewModels;
 
 public partial class CategoriesPage : ContentPage
@@ -41,6 +43,41 @@ public partial class CategoriesPage : ContentPage
     protected override bool OnBackButtonPressed() =>
         _viewModel.IsBusy || base.OnBackButtonPressed();
 
+    private void OnTilesSizeChanged(object? sender, EventArgs e)
+    {
+        if (Tiles.ItemsLayout is GridItemsLayout layout && Tiles.Width > 0)
+            layout.Span = Math.Max(1, (int)((Tiles.Width + 16) / (400 + 16)));
+    }
+
+    private void OnSwatchTapped(object? sender, TappedEventArgs e)
+    {
+        if (sender is not VisualElement { BindingContext: SwatchItem swatch } view)
+            return;
+
+        if (!swatch.IsCustom)
+        {
+            _viewModel.SelectSlot(swatch.Slot);
+            return;
+        }
+
+        // The last swatch opens a color picker for a color of the person's own.
+        ColorPickerPopup.Show(view, _viewModel.CustomColor, _viewModel.SelectCustomColor);
+    }
+
+    private static void ShowTileActions(object? sender, bool visible)
+    {
+        if (sender is not Grid tile) return;
+
+        if (visible)
+            tile.SetDynamicResource(BackgroundColorProperty, "Surface2");
+        else
+            tile.BackgroundColor = Colors.Transparent;
+    }
+
+    private void OnTilePointerEntered(object? sender, PointerEventArgs e) => ShowTileActions(sender, true);
+
+    private void OnTilePointerExited(object? sender, PointerEventArgs e) => ShowTileActions(sender, false);
+
     private async void OnRefreshClicked(object? sender, EventArgs e) =>
         await _viewModel.LoadAsync();
 
@@ -53,7 +90,7 @@ public partial class CategoriesPage : ContentPage
     private void OnRenameClicked(object? sender, EventArgs e)
     {
         if (!_viewModel.CanEdit
-            || sender is not Button { BindingContext: Category category })
+            || sender is not BindableObject { BindingContext: CategoryTile { Category: { } category } })
         {
             return;
         }
@@ -66,7 +103,7 @@ public partial class CategoriesPage : ContentPage
     {
         if (_choosingDeleteAction
             || !_viewModel.CanEdit
-            || sender is not Button { BindingContext: Category category })
+            || sender is not BindableObject { BindingContext: CategoryTile { Category: { } category } })
         {
             return;
         }

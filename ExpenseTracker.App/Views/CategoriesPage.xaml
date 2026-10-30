@@ -2,9 +2,10 @@
 <ContentPage
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:ExpenseTracker.App.Controls"
     xmlns:loc="clr-namespace:ExpenseTracker.App.Services"
     xmlns:vm="clr-namespace:ExpenseTracker.App.ViewModels"
-    xmlns:core="clr-namespace:CLI_Budget_Expense_Tracker.Core.Models;assembly=CLI_Budget_Expense_Tracker.Core"
+    xmlns:models="clr-namespace:ExpenseTracker.App.Models"
     x:Class="ExpenseTracker.App.Views.CategoriesPage"
     x:DataType="vm:CategoriesViewModel"
     Shell.NavBarIsVisible="False"
@@ -12,125 +13,235 @@
     NavigationPage.HasBackButton="{Binding CanGoBack}"
     BackgroundColor="{DynamicResource Bg}">
 
-    <Grid
-        Padding="24"
-        RowDefinitions="Auto,Auto,Auto,*"
-        RowSpacing="16">
+    <controls:CenteredContainer Padding="40,28,40,24">
+        <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" RowSpacing="20">
 
-        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
-            <Label
-                Text="{loc:Tr Key='Categories'}"
-                FontSize="26"
-                FontFamily="ManropeExtraBold"
-                VerticalOptions="Center" />
+            <!-- Title, rules, refresh -->
+            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
+                <VerticalStackLayout VerticalOptions="Center" Spacing="2">
+                    <Label
+                        Text="{loc:Tr Key='Categories'}"
+                        FontSize="28"
+                        FontFamily="ManropeExtraBold" />
+                    <Label
+                        Text="{Binding Subtitle}"
+                        FontSize="13"
+                        TextColor="{DynamicResource InkMuted}" />
+                </VerticalStackLayout>
 
-            <Button
-                Grid.Column="1"
-                Text="{loc:Tr Key='Auto-categorization rules'}"
-                Clicked="OnRulesClicked"
-                IsEnabled="{Binding CanRefresh}" />
-
-            <Button
-                Grid.Column="2"
-                Text="{loc:Tr Key='Refresh'}"
-                Clicked="OnRefreshClicked"
-                IsEnabled="{Binding CanRefresh}" />
-        </Grid>
-
-        <VerticalStackLayout
-            Grid.Row="1"
-            Spacing="8"
-            IsEnabled="{Binding CanEdit}">
-
-            <Label
-                Text="{Binding FormTitle}"
-                FontAttributes="Bold" />
-
-            <Grid
-                ColumnDefinitions="*,Auto,Auto"
-                ColumnSpacing="12">
-
-                <Entry
-                    x:Name="CategoryNameEntry"
-                    Placeholder="{loc:Tr Key='Category name'}"
-                    Text="{Binding NameText, Mode=TwoWay}" />
-
-                <Button
+                <controls:PillButton
                     Grid.Column="1"
-                    Text="{Binding SaveButtonText}"
-                    Style="{StaticResource PrimaryButton}"
-                    Clicked="OnSaveClicked" />
+                    Text="{loc:Tr Key='Auto-categorization rules'}"
+                    Icon="{x:Static controls:Icons.Tag}"
+                    Clicked="OnRulesClicked"
+                    IsEnabled="{Binding CanRefresh}" />
 
-                <Button
+                <controls:IconButton
                     Grid.Column="2"
-                    Text="{loc:Tr Key='Cancel'}"
-                    Clicked="OnCancelClicked"
-                    IsVisible="{Binding IsEditing}" />
+                    Filled="True"
+                    Icon="{x:Static controls:Icons.Refresh}"
+                    Clicked="OnRefreshClicked"
+                    IsEnabled="{Binding CanRefresh}" />
             </Grid>
-        </VerticalStackLayout>
 
-        <VerticalStackLayout Grid.Row="2" Spacing="8">
-            <ActivityIndicator
-                IsRunning="{Binding IsBusy}"
-                IsVisible="{Binding IsBusy}" />
+            <!-- New category: name, color, create -->
+            <Border Grid.Row="1" Padding="20,16" IsEnabled="{Binding CanEdit}">
+                <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto" ColumnSpacing="16">
+                    <Label
+                        Text="{Binding FormTitle}"
+                        FontSize="15"
+                        FontFamily="ManropeBold"
+                        VerticalOptions="Center" />
 
-            <Label
-                Text="{Binding ErrorMessage}"
-                IsVisible="{Binding HasError}"
-                TextColor="{DynamicResource Danger}" />
+                    <Entry
+                        x:Name="CategoryNameEntry"
+                        Grid.Column="1"
+                        MaximumWidthRequest="360"
+                        HorizontalOptions="Fill"
+                        Placeholder="{loc:Tr Key='Category name'}"
+                        Text="{Binding NameText, Mode=TwoWay}"
+                        Completed="OnSaveClicked" />
 
-            <Label
-                Text="{Binding SuccessMessage}"
-                IsVisible="{Binding HasSuccess}"
-                TextColor="{DynamicResource Success}" />
-        </VerticalStackLayout>
+                    <HorizontalStackLayout
+                        Grid.Column="2"
+                        Spacing="8"
+                        VerticalOptions="Center"
+                        BindableLayout.ItemsSource="{Binding Swatches}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="models:SwatchItem">
+                                <Border
+                                    WidthRequest="24"
+                                    HeightRequest="24"
+                                    StrokeShape="RoundRectangle 12"
+                                    StrokeThickness="0"
+                                    BackgroundColor="Transparent">
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                            <Setter Property="StrokeThickness" Value="2" />
+                                            <Setter Property="Stroke" Value="{DynamicResource Ink}" />
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <Grid>
+                                        <BoxView
+                                            WidthRequest="14"
+                                            HeightRequest="14"
+                                            CornerRadius="7"
+                                            HorizontalOptions="Center"
+                                            VerticalOptions="Center"
+                                            Color="{Binding Color}" />
+                                        <controls:IconView
+                                            Data="{x:Static controls:Icons.Plus}"
+                                            Color="{DynamicResource Ink}"
+                                            WidthRequest="12"
+                                            HeightRequest="12"
+                                            HorizontalOptions="Center"
+                                            VerticalOptions="Center"
+                                            IsVisible="{Binding ShowPlus}" />
+                                    </Grid>
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnSwatchTapped" />
+                                    </Border.GestureRecognizers>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </HorizontalStackLayout>
 
-        <CollectionView
-            Grid.Row="3"
-            ItemsSource="{Binding Items}"
-            IsVisible="{Binding ShowResults}"
-            SelectionMode="None">
+                    <controls:PillButton
+                        Grid.Column="3"
+                        Text="{loc:Tr Key='Cancel'}"
+                        IsVisible="{Binding IsEditing}"
+                        Clicked="OnCancelClicked" />
 
-            <CollectionView.EmptyView>
+                    <controls:PillButton
+                        Grid.Column="4"
+                        Text="{Binding SaveButtonText}"
+                        Icon="{x:Static controls:Icons.Plus}"
+                        IsPrimary="True"
+                        Clicked="OnSaveClicked" />
+                </Grid>
+            </Border>
+
+            <VerticalStackLayout Grid.Row="2" Spacing="6">
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+
                 <Label
-                    Text="{loc:Tr Key='No categories yet. Create your first category above.'}"
-                    Margin="24"
-                    HorizontalTextAlignment="Center" />
-            </CollectionView.EmptyView>
+                    Text="{Binding ErrorMessage}"
+                    IsVisible="{Binding HasError}"
+                    TextColor="{DynamicResource Danger}" />
 
-            <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="core:Category">
-                    <Border
-                        Padding="16"
-                        Margin="0,0,0,8"
-                        StrokeShape="RoundRectangle 18"
-                        Stroke="{DynamicResource Border}"
-                        BackgroundColor="{DynamicResource Surface}">
-                        
-                        <Grid
-                            ColumnDefinitions="*,Auto,Auto"
-                            ColumnSpacing="12">
+                <Label
+                    Text="{Binding SuccessMessage}"
+                    IsVisible="{Binding HasSuccess}"
+                    TextColor="{DynamicResource Success}" />
+            </VerticalStackLayout>
 
-                            <Label
-                                Text="{Binding Name}"
-                                VerticalOptions="Center"
-                                LineBreakMode="TailTruncation" />
+            <!-- One tile per category -->
+            <CollectionView
+                x:Name="Tiles"
+                Grid.Row="3"
+                ItemsSource="{Binding Tiles}"
+                IsVisible="{Binding ShowResults}"
+                SelectionMode="None"
+                SizeChanged="OnTilesSizeChanged">
 
-                            <Button
-                                Grid.Column="1"
-                                Text="{loc:Tr Key='Rename'}"
-                                Clicked="OnRenameClicked" />
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout
+                        Orientation="Vertical"
+                        Span="3"
+                        HorizontalItemSpacing="16"
+                        VerticalItemSpacing="16" />
+                </CollectionView.ItemsLayout>
 
-                            <Button
-                                Grid.Column="2"
-                                Text="{loc:Tr Key='Delete'}"
-                                Clicked="OnDeleteClicked"
-                                    Style="{StaticResource DangerButton}" />
-                        </Grid>
+                <CollectionView.EmptyView>
+                    <Label
+                        Text="{loc:Tr Key='No categories yet. Create your first category above.'}"
+                        Margin="24"
+                        TextColor="{DynamicResource InkMuted}"
+                        HorizontalTextAlignment="Center" />
+                </CollectionView.EmptyView>
 
-                    </Border>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
-    </Grid>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:CategoryTile">
+                        <Border Padding="0" VerticalOptions="Start">
+                            <Grid
+                                ColumnDefinitions="38,*,Auto,Auto"
+                                ColumnSpacing="14"
+                                Padding="18,16">
+
+                                <Grid.GestureRecognizers>
+                                    <PointerGestureRecognizer
+                                        PointerEntered="OnTilePointerEntered"
+                                        PointerExited="OnTilePointerExited" />
+                                </Grid.GestureRecognizers>
+
+                                <Border
+                                    WidthRequest="38"
+                                    HeightRequest="38"
+                                    StrokeThickness="0"
+                                    StrokeShape="RoundRectangle 11"
+                                    BackgroundColor="{Binding Tint}">
+                                    <BoxView
+                                        WidthRequest="10"
+                                        HeightRequest="10"
+                                        CornerRadius="5"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Center"
+                                        Color="{Binding Color}" />
+                                </Border>
+
+                                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                                    <Label
+                                        Text="{Binding Name}"
+                                        FontSize="15"
+                                        FontFamily="ManropeBold"
+                                        LineBreakMode="TailTruncation" />
+                                    <Label
+                                        Text="{Binding CountText}"
+                                        FontSize="12"
+                                        TextColor="{DynamicResource InkMuted}" />
+                                </VerticalStackLayout>
+
+                                <VerticalStackLayout Grid.Column="2" VerticalOptions="Center">
+                                    <Label
+                                        Text="{Binding AmountText}"
+                                        FontFamily="ManropeExtraBold"
+                                        HorizontalTextAlignment="End" />
+                                    <Label
+                                        Text="{Binding ShareText}"
+                                        FontSize="12"
+                                        TextColor="{DynamicResource InkMuted}"
+                                        HorizontalTextAlignment="End" />
+                                </VerticalStackLayout>
+
+                                <HorizontalStackLayout Grid.Column="3" VerticalOptions="Center">
+                                    <controls:IconButton
+                                        Icon="{x:Static controls:Icons.Edit}"
+                                        Clicked="OnRenameClicked" />
+                                    <controls:IconButton
+                                        Icon="{x:Static controls:Icons.Trash}"
+                                        IconColorKey="Danger"
+                                        Clicked="OnDeleteClicked" />
+                                </HorizontalStackLayout>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <Border Grid.Row="4" Padding="18,14">
+                <HorizontalStackLayout Spacing="10">
+                    <controls:IconView
+                        Data="{x:Static controls:Icons.Info}"
+                        Color="{DynamicResource InkMuted}"
+                        WidthRequest="16"
+                        HeightRequest="16" />
+                    <Label
+                        Text="{loc:Tr Key='When a category with entries is deleted, you are asked where to move them.'}"
+                        FontSize="13"
+                        TextColor="{DynamicResource InkMuted}"
+                        VerticalOptions="Center" />
+                </HorizontalStackLayout>
+            </Border>
+        </Grid>
+    </controls:CenteredContainer>
 </ContentPage>
