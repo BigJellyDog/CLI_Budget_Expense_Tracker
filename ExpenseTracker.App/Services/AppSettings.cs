@@ -8,7 +8,9 @@ public sealed record SettingsData(
     CsvImportProfile? LastCsvProfile = null,
     ThemeMode ThemeMode = ThemeMode.System,
     string Accent = "Lavender",
-    string Language = "en");
+    string Language = "en",
+    Dictionary<string, int>? CategoryColors = null,
+    Dictionary<string, string>? CategoryHex = null);
 
 /// <summary>
 /// User settings kept in a small JSON file next to the database.
@@ -44,6 +46,14 @@ public sealed class AppSettings
     /// <summary>Code of the language of the screens: en, de, ru or uk.</summary>
     public string Language => _data.Language;
 
+    /// <summary>The color slot (0-5) the person picked for a category, by category name.</summary>
+    public int? CategoryColor(string name) =>
+        _data.CategoryColors is { } map && map.TryGetValue(name.Trim().ToUpperInvariant(), out var slot) ? slot : null;
+
+    /// <summary>A color the person mixed for a category, as #RRGGBB, or null.</summary>
+    public string? CategoryCustomColor(string name) =>
+        _data.CategoryHex is { } map && map.TryGetValue(name.Trim().ToUpperInvariant(), out var hex) ? hex : null;
+
     public static bool IsValidCurrency(string? code) =>
         code is { Length: 3 } && code.All(char.IsLetter);
 
@@ -71,6 +81,49 @@ public sealed class AppSettings
             throw new ArgumentException("Unknown language.", nameof(code));
 
         Save(_data with { Language = code });
+    }
+
+    /// <summary>The category uses a color of the palette; a custom color it had is dropped.</summary>
+    public void SetCategoryColor(string name, int slot)
+    {
+        var key = name.Trim().ToUpperInvariant();
+        var map = new Dictionary<string, int>(_data.CategoryColors ?? []) { [key] = slot };
+        var hex = new Dictionary<string, string>(_data.CategoryHex ?? []);
+        hex.Remove(key);
+
+        Save(_data with { CategoryColors = map, CategoryHex = hex });
+    }
+
+    /// <summary>The category uses its own color; the palette choice it had is dropped.</summary>
+    public void SetCategoryCustomColor(string name, string hex)
+    {
+        var key = name.Trim().ToUpperInvariant();
+        var map = new Dictionary<string, int>(_data.CategoryColors ?? []);
+        map.Remove(key);
+        var colors = new Dictionary<string, string>(_data.CategoryHex ?? []) { [key] = hex };
+
+        Save(_data with { CategoryColors = map, CategoryHex = colors });
+    }
+
+    public void RenameCategoryColor(string oldName, string newName)
+    {
+        var map = new Dictionary<string, int>(_data.CategoryColors ?? []);
+        var hex = new Dictionary<string, string>(_data.CategoryHex ?? []);
+        var from = oldName.Trim().ToUpperInvariant();
+        var to = newName.Trim().ToUpperInvariant();
+
+        if (map.Remove(from, out var slot)) map[to] = slot;
+        if (hex.Remove(from, out var custom)) hex[to] = custom;
+
+        Save(_data with { CategoryColors = map, CategoryHex = hex });
+    }
+
+    public void RemoveCategoryColor(string name)
+    {
+        var map = new Dictionary<string, int>(_data.CategoryColors ?? []);
+
+        if (map.Remove(name.Trim().ToUpperInvariant()))
+            Save(_data with { CategoryColors = map });
     }
 
     public void SetLastCsvProfile(CsvImportProfile profile)

@@ -127,6 +127,14 @@
         <Setter Property="MinimumHeightRequest" Value="40"/>
     </Style>
 
+    <!-- Column titles of a table: small, bold, muted. -->
+    <Style x:Key="TableHead" TargetType="Label">
+        <Setter Property="TextColor" Value="{DynamicResource InkMuted}" />
+        <Setter Property="FontFamily" Value="ManropeExtraBold" />
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="VerticalOptions" Value="Center" />
+    </Style>
+
     <Style TargetType="ImageButton">
         <Setter Property="BorderColor" Value="Transparent"/>
         <Setter Property="BorderWidth" Value="0"/>

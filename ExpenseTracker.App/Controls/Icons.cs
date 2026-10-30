@@ -13,6 +13,12 @@ public static class Icons
     public const string Sliders = "M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6";
     public const string Plus = "M12 5v14M5 12h14";
     public const string ChevronLeft = "M15 18l-6-6 6-6";
+    public const string Info = "M21 12a9 9 0 1 1 -18 0a9 9 0 0 1 18 0M12 8h.01M11 12h1v5h1";
+    public const string Close = "M18 6L6 18M6 6l12 12";
+    public const string Check = "M20 6L9 17l-5-5";
+    public const string ArrowUpRight = "M7 17L17 7M9 7h8v8";
+    public const string ArrowDownRight = "M7 7l10 10M17 9v8H9";
+    public const string More = "M12 5h.01M12 12h.01M12 19h.01";
     public const string ChevronDown = "M6 9l6 6 6-6";
     public const string Calendar = "M3 5h18v16H3zM3 10h18M8 3v4M16 3v4";
     public const string ChevronRight = "M9 18l6-6-6-6";

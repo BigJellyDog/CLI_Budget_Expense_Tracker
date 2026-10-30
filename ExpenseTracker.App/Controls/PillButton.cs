@@ -28,6 +28,16 @@ public sealed class PillButton : Border
         nameof(IsPrimary), typeof(bool), typeof(PillButton), false,
         propertyChanged: (b, _, _) => ((PillButton)b).UpdateLook());
 
+    /// <summary>A smaller button (32 high) for the actions of a card.</summary>
+    public static readonly BindableProperty IsCompactProperty = BindableProperty.Create(
+        nameof(IsCompact), typeof(bool), typeof(PillButton), false,
+        propertyChanged: (b, _, _) => ((PillButton)b).UpdateLook());
+
+    /// <summary>Name of a color resource for the text and icon, for example Danger. Empty: the usual colors.</summary>
+    public static readonly BindableProperty ToneKeyProperty = BindableProperty.Create(
+        nameof(ToneKey), typeof(string), typeof(PillButton), "",
+        propertyChanged: (b, _, _) => ((PillButton)b).UpdateLook());
+
     public static readonly BindableProperty CommandProperty = BindableProperty.Create(
         nameof(Command), typeof(ICommand), typeof(PillButton), null);
 
@@ -89,6 +99,18 @@ public sealed class PillButton : Border
         set => SetValue(IsPrimaryProperty, value);
     }
 
+    public bool IsCompact
+    {
+        get => (bool)GetValue(IsCompactProperty);
+        set => SetValue(IsCompactProperty, value);
+    }
+
+    public string ToneKey
+    {
+        get => (string)GetValue(ToneKeyProperty);
+        set => SetValue(ToneKeyProperty, value);
+    }
+
     public ICommand? Command
     {
         get => (ICommand?)GetValue(CommandProperty);
@@ -105,7 +127,11 @@ public sealed class PillButton : Border
     private void UpdateLook()
     {
         var fill = IsPrimary ? "Accent" : "Surface2";
-        var ink = IsPrimary ? "OnAccent" : "Ink";
+        var ink = ToneKey.Length > 0 ? ToneKey : IsPrimary ? "OnAccent" : "Ink";
+
+        HeightRequest = IsCompact ? 32 : 40;
+        Padding = IsCompact ? new Thickness(12, 0) : new Thickness(16, 0);
+        _label.FontSize = IsCompact ? 13 : 14;
 
         this.SetDynamicResource(BackgroundColorProperty, fill);
         _label.SetDynamicResource(Label.TextColorProperty, ink);

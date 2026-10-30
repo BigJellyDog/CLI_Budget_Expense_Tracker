@@ -21,8 +21,8 @@ public partial class App : Application
         var window = new Window(new AppShell())
         {
             Title = "Expense Tracker",
-            Width = 1180,
-            Height = 780
+            Width = 1440,
+            Height = 860
         };
 
         var titleBar = new TitleBar { Title = "Expense Tracker" };

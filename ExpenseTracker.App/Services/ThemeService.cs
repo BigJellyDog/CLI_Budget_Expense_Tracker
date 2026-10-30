@@ -30,15 +30,15 @@ public sealed class ThemeService(AppSettings settings)
 
     private sealed record Semantic(
         string Danger, string Success, string Warning,
-        string CatFood, string CatFun, string CatPets, string CatHealth, string CatMove);
+        string CatFood, string CatFun, string CatPets, string CatHealth, string CatMove, string CatShop);
 
     private static readonly Semantic DarkSemantic = new(
         "#ff9b92", "#86e3b0", "#f5c76b",
-        "#f5b77a", "#c9b6ff", "#7fd8e8", "#ff9fb6", "#9fc0ff");
+        "#f5b77a", "#c9b6ff", "#7fd8e8", "#ff9fb6", "#9fc0ff", "#b5e06b");
 
     private static readonly Semantic LightSemantic = new(
         "#b42318", "#18794e", "#9a5b00",
-        "#b45f0c", "#7a4fd0", "#0f7d90", "#c2335a", "#2f5fc4");
+        "#b45f0c", "#7a4fd0", "#0f7d90", "#c2335a", "#2f5fc4", "#4d7c0f");
 
     private static readonly Dictionary<string, (Palette Dark, Palette Light)> Palettes = new()
     {
@@ -148,6 +148,7 @@ public sealed class ThemeService(AppSettings settings)
         Set("CatPets", semantic.CatPets);
         Set("CatHealth", semantic.CatHealth);
         Set("CatMove", semantic.CatMove);
+        Set("CatShop", semantic.CatShop);
 
 #if WINDOWS
         ColorTitleBar(application, palette);

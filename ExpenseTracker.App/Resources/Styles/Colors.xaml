@@ -28,4 +28,5 @@
     <Color x:Key="CatPets">#7fd8e8</Color>
     <Color x:Key="CatHealth">#ff9fb6</Color>
     <Color x:Key="CatMove">#9fc0ff</Color>
+    <Color x:Key="CatShop">#b5e06b</Color>
 </ResourceDictionary>

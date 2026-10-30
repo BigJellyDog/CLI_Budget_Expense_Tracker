@@ -43,10 +43,12 @@ public static class MauiProgram
             Path.Combine(Path.GetDirectoryName(databasePath)!, "settings.json"));
 
         Loc.SetLanguage(appSettings.Language);
+        Controls.CategoryPalette.Use(appSettings);
 
         builder.Services.AddSingleton(appSettings);
 
         builder.Services.AddSingleton<ThemeService>();
+        builder.Services.AddSingleton<ExpenseFilterRequest>();
 
         builder.Services.AddSingleton(new ExportLocation(
             Path.Combine(Path.GetDirectoryName(databasePath)!, "exports")));

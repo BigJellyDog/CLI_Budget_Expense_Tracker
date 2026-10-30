@@ -13,6 +13,11 @@ public sealed class IconButton : Border
         nameof(IconColorKey), typeof(string), typeof(IconButton), "InkMuted",
         propertyChanged: (b, _, _) => ((IconButton)b).UpdateLook());
 
+    /// <summary>A bigger round button with a fill and a border, like the refresh button of the page header.</summary>
+    public static readonly BindableProperty FilledProperty = BindableProperty.Create(
+        nameof(Filled), typeof(bool), typeof(IconButton), false,
+        propertyChanged: (b, _, _) => ((IconButton)b).UpdateLook());
+
     private readonly IconView _icon = new() { WidthRequest = 16, HeightRequest = 16 };
     private bool _hover;
 
@@ -55,9 +60,24 @@ public sealed class IconButton : Border
         set => SetValue(IconColorKeyProperty, value);
     }
 
+    public bool Filled
+    {
+        get => (bool)GetValue(FilledProperty);
+        set => SetValue(FilledProperty, value);
+    }
+
     private void UpdateLook()
     {
-        if (_hover)
+        if (Filled)
+        {
+            WidthRequest = 40;
+            HeightRequest = 40;
+            StrokeThickness = 1;
+            StrokeShape = new RoundRectangle { CornerRadius = 20 };
+            this.SetDynamicResource(StrokeProperty, "Border");
+            this.SetDynamicResource(BackgroundColorProperty, _hover ? "Track" : "Surface2");
+        }
+        else if (_hover)
             this.SetDynamicResource(BackgroundColorProperty, "Surface2");
         else
             BackgroundColor = Colors.Transparent;
