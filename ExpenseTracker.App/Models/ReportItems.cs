@@ -52,6 +52,7 @@ public sealed record TopExpenseItem(
 
 public static class ReportFormat
 {
+    /// <summary>Text for the change against the month before: a percentage, or the amounts when there is no base.</summary>
     public static string Change(decimal? percent, decimal current, decimal previous)
     {
         if (percent is { } value)

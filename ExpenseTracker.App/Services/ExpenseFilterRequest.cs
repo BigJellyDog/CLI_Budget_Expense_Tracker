@@ -12,6 +12,7 @@ public sealed class ExpenseFilterRequest
 
     public bool IsPending { get; private set; }
 
+    /// <summary>Asks the expenses page to show one category of one month, the next time it appears.</summary>
     public void Set(Guid categoryId, DateTime month)
     {
         CategoryId = categoryId;

@@ -10,6 +10,7 @@ public sealed class ReportService(
 {
     public const int DefaultTopCount = 5;
 
+    /// <summary>The report of a month, compared with the month before.</summary>
     public Task<PeriodReport> GetMonthAsync(
         DateOnly month,
         CancellationToken cancellationToken = default) =>

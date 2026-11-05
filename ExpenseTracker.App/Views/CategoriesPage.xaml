@@ -126,13 +126,12 @@
                                                         PointerEntered="OnRowPointerEntered"
                                                         PointerExited="OnRowPointerExited" />
                                                 </Border.GestureRecognizers>
-                                                <Grid ColumnDefinitions="10,*,Auto" ColumnSpacing="12">
-                                                    <BoxView
-                                                        WidthRequest="10"
-                                                        HeightRequest="10"
-                                                        CornerRadius="5"
-                                                        VerticalOptions="Center"
-                                                        Color="{Binding Color}" />
+                                                <Grid ColumnDefinitions="18,*,Auto" ColumnSpacing="12">
+                                                    <controls:IconView
+                                                        Data="{Binding Icon}"
+                                                        Color="{Binding Color}"
+                                                        WidthRequest="18"
+                                                        HeightRequest="18" />
                                                     <Label
                                                         Grid.Column="1"
                                                         Text="{Binding Name}"
@@ -182,13 +181,12 @@
                                                         PointerEntered="OnRowPointerEntered"
                                                         PointerExited="OnRowPointerExited" />
                                                 </Border.GestureRecognizers>
-                                                <Grid ColumnDefinitions="10,*,Auto" ColumnSpacing="12">
-                                                    <BoxView
-                                                        WidthRequest="10"
-                                                        HeightRequest="10"
-                                                        CornerRadius="5"
-                                                        VerticalOptions="Center"
-                                                        Color="{Binding Color}" />
+                                                <Grid ColumnDefinitions="18,*,Auto" ColumnSpacing="12">
+                                                    <controls:IconView
+                                                        Data="{Binding Icon}"
+                                                        Color="{Binding Color}"
+                                                        WidthRequest="18"
+                                                        HeightRequest="18" />
                                                     <Label
                                                         Grid.Column="1"
                                                         Text="{Binding Name}"
@@ -232,7 +230,7 @@
                                     StrokeShape="RoundRectangle 16"
                                     BackgroundColor="{Binding Selected.Tint}">
                                     <controls:IconView
-                                        Data="{x:Static controls:Icons.Tag}"
+                                        Data="{Binding Selected.Icon}"
                                         Color="{Binding Selected.Color}"
                                         WidthRequest="24"
                                         HeightRequest="24"
@@ -290,6 +288,72 @@
                                 </Border>
                             </Grid>
 
+                            <!-- Icon -->
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="{loc:Tr Key='Icon'}" FontSize="15" FontFamily="NunitoBold" />
+                                <Label
+                                    Text="{loc:Tr Key='Pick the icon shown next to this category.'}"
+                                    FontSize="12"
+                                    TextColor="{DynamicResource InkMuted}"
+                                    Margin="0,0,0,10" />
+
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10" Margin="0,0,0,10">
+                                    <Entry
+                                        Placeholder="{loc:Tr Key='Search icons'}"
+                                        Text="{Binding IconSearch, Mode=TwoWay}" />
+                                    <controls:PillButton
+                                        Grid.Column="1"
+                                        Text="{loc:Tr Key='Import SVG'}"
+                                        Icon="{x:Static controls:Icons.Upload}"
+                                        Clicked="OnImportIconClicked"
+                                        IsEnabled="{Binding CanEdit}" />
+                                </Grid>
+
+                                <ScrollView HeightRequest="190">
+                                    <VerticalStackLayout Spacing="8" BindableLayout.ItemsSource="{Binding IconRows}">
+                                        <BindableLayout.ItemTemplate>
+                                            <DataTemplate>
+                                                <HorizontalStackLayout Spacing="8" BindableLayout.ItemsSource="{Binding .}">
+                                                    <BindableLayout.ItemTemplate>
+                                                        <DataTemplate x:DataType="models:IconChoice">
+                                                            <Border
+                                                                WidthRequest="40"
+                                                                HeightRequest="40"
+                                                                StrokeShape="RoundRectangle 11"
+                                                                StrokeThickness="0"
+                                                                BackgroundColor="{DynamicResource Bg}">
+                                                                <Border.Triggers>
+                                                                    <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                                                        <Setter Property="StrokeThickness" Value="2" />
+                                                                        <Setter Property="Stroke" Value="{DynamicResource Ink}" />
+                                                                    </DataTrigger>
+                                                                </Border.Triggers>
+                                                                <controls:IconView
+                                                                    Data="{Binding Path}"
+                                                                    Color="{DynamicResource Ink}"
+                                                                    WidthRequest="20"
+                                                                    HeightRequest="20"
+                                                                    HorizontalOptions="Center"
+                                                                    VerticalOptions="Center" />
+                                                                <Border.GestureRecognizers>
+                                                                    <TapGestureRecognizer Tapped="OnIconTapped" />
+                                                                </Border.GestureRecognizers>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </BindableLayout.ItemTemplate>
+                                                </HorizontalStackLayout>
+                                            </DataTemplate>
+                                        </BindableLayout.ItemTemplate>
+                                    </VerticalStackLayout>
+                                </ScrollView>
+
+                                <Label
+                                    Text="{loc:Tr Key='No icons match the search.'}"
+                                    FontSize="12"
+                                    TextColor="{DynamicResource InkMuted}"
+                                    IsVisible="{Binding NoIconsFound}" />
+                            </VerticalStackLayout>
+
                             <!-- Color and links -->
                             <Grid ColumnDefinitions="250,*" ColumnSpacing="28">
                                 <VerticalStackLayout Spacing="4">
@@ -300,16 +364,16 @@
                                         TextColor="{DynamicResource InkMuted}"
                                         Margin="0,0,0,10" />
 
-                                    <FlexLayout
-                                        Wrap="Wrap"
-                                        JustifyContent="Start"
-                                        BindableLayout.ItemsSource="{Binding Swatches}">
+                                    <VerticalStackLayout Spacing="0" BindableLayout.ItemsSource="{Binding SwatchRows}">
                                         <BindableLayout.ItemTemplate>
-                                            <DataTemplate x:DataType="models:SwatchItem">
+                                            <DataTemplate>
+                                                <HorizontalStackLayout Spacing="10" Margin="0,0,0,10" BindableLayout.ItemsSource="{Binding .}">
+                                                    <BindableLayout.ItemTemplate>
+                                                        <DataTemplate x:DataType="models:SwatchItem">
                                                 <Border
                                                     WidthRequest="32"
                                                     HeightRequest="32"
-                                                    Margin="0,0,10,10"
+                                                    
                                                     StrokeShape="RoundRectangle 16"
                                                     StrokeThickness="0"
                                                     BackgroundColor="Transparent">
@@ -341,8 +405,11 @@
                                                     </Border.GestureRecognizers>
                                                 </Border>
                                             </DataTemplate>
+                                                    </BindableLayout.ItemTemplate>
+                                                </HorizontalStackLayout>
+                                            </DataTemplate>
                                         </BindableLayout.ItemTemplate>
-                                    </FlexLayout>
+                                    </VerticalStackLayout>
                                 </VerticalStackLayout>
 
                                 <VerticalStackLayout Grid.Column="1" Spacing="10">

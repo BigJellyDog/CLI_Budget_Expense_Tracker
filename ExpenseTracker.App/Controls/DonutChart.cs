@@ -22,6 +22,7 @@ public sealed class DonutChart : GraphicsView, IDrawable
 
     private float _cx, _cy, _radius;
 
+    /// <summary>Creates the chart; segments are set through its properties.</summary>
     public DonutChart()
     {
         Drawable = this;
@@ -64,6 +65,7 @@ public sealed class DonutChart : GraphicsView, IDrawable
     private static Color Token(string key, Color fallback) =>
         Application.Current?.Resources.TryGetValue(key, out var value) == true && value is Color color ? color : fallback;
 
+    /// <summary>Draws the ring and its segments, with the highlighted one grown.</summary>
     public void Draw(ICanvas canvas, RectF rect)
     {
         var size = Math.Min(rect.Width, rect.Height) - 8f; // room for the grown segment

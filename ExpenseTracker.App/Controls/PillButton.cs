@@ -46,6 +46,7 @@ public sealed class PillButton : Border
     private readonly Label _label = new() { VerticalOptions = LayoutOptions.Center, FontFamily = "NunitoBold", IsVisible = false };
     private bool _hover;
 
+    /// <summary>Creates a rounded button with a text and an optional icon.</summary>
     public PillButton()
     {
         StrokeThickness = 0;

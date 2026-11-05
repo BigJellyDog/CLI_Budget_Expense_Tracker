@@ -30,6 +30,7 @@ public sealed class BankImportViewModel : ObservableObject
     private byte[]? _customBytes;
     private string _currency;
 
+    /// <summary>Creates the view model of the bank statement import with the readers and classifiers it uses.</summary>
     public BankImportViewModel(
         IBankStatementReader reader,
         IBankStatementClassifier classifier,
@@ -222,6 +223,7 @@ public sealed class BankImportViewModel : ObservableObject
         && Items.Any(x => x.IsSelected)
         && Items.Where(x => x.IsSelected).All(x => x.Category is not null);
 
+    /// <summary>Reads a statement file and builds the preview of its entries.</summary>
     public Task LoadAsync(
         string fileName,
         Func<Task<Stream>> openReadAsync) =>
@@ -313,6 +315,7 @@ public sealed class BankImportViewModel : ObservableObject
         NotifyState();
     }
 
+    /// <summary>Previews the file with the column settings typed in for a bank that is not known.</summary>
     public async Task PreviewCustomAsync()
     {
         if (IsBusy || _customBytes is not { } bytes) return;
@@ -431,6 +434,7 @@ public sealed class BankImportViewModel : ObservableObject
         }
     }
 
+    /// <summary>Saves the selected entries as expenses and skips the ones imported before.</summary>
     public async Task ImportAsync()
     {
         if (!CanImport) return;
@@ -480,6 +484,7 @@ public sealed class BankImportViewModel : ObservableObject
         }
     }
 
+    /// <summary>Shows that the chosen file could not be opened, and clears the preview.</summary>
     public void ReportFileError(Exception exception)
     {
         ClearPreview();

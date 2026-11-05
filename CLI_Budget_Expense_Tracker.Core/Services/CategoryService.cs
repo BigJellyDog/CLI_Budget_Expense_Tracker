@@ -5,9 +5,11 @@ using Models;
 
 public sealed class CategoryService(ICategoryRepository categories)
 {
+    /// <summary>All categories, ordered by name.</summary>
     public Task<IReadOnlyList<Category>> GetAllAsync(CancellationToken cancellationToken = default) =>
         categories.GetAllAsync(cancellationToken);
 
+    /// <summary>Creates a category; the name must be unique regardless of case.</summary>
     public async Task<Category> AddAsync(string name, CancellationToken cancellationToken = default)
     {
         var category = new Category(name);
@@ -16,6 +18,7 @@ public sealed class CategoryService(ICategoryRepository categories)
         return category;
     }
 
+    /// <summary>Renames a category; the new name must be unique.</summary>
     public async Task RenameAsync(Guid id, string name, CancellationToken cancellationToken = default)
     {
         var category = await categories.GetByIdAsync(id, cancellationToken)
@@ -26,12 +29,15 @@ public sealed class CategoryService(ICategoryRepository categories)
         await categories.UpdateAsync(category, cancellationToken);
     }
 
+    /// <summary>Deletes a category; false when it does not exist.</summary>
     public Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default) =>
         categories.DeleteAsync(id, cancellationToken);
 
+    /// <summary>Counts the expenses, schedules and budget limits that reference a category.</summary>
     public Task<CategoryUsage> GetUsageAsync(Guid id, CancellationToken cancellationToken = default) =>
         categories.GetUsageAsync(id, cancellationToken);
 
+    /// <summary>Moves the expenses, schedules and rules of a category to another one, drops its limits, then deletes it.</summary>
     public async Task<CategoryUsage> MoveAndDeleteAsync(Guid id, Guid targetId, CancellationToken cancellationToken = default)
     {
         if (id == targetId)
@@ -45,6 +51,7 @@ public sealed class CategoryService(ICategoryRepository categories)
         return await categories.MoveAndDeleteAsync(id, targetId, cancellationToken);
     }
 
+    /// <summary>Deletes a category together with its expenses, schedules, rules and limits.</summary>
     public async Task<CategoryUsage> DeleteWithDataAsync(Guid id, CancellationToken cancellationToken = default)
     {
         _ = await categories.GetByIdAsync(id, cancellationToken)

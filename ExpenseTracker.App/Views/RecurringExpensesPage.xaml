@@ -254,7 +254,7 @@
                                                 StrokeShape="RoundRectangle 11"
                                                 BackgroundColor="{Binding Tint}">
                                                 <controls:IconView
-                                                    Data="{x:Static controls:Icons.Repeat}"
+                                                    Data="{Binding Icon}"
                                                     Color="{Binding Color}"
                                                     WidthRequest="18"
                                                     HeightRequest="18"

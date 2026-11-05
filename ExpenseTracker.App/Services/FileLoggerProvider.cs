@@ -14,6 +14,7 @@ public sealed class FileLoggerProvider : ILoggerProvider
     private readonly TimeProvider _timeProvider;
     private readonly object _gate = new();
 
+    /// <summary>Creates the provider that writes one log file per day into the directory and removes old ones.</summary>
     public FileLoggerProvider(string directory, TimeProvider timeProvider)
     {
         _directory = directory;
@@ -30,9 +31,11 @@ public sealed class FileLoggerProvider : ILoggerProvider
         }
     }
 
+    /// <summary>Creates a logger for one category (usually a class) that writes to the shared file.</summary>
     public ILogger CreateLogger(string categoryName) =>
         new FileLogger(this, categoryName);
 
+    /// <summary>Nothing to release: files are opened for each write.</summary>
     public void Dispose()
     {
     }
@@ -75,11 +78,14 @@ public sealed class FileLoggerProvider : ILoggerProvider
 
     private sealed class FileLogger(FileLoggerProvider provider, string category) : ILogger
     {
+        /// <summary>Scopes are not supported by the file log.</summary>
         public IDisposable? BeginScope<TState>(TState state)
             where TState : notnull => null;
 
+        /// <summary>Every level except None is written.</summary>
         public bool IsEnabled(LogLevel logLevel) => logLevel != LogLevel.None;
 
+        /// <summary>Writes one entry, with the exception if there is one. A failure to write never reaches the app.</summary>
         public void Log<TState>(
             LogLevel logLevel,
             EventId eventId,

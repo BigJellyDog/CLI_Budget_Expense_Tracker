@@ -21,6 +21,7 @@ public sealed class NavItem : Border
     private readonly Label _label = new() { VerticalOptions = LayoutOptions.Center };
     private bool _hover;
 
+    /// <summary>Creates an entry of the side navigation.</summary>
     public NavItem()
     {
         StrokeThickness = 0;

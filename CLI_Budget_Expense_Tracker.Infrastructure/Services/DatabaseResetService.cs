@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 /// </summary>
 public sealed class DatabaseResetService(ExpenseTrackerDbContext context)
 {
+    /// <summary>Deletes every expense, budget, rule, schedule and category in one transaction.</summary>
     public async Task ClearAllAsync(CancellationToken cancellationToken = default)
     {
         await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);

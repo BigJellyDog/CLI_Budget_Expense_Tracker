@@ -15,6 +15,7 @@ public sealed class CategoryRule
 
     public Guid CategoryId { get; private set; }
 
+    /// <summary>Creates a rule that sends bank entries containing the pattern to the category.</summary>
     public CategoryRule(Guid id, string pattern, Guid categoryId)
     {
         if (id == Guid.Empty)

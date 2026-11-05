@@ -9,6 +9,7 @@ public sealed class StackBar : GraphicsView, IDrawable
         nameof(Segments), typeof(IReadOnlyList<BarSegment>), typeof(StackBar), null,
         propertyChanged: (b, _, _) => ((StackBar)b).Invalidate());
 
+    /// <summary>Creates a bar split into colored segments.</summary>
     public StackBar()
     {
         Drawable = this;
@@ -22,6 +23,7 @@ public sealed class StackBar : GraphicsView, IDrawable
         set => SetValue(SegmentsProperty, value);
     }
 
+    /// <summary>Draws the segments with a small gap between them.</summary>
     public void Draw(ICanvas canvas, RectF dirtyRect)
     {
         const float gap = 2f;

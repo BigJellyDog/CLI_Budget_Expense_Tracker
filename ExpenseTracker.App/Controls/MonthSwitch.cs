@@ -34,6 +34,7 @@ public sealed class MonthSwitch : Border
         VerticalOptions = LayoutOptions.Center
     };
 
+    /// <summary>Creates the month control with previous and next buttons.</summary>
     public MonthSwitch()
     {
         StrokeThickness = 0;

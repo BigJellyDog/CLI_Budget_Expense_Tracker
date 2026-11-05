@@ -38,6 +38,7 @@ public sealed class GenericCsvReader
             .ToArray();
     }
 
+    /// <summary>Reads statement entries from CSV bytes using the column choices of the profile.</summary>
     public IReadOnlyList<BankStatementEntry> Read(byte[] content, CsvImportProfile profile)
     {
         ArgumentNullException.ThrowIfNull(content);

@@ -25,6 +25,7 @@ public static class Loc
 
     public static string Code => Codes[_index];
 
+    /// <summary>True for a known language code.</summary>
     public static bool IsValid(string? code) => code is not null && Codes.Contains(code);
 
     /// <summary>Also sets the culture, so month and day names follow the language.</summary>
@@ -39,6 +40,7 @@ public static class Loc
         CultureInfo.CurrentUICulture = culture;
     }
 
+    /// <summary>Translates a text (the English text is the key); unknown texts are returned as they are.</summary>
     public static string T(string text)
     {
         if (_index == 0 || !Translations.All.TryGetValue(text, out var row)) return text;
@@ -69,6 +71,7 @@ public sealed class TrExtension : IMarkupExtension<string>
 {
     public string Key { get; set; } = "";
 
+    /// <summary>Gives XAML the translated text of the key.</summary>
     public string ProvideValue(IServiceProvider serviceProvider) => Loc.T(Key);
 
     object IMarkupExtension.ProvideValue(IServiceProvider serviceProvider) => Loc.T(Key);
@@ -79,9 +82,11 @@ public sealed class TrConverter : IValueConverter
 {
     public static readonly TrConverter Instance = new();
 
+    /// <summary>Translates the bound value, for texts that come from the view model.</summary>
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) =>
         Loc.T(value?.ToString() ?? "");
 
+    /// <summary>Translations only go one way.</summary>
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
         throw new NotSupportedException();
 }

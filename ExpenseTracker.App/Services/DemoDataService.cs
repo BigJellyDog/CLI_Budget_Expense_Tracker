@@ -67,6 +67,7 @@ public sealed class DemoDataService(
         ("Deutsche Bahn", "Travel"), ("dm-drogerie", "Personal care")
     ];
 
+    /// <summary>Adds a year of sample categories, expenses, budgets and schedules.</summary>
     public async Task<DemoDataResult> LoadAsync(CancellationToken cancellationToken = default)
     {
         await initializer.InitializeAsync();

@@ -35,6 +35,7 @@ public sealed class DropDown : Border
 
     private readonly Label _label;
 
+    /// <summary>Creates the field; tapping it opens the list of items.</summary>
     public DropDown()
     {
         StrokeThickness = 0;

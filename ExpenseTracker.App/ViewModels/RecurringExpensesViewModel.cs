@@ -23,6 +23,7 @@ public sealed class RecurringExpensesViewModel : ObservableObject
     private bool _loaded;
     private Guid? _editingScheduleId;
 
+    /// <summary>Creates the view model of the recurring expenses page.</summary>
     public RecurringExpensesViewModel(
         IServiceScopeFactory scopeFactory,
         AppInitializer initializer,
@@ -71,12 +72,16 @@ public sealed class RecurringExpensesViewModel : ObservableObject
     public string Subtitle =>
         Loc.F("{0} active schedules · {1:N2} {2} per month", Items.Count(x => x.IsActive), MonthlyTotal, _settings.Currency);
 
-    private static DateOnly Advance(DateOnly date, RecurrenceFrequency frequency) => frequency switch
+    /// <summary>
+    /// The occurrence after <paramref name="date"/>. Months and years count from the start date,
+    /// like the schedule itself, so the 31st does not drift to the 28th after a short month.
+    /// </summary>
+    private static DateOnly Advance(DateOnly date, RecurringExpenseListItem item) => item.Frequency switch
     {
         RecurrenceFrequency.Daily => date.AddDays(1),
         RecurrenceFrequency.Weekly => date.AddDays(7),
-        RecurrenceFrequency.Yearly => date.AddYears(1),
-        _ => date.AddMonths(1)
+        RecurrenceFrequency.Yearly => item.StartDate.AddYears(date.Year - item.StartDate.Year + 1),
+        _ => item.StartDate.AddMonths((date.Year - item.StartDate.Year) * 12 + date.Month - item.StartDate.Month + 1)
     };
 
     /// <summary>The due dates of the next 30 days (and any that are already overdue), soonest first.</summary>
@@ -99,7 +104,7 @@ public sealed class RecurringExpensesViewModel : ObservableObject
                     _settings.Currency,
                     item.Color ?? Colors.Gray));
 
-                due = Advance(due, item.Frequency);
+                due = Advance(due, item);
             }
         }
 
@@ -114,14 +119,57 @@ public sealed class RecurringExpensesViewModel : ObservableObject
     public RecurrenceFrequency? SelectedFrequency { get; set; } =
         RecurrenceFrequency.Monthly;
 
-    public DateTime? SelectedStartDate { get; set; }
+    private DateTime? _selectedStartDate;
+
+    /// <summary>First due date of the schedule. Changing it keeps the end date from falling before it.</summary>
+    public DateTime? SelectedStartDate
+    {
+        get => _selectedStartDate;
+        set
+        {
+            _selectedStartDate = value;
+            KeepEndDateAfterStart();
+        }
+    }
 
     public string AmountText { get; set; } = "";
 
     public string Description { get; set; } = "";
 
-    public bool HasEndDate { get; set; }
+    private bool _hasEndDate;
 
+    /// <summary>True when the schedule ends. Turning it on moves an end date that lies before the start.</summary>
+    public bool HasEndDate
+    {
+        get => _hasEndDate;
+        set
+        {
+            _hasEndDate = value;
+            KeepEndDateAfterStart();
+        }
+    }
+
+    /// <summary>
+    /// The end date field starts at today, which can be before the start date (a schedule that
+    /// begins next week). It follows the start date instead of failing the check on save.
+    /// </summary>
+    private void KeepEndDateAfterStart()
+    {
+        if (!_hasEndDate || _selectedStartDate is not { } start) return;
+
+        // While editing, the start date is the saved one and cannot be changed.
+        var floor = _editingScheduleId is { } id
+            ? Items.FirstOrDefault(x => x.Id == id)?.StartDate.ToDateTime(TimeOnly.MinValue) ?? start
+            : start;
+
+        if (SelectedEndDate is not { } end || end < floor)
+        {
+            SelectedEndDate = floor;
+            OnPropertyChanged(nameof(SelectedEndDate));
+        }
+    }
+
+    /// <summary>Marks the schedule as ending, because the person picked an end date.</summary>
     public void UseEndDate()
     {
         HasEndDate = true;
@@ -163,10 +211,12 @@ public sealed class RecurringExpensesViewModel : ObservableObject
     public bool ShowNoCategories =>
         ShowResults && Categories.Count == 0;
 
+    /// <summary>Loads the schedules and the due dates of the next 30 days.</summary>
     public Task LoadAsync() => RunAsync(
         ReloadAsync,
         () => Loc.T("Could not load recurring expenses. Try Refresh."));
 
+    /// <summary>Saves the form: creates a schedule, or updates the one being edited.</summary>
     public async Task SaveAsync()
     {
         if (_editingScheduleId is { } id)
@@ -179,6 +229,7 @@ public sealed class RecurringExpensesViewModel : ObservableObject
         }
     }
 
+    /// <summary>Creates a schedule and adds the expenses that are already due.</summary>
     public async Task CreateAsync()
     {
         if (!CanEdit) return;
@@ -270,6 +321,7 @@ public sealed class RecurringExpensesViewModel : ObservableObject
             : Loc.T("Could not update the schedule. Check the values and try again."));
     }
 
+    /// <summary>Puts a schedule into the form for editing.</summary>
     public void StartEdit(Guid scheduleId)
     {
         if (!ShowResults) return;
@@ -295,6 +347,7 @@ public sealed class RecurringExpensesViewModel : ObservableObject
         NotifyState();
     }
 
+    /// <summary>Leaves edit mode and resets the form.</summary>
     public void CancelEdit()
     {
         if (IsBusy || !IsEditing) return;
@@ -412,6 +465,7 @@ public sealed class RecurringExpensesViewModel : ObservableObject
         OnPropertyChanged(nameof(SelectedEndDate));
     }
 
+    /// <summary>Creates the expenses of all schedules that are due until today.</summary>
     public async Task GenerateDueAsync()
     {
         var generated = false;
@@ -431,6 +485,7 @@ public sealed class RecurringExpensesViewModel : ObservableObject
             : Loc.T("Could not generate due expenses. Try again."));
     }
 
+    /// <summary>Stops a schedule after the person confirmed it; its expenses stay.</summary>
     public async Task DeactivateAsync(
         Guid scheduleId,
         Func<Task<bool>> confirmDeactivation)
@@ -468,6 +523,7 @@ public sealed class RecurringExpensesViewModel : ObservableObject
         }, () => Loc.T("Could not deactivate the schedule. Try Refresh."));
     }
     
+    /// <summary>Resumes a stopped schedule from its next date on or after today.</summary>
     public async Task ReactivateAsync(Guid scheduleId)
     {
         if (!ShowResults
@@ -509,6 +565,7 @@ public sealed class RecurringExpensesViewModel : ObservableObject
         }, () => Loc.T("Could not reactivate the schedule. Try Refresh."));
     }
 
+    /// <summary>Deletes a stopped schedule after the person confirmed it; its expenses stay.</summary>
     public async Task DeleteAsync(
         Guid scheduleId,
         Func<Task<bool>> confirmDeletion)
@@ -539,6 +596,7 @@ public sealed class RecurringExpensesViewModel : ObservableObject
         }, () => Loc.T("Could not delete the schedule. Try Refresh."));
     }
 
+    /// <summary>Clears the form after a save so another schedule can be added.</summary>
     public void StartNewSchedule()
     {
         if (!CanStartNew) return;
@@ -605,7 +663,7 @@ public sealed class RecurringExpensesViewModel : ObservableObject
 
         CategoryPalette.Assign(result.Categories.Select(x => x.Name));
         Items = result.Items
-            .Select(x => x with { Color = CategoryPalette.ColorFor(x.CategoryName), Today = Today })
+            .Select(x => x with { Color = CategoryPalette.ColorFor(x.CategoryName), Icon = CategoryIcons.PathFor(x.CategoryName), Today = Today })
             .ToArray();
         Upcoming = BuildUpcoming();
         Categories = result.Categories;

@@ -37,6 +37,9 @@ public sealed class StandardCategories(
                 var name = Loc.T(Names[i]);
                 await service.AddAsync(name);
                 settings.SetCategoryColor(name, i % Controls.CategoryPalette.Count);
+
+                if (Controls.CategoryIcons.StandardKeyOf(Names[i]) is { } icon)
+                    settings.SetCategoryIcon(name, icon);
             }
         }
 
@@ -66,6 +69,7 @@ public sealed class StandardCategories(
             {
                 await service.RenameAsync(category.Id, to);
                 settings.RenameCategoryColor(category.Name, to);
+                settings.RenameCategoryIcon(category.Name, to);
             }
             catch (Exception exception)
             {

@@ -12,6 +12,7 @@ public sealed class SqliteRecurringExpenseRepository(
     ExpenseTrackerDbContext context)
     : IRecurringExpenseRepository
 {
+    /// <summary>The schedule with the id, or null.</summary>
     public Task<RecurringExpense?> GetByIdAsync(
         Guid id,
         CancellationToken cancellationToken = default)
@@ -21,6 +22,7 @@ public sealed class SqliteRecurringExpenseRepository(
             cancellationToken);
     }
 
+    /// <summary>All schedules, active and inactive.</summary>
     public async Task<IReadOnlyList<RecurringExpense>> GetAllAsync(
         CancellationToken cancellationToken = default)
     {
@@ -32,6 +34,7 @@ public sealed class SqliteRecurringExpenseRepository(
             .ToListAsync(cancellationToken);
     }
 
+    /// <summary>The active schedules that are due on or before the date, oldest first.</summary>
     public async Task<IReadOnlyList<RecurringExpense>> GetDueAsync(
         DateOnly throughDate,
         CancellationToken cancellationToken = default)
@@ -43,6 +46,7 @@ public sealed class SqliteRecurringExpenseRepository(
             .ToListAsync(cancellationToken);
     }
 
+    /// <summary>Saves a new schedule.</summary>
     public async Task AddAsync(
         RecurringExpense recurringExpense,
         CancellationToken cancellationToken = default)
@@ -51,6 +55,7 @@ public sealed class SqliteRecurringExpenseRepository(
         await context.SaveChangesAsync(cancellationToken);
     }
 
+    /// <summary>Saves the changes of a schedule.</summary>
     public async Task UpdateAsync(
         RecurringExpense recurringExpense,
         CancellationToken cancellationToken = default)
@@ -59,6 +64,7 @@ public sealed class SqliteRecurringExpenseRepository(
         await context.SaveChangesAsync(cancellationToken);
     }
 
+    /// <summary>Deletes a schedule; the expenses it created are kept. False when it does not exist.</summary>
     public async Task<bool> DeleteAsync(
         Guid id,
         CancellationToken cancellationToken = default)

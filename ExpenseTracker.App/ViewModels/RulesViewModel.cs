@@ -16,6 +16,7 @@ public sealed class RulesViewModel : ObservableObject
 
     private bool _loaded;
 
+    /// <summary>Creates the view model of the category rules page.</summary>
     public RulesViewModel(
         IServiceScopeFactory scopeFactory,
         AppInitializer initializer,
@@ -54,10 +55,12 @@ public sealed class RulesViewModel : ObservableObject
 
     public bool ShowNoCategories => ShowResults && Categories.Count == 0;
 
+    /// <summary>Loads the rules and the categories.</summary>
     public Task LoadAsync() => RunAsync(
         ReloadAsync,
         () => Loc.T("Could not load the rules. Try Refresh."));
 
+    /// <summary>Adds the rule typed in the form.</summary>
     public async Task AddAsync()
     {
         if (!CanEdit) return;
@@ -116,6 +119,7 @@ public sealed class RulesViewModel : ObservableObject
             : Loc.T("Could not add the rule. Try again."));
     }
 
+    /// <summary>Deletes a rule after the person confirmed it.</summary>
     public async Task DeleteAsync(
         Guid ruleId,
         Func<Task<bool>> confirmDeletion)

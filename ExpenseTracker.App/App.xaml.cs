@@ -7,6 +7,7 @@ public partial class App : Application
 {
     private readonly IServiceProvider _services;
 
+    /// <summary>Creates the application and attaches the theme to it.</summary>
     public App(IServiceProvider services)
     {
         InitializeComponent();
@@ -15,6 +16,7 @@ public partial class App : Application
         services.GetRequiredService<ThemeService>().Attach(this);
     }
 
+    /// <summary>Creates the main window of the app.</summary>
     protected override Window CreateWindow(
         IActivationState? activationState)
     {

@@ -16,6 +16,7 @@ public sealed class MeterBar : GraphicsView, IDrawable
         "Fill", typeof(Color), typeof(MeterBar), Colors.Gray,
         propertyChanged: (b, _, _) => ((MeterBar)b).Invalidate());
 
+    /// <summary>Creates a thin progress bar.</summary>
     public MeterBar()
     {
         Drawable = this;
@@ -36,6 +37,7 @@ public sealed class MeterBar : GraphicsView, IDrawable
         set => SetValue(FillKeyProperty, value);
     }
 
+    /// <summary>Draws the track and the filled part.</summary>
     public void Draw(ICanvas canvas, RectF rect)
     {
         var track = Application.Current?.Resources.TryGetValue("Track", out var t) == true && t is Color c ? c : Colors.Gray;

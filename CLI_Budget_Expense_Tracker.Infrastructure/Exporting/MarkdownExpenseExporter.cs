@@ -7,6 +7,7 @@ using System.Text;
 /// <summary>Exports active expenses as a Markdown table with a total row.</summary>
 public sealed class MarkdownExpenseExporter
 {
+    /// <summary>Writes the expenses to a Markdown table under the title, creating the folder if needed.</summary>
     public void Export(
         IReadOnlyList<Expense> expenses,
         IReadOnlyDictionary<Guid, string> categoryNames,

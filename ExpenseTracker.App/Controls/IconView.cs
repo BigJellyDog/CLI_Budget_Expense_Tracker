@@ -16,6 +16,7 @@ public sealed class IconView : GraphicsView, IDrawable
 
     private PathF? _path;
 
+    /// <summary>Creates an 18 x 18 icon that ignores touch.</summary>
     public IconView()
     {
         Drawable = this;
@@ -43,6 +44,7 @@ public sealed class IconView : GraphicsView, IDrawable
         Invalidate();
     }
 
+    /// <summary>Draws the path scaled from the 24 x 24 grid to the size of the view.</summary>
     public void Draw(ICanvas canvas, RectF dirtyRect)
     {
         if (_path is null) return;
@@ -55,7 +57,16 @@ public sealed class IconView : GraphicsView, IDrawable
         canvas.StrokeSize = 1.8f;
         canvas.StrokeLineCap = LineCap.Round;
         canvas.StrokeLineJoin = LineJoin.Round;
-        canvas.DrawPath(_path);
+
+        try
+        {
+            canvas.DrawPath(_path);
+        }
+        catch (ArgumentException)
+        {
+            // Win2D rejects some malformed path data; one bad icon must not take the window down.
+        }
+
         canvas.RestoreState();
     }
 }

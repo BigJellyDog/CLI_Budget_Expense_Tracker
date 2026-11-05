@@ -22,6 +22,7 @@ public static class CategoryPalette
     private static Dictionary<string, int> _slots = new();
     private static AppSettings? _settings;
 
+    /// <summary>Gives the class the settings that hold the color choices.</summary>
     public static void Use(AppSettings settings) => _settings = settings;
 
     /// <summary>
@@ -44,6 +45,7 @@ public static class CategoryPalette
         catch { return null; }
     }
 
+    /// <summary>The palette slot of a category: the one picked, else the one handed out, else one from its name.</summary>
     public static int SlotOf(string categoryName)
     {
         if (_settings?.CategoryColor(categoryName) is { } chosen && chosen is >= 0 and < Count)
@@ -57,6 +59,7 @@ public static class CategoryPalette
         return (hash & int.MaxValue) % Count;
     }
 
+    /// <summary>The color of a palette slot; the first slots follow the theme.</summary>
     public static Color ColorOfSlot(int slot)
     {
         slot = Math.Abs(slot) % Count;
@@ -69,6 +72,7 @@ public static class CategoryPalette
             : Colors.Gray;
     }
 
+    /// <summary>The color of a category: its own color, else the one of its slot.</summary>
     public static Color ColorFor(string categoryName) =>
         CustomColorOf(categoryName) ?? ColorOfSlot(SlotOf(categoryName));
 

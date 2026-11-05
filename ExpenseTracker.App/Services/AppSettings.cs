@@ -11,7 +11,8 @@ public sealed record SettingsData(
     string Language = "en",
     Dictionary<string, int>? CategoryColors = null,
     Dictionary<string, string>? CategoryHex = null,
-    bool StandardCategoriesSeeded = false);
+    bool StandardCategoriesSeeded = false,
+    Dictionary<string, string>? CategoryIcons = null);
 
 /// <summary>
 /// User settings kept in a small JSON file next to the database.
@@ -24,6 +25,7 @@ public sealed class AppSettings
 
     private SettingsData _data;
 
+    /// <summary>Loads the settings from the file, or starts with defaults when it is missing or damaged.</summary>
     public AppSettings(string filePath)
     {
         FilePath = filePath;
@@ -58,9 +60,15 @@ public sealed class AppSettings
     public string? CategoryCustomColor(string name) =>
         _data.CategoryHex is { } map && map.TryGetValue(name.Trim().ToUpperInvariant(), out var hex) ? hex : null;
 
+    /// <summary>The icon key the person picked for a category, by category name, or null.</summary>
+    public string? CategoryIcon(string name) =>
+        _data.CategoryIcons is { } map && map.TryGetValue(name.Trim().ToUpperInvariant(), out var key) ? key : null;
+
+    /// <summary>True for a three-letter currency code.</summary>
     public static bool IsValidCurrency(string? code) =>
         code is { Length: 3 } && code.All(char.IsLetter);
 
+    /// <summary>Saves the currency code shown next to amounts.</summary>
     public void SetCurrency(string code)
     {
         code = (code ?? "").Trim().ToUpperInvariant();
@@ -71,6 +79,7 @@ public sealed class AppSettings
         Save(_data with { Currency = code });
     }
 
+    /// <summary>Saves the theme mode and the accent palette.</summary>
     public void SetAppearance(ThemeMode mode, string accent)
     {
         if (!ThemeService.Accents.Contains(accent))
@@ -79,6 +88,7 @@ public sealed class AppSettings
         Save(_data with { ThemeMode = mode, Accent = accent });
     }
 
+    /// <summary>Saves the language of the screens.</summary>
     public void SetLanguage(string code)
     {
         if (!Loc.IsValid(code))
@@ -89,8 +99,9 @@ public sealed class AppSettings
 
     /// <summary>All categories are gone: forgets their colors, so the standard ones can be offered again.</summary>
     public void ForgetCategories() =>
-        Save(_data with { CategoryColors = null, CategoryHex = null, StandardCategoriesSeeded = false });
+        Save(_data with { CategoryColors = null, CategoryHex = null, CategoryIcons = null, StandardCategoriesSeeded = false });
 
+    /// <summary>Remembers that the standard categories were offered to this database.</summary>
     public void MarkStandardCategoriesSeeded() => Save(_data with { StandardCategoriesSeeded = true });
 
     /// <summary>The category uses a color of the palette; a custom color it had is dropped.</summary>
@@ -115,6 +126,30 @@ public sealed class AppSettings
         Save(_data with { CategoryColors = map, CategoryHex = colors });
     }
 
+    /// <summary>The category wears an icon: a key of the catalog, or imported path data with the "svg:" prefix.</summary>
+    public void SetCategoryIcon(string name, string key)
+    {
+        var map = new Dictionary<string, string>(_data.CategoryIcons ?? [])
+        {
+            [name.Trim().ToUpperInvariant()] = key
+        };
+
+        Save(_data with { CategoryIcons = map });
+    }
+
+    /// <summary>Moves the icon of a renamed category to its new name.</summary>
+    public void RenameCategoryIcon(string oldName, string newName)
+    {
+        var map = new Dictionary<string, string>(_data.CategoryIcons ?? []);
+
+        if (map.Remove(oldName.Trim().ToUpperInvariant(), out var key))
+        {
+            map[newName.Trim().ToUpperInvariant()] = key;
+            Save(_data with { CategoryIcons = map });
+        }
+    }
+
+    /// <summary>Moves the color of a renamed category to its new name.</summary>
     public void RenameCategoryColor(string oldName, string newName)
     {
         var map = new Dictionary<string, int>(_data.CategoryColors ?? []);
@@ -128,6 +163,7 @@ public sealed class AppSettings
         Save(_data with { CategoryColors = map, CategoryHex = hex });
     }
 
+    /// <summary>Forgets the palette color of a deleted category.</summary>
     public void RemoveCategoryColor(string name)
     {
         var map = new Dictionary<string, int>(_data.CategoryColors ?? []);
@@ -136,6 +172,7 @@ public sealed class AppSettings
             Save(_data with { CategoryColors = map });
     }
 
+    /// <summary>Remembers the column choices of the last CSV import of another bank.</summary>
     public void SetLastCsvProfile(CsvImportProfile profile)
     {
         ArgumentNullException.ThrowIfNull(profile);

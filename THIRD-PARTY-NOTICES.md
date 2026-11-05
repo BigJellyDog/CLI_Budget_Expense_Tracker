@@ -9,3 +9,4 @@ It uses the following components under their own licenses:
 | .NET MAUI, .NET, Entity Framework Core | MIT License (Microsoft) |
 | CommunityToolkit.Mvvm | MIT License (.NET Foundation) |
 | SQLite (through Microsoft.Data.Sqlite) | public domain |
+| **Lucide** icons (`ExpenseTracker.App/Controls/LucideIcons.cs`) | ISC License. Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2022 as part of Feather (MIT); all other copyright (c) for Lucide are held by Lucide Contributors 2022 (<https://lucide.dev/license>) |

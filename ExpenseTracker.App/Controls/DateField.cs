@@ -25,6 +25,7 @@ public sealed class DateField : Border
 
     private readonly Label _label;
 
+    /// <summary>Creates the field; tapping it opens the calendar.</summary>
     public DateField()
     {
         StrokeThickness = 0;

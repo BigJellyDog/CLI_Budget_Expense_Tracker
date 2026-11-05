@@ -9,6 +9,7 @@ public sealed class BankImportService(
     ICategoryRepository categories,
     TimeProvider timeProvider)
 {
+    /// <summary>Saves the chosen entries as expenses and skips the ones whose hash was imported before.</summary>
     public async Task<BankImportResult> ImportAsync(
         IReadOnlyList<BankImportCandidate> candidates,
         CancellationToken cancellationToken = default)

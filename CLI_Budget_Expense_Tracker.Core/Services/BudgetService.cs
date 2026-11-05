@@ -6,6 +6,7 @@ using Models;
 public sealed class BudgetService(
     IBudgetRepository budgets, IExpenseRepository expenses, ICategoryRepository categories)
 {
+    /// <summary>Sets the limit of a category for the month of the date, creating or changing it.</summary>
     public async Task SetMonthlyLimitAsync(
         Guid categoryId, DateOnly date, decimal amount, CancellationToken cancellationToken = default)
     {
@@ -22,6 +23,7 @@ public sealed class BudgetService(
         }
     }
 
+    /// <summary>Limit, spent amount and remaining amount of one category for the month of the date.</summary>
     public async Task<BudgetStatus> GetStatusAsync(
         Guid categoryId, DateOnly date, CancellationToken cancellationToken = default)
     {
@@ -31,6 +33,7 @@ public sealed class BudgetService(
         return new BudgetStatus(categoryId, month, limit?.MonthlyAmount, items.Sum(x => x.Amount));
     }
 
+    /// <summary>The status of every category that has a limit in the month of the date.</summary>
     public async Task<IReadOnlyList<BudgetStatus>> GetMonthlyStatusesAsync(
         DateOnly date, CancellationToken cancellationToken = default)
     {
@@ -42,6 +45,7 @@ public sealed class BudgetService(
             x.CategoryId, month, x.MonthlyAmount, totals.GetValueOrDefault(x.CategoryId))).ToArray();
     }
 
+    /// <summary>Removes the limit of a category for the month; false when there was none.</summary>
     public Task<bool> DeleteMonthlyLimitAsync(
         Guid categoryId, DateOnly date, CancellationToken cancellationToken = default) =>
         budgets.DeleteAsync(categoryId, FirstDay(date), cancellationToken);

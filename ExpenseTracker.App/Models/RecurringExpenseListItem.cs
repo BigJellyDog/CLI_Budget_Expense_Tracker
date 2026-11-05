@@ -16,7 +16,8 @@ public sealed record RecurringExpenseListItem(
     Guid CategoryId,
     DateOnly? EndDate,
     string Currency = "",
-    Color? Color = null)
+    Color? Color = null,
+    string Icon = "")
 {
     /// <summary>Today, set by the view model, so the "in 3 days" chip is right.</summary>
     public DateOnly Today { get; init; }

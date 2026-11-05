@@ -15,6 +15,7 @@ public sealed class ComparisonBar : GraphicsView, IDrawable
         nameof(FillColor), typeof(Color), typeof(ComparisonBar), Colors.Gray,
         propertyChanged: (b, _, _) => ((ComparisonBar)b).Invalidate());
 
+    /// <summary>Creates a bar that compares a value with a marker.</summary>
     public ComparisonBar()
     {
         Drawable = this;
@@ -44,6 +45,7 @@ public sealed class ComparisonBar : GraphicsView, IDrawable
     private static Color Token(string key) =>
         Application.Current?.Resources.TryGetValue(key, out var value) == true && value is Color c ? c : Colors.Gray;
 
+    /// <summary>Draws the track, the filled part and the marker.</summary>
     public void Draw(ICanvas canvas, RectF rect)
     {
         const float barHeight = 8f;

@@ -18,6 +18,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 /// </summary>
 public static class SqliteServiceCollectionExtensions
 {
+    /// <summary>Registers the database, the repositories and the services with the connection string.</summary>
     public static IServiceCollection AddExpenseTrackerSqlite(
         this IServiceCollection services,
         string connectionString)

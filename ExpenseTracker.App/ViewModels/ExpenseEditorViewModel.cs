@@ -19,6 +19,7 @@ public sealed class ExpenseEditorViewModel : ObservableObject
     private Expense? _originalExpense;
     private bool _loaded;
 
+    /// <summary>Creates the view model of the expense editor.</summary>
     public ExpenseEditorViewModel(
         IServiceScopeFactory scopeFactory,
         AppInitializer initializer,
@@ -83,6 +84,7 @@ public sealed class ExpenseEditorViewModel : ObservableObject
 
     public bool ShowAddAnother => IsSaved && !IsEditing;
 
+    /// <summary>Makes the editor change an existing expense instead of adding a new one.</summary>
     public void ConfigureForEdit(Guid expenseId)
     {
         if (expenseId == Guid.Empty)
@@ -102,6 +104,7 @@ public sealed class ExpenseEditorViewModel : ObservableObject
         NotifyState();
     }
 
+    /// <summary>Loads the categories, and the expense when one is being edited.</summary>
     public Task<bool> LoadAsync() => RunAsync(async () =>
     {
         _loaded = false;
@@ -155,6 +158,7 @@ public sealed class ExpenseEditorViewModel : ObservableObject
         return true;
     }, Loc.T("Could not load the form. Try Reload categories."));
 
+    /// <summary>Creates the category typed in the form and selects it. Returns false on failure.</summary>
     public async Task<bool> AddCategoryAsync()
     {
         if (!CanEdit) return false;
@@ -195,6 +199,7 @@ public sealed class ExpenseEditorViewModel : ObservableObject
         }, Loc.T("Could not create the category. Try Reload categories."));
     }
 
+    /// <summary>Validates the form and saves the expense. Returns false when it was not saved.</summary>
     public async Task<bool> SaveAsync()
     {
         if (!CanEdit) return false;
@@ -277,6 +282,7 @@ public sealed class ExpenseEditorViewModel : ObservableObject
         }, Loc.T("Could not save the expense. Check the category and try again."));
     }
 
+    /// <summary>Clears the form after a save so another expense can be added.</summary>
     public void StartNewExpense()
     {
         if (IsBusy || !IsSaved || IsEditing) return;

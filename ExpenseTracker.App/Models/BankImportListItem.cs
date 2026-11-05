@@ -12,6 +12,7 @@ public sealed class BankImportListItem : ObservableObject
     private Category? _category;
     private bool _categoryChosen;
 
+    /// <summary>Wraps a classified statement entry with its category choice and import hash.</summary>
     public BankImportListItem(
         ClassifiedBankEntry entry,
         string hash,

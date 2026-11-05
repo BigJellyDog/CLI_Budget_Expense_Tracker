@@ -28,6 +28,7 @@ public sealed class CategoriesViewModel : ObservableObject
     private Dictionary<Guid, decimal> _limits = new();
     private Dictionary<Guid, int> _ruleCounts = new();
 
+    /// <summary>Creates the view model of the categories page.</summary>
     public CategoriesViewModel(
         IServiceScopeFactory scopeFactory,
         AppInitializer initializer,
@@ -55,7 +56,37 @@ public sealed class CategoriesViewModel : ObservableObject
     /// <summary>Categories without spending in the month that match the search.</summary>
     public IReadOnlyList<CategoryTile> UnusedRows { get; private set; } = [];
 
-    public IReadOnlyList<SwatchItem> Swatches { get; private set; } = [];
+    // The pickers are laid out in fixed rows: a wrapping layout gets cut off inside the scrolling card.
+    /// <summary>The color swatches of the selected category, split into rows.</summary>
+    public IReadOnlyList<IReadOnlyList<SwatchItem>> SwatchRows { get; private set; } = [];
+
+    /// <summary>The icons matching the search, split into rows; an imported icon of the category comes first.</summary>
+    public IReadOnlyList<IReadOnlyList<IconChoice>> IconRows { get; private set; } = [];
+
+    /// <summary>True when the icon search matches nothing, so the picker can say so.</summary>
+    public bool NoIconsFound => IconRows.Count == 0;
+
+    /// <summary>Swatches per row: five fit the 250 wide color column.</summary>
+    private const int SwatchesPerRow = 5;
+    /// <summary>Icons per row of the picker.</summary>
+    private const int IconsPerRow = 8;
+
+    /// <summary>Text typed into the icon search box.</summary>
+    private string _iconSearch = "";
+
+    /// <summary>Filters the icon picker by icon name; changing it rebuilds the rows.</summary>
+    public string IconSearch
+    {
+        get => _iconSearch;
+        set
+        {
+            if (!SetProperty(ref _iconSearch, value ?? "")) return;
+
+            BuildTiles();
+            OnPropertyChanged(nameof(IconRows));
+            OnPropertyChanged(nameof(NoIconsFound));
+        }
+    }
 
     /// <summary>The palette slot of the category being created or renamed, or -1 for a custom color.</summary>
     public int SelectedSlot { get; private set; }
@@ -124,6 +155,7 @@ public sealed class CategoriesViewModel : ObservableObject
 
     public bool ShowResults => _loaded && !IsBusy;
 
+    /// <summary>Loads the categories with their spending, limits and rules for the shown month.</summary>
     public Task LoadAsync() => RunAsync(async () =>
     {
         _loaded = false;
@@ -147,6 +179,7 @@ public sealed class CategoriesViewModel : ObservableObject
         }
     }, () => Loc.T("Could not load categories. Try Refresh."));
 
+    /// <summary>Puts the category into the form so that its name can be changed.</summary>
     public void StartRename(Category category)
     {
         if (!CanEdit) return;
@@ -161,6 +194,7 @@ public sealed class CategoriesViewModel : ObservableObject
         NotifyState();
     }
 
+    /// <summary>Leaves the form without saving and resets it for a new category.</summary>
     public void CancelEdit()
     {
         if (IsBusy) return;
@@ -175,6 +209,7 @@ public sealed class CategoriesViewModel : ObservableObject
         NotifyState();
     }
 
+    /// <summary>Makes the category the one shown in the detail card.</summary>
     public void Select(Guid categoryId)
     {
         if (IsBusy) return;
@@ -192,6 +227,35 @@ public sealed class CategoriesViewModel : ObservableObject
         SaveSelectedColor(() => _settings.SetCategoryColor(tile.Name, slot));
     }
 
+    /// <summary>Gives the selected category an icon from the picker.</summary>
+    public void SetSelectedIcon(string key)
+    {
+        if (!CanEdit || Selected is not { } tile) return;
+
+        try
+        {
+            _settings.SetCategoryIcon(tile.Name, key);
+        }
+        catch (Exception exception)
+        {
+            _logger.LogWarning(exception, "Could not save the icon of a category.");
+            ShowError(Loc.T("Could not save the icon."));
+            return;
+        }
+
+        NotifyState();
+    }
+
+    /// <summary>Gives the selected category an icon read from an SVG file. Returns false when the file cannot be used.</summary>
+    public bool SetSelectedIconFromSvg(string svg)
+    {
+        if (SvgIconReader.ToPathData(svg) is not { } data) return false;
+
+        SetSelectedIcon(CategoryIcons.CustomPrefix + data);
+
+        return true;
+    }
+
     /// <summary>Gives the selected category a color of the person's own.</summary>
     public void SetSelectedCustomColor(Color color)
     {
@@ -200,6 +264,7 @@ public sealed class CategoriesViewModel : ObservableObject
         SaveSelectedColor(() => _settings.SetCategoryCustomColor(tile.Name, ToHex(color)));
     }
 
+    /// <summary>Shows the month chosen in the picker.</summary>
     public async Task SetMonthAsync(DateTime month)
     {
         if (IsBusy) return;
@@ -208,6 +273,7 @@ public sealed class CategoriesViewModel : ObservableObject
         await LoadAsync();
     }
 
+    /// <summary>Moves the shown month back or forward by the given number of months.</summary>
     public async Task MoveMonthAsync(int offset)
     {
         if ((offset < 0 && !CanPreviousMonth) || (offset > 0 && !CanNextMonth)) return;
@@ -235,6 +301,7 @@ public sealed class CategoriesViewModel : ObservableObject
     private static string ToHex(Color color) =>
         $"#{(int)Math.Round(color.Red * 255):X2}{(int)Math.Round(color.Green * 255):X2}{(int)Math.Round(color.Blue * 255):X2}";
 
+    /// <summary>Creates the category, or renames it when one is being edited, and keeps its color.</summary>
     public async Task SaveAsync()
     {
         if (!CanEdit) return;
@@ -300,6 +367,7 @@ public sealed class CategoriesViewModel : ObservableObject
             : Loc.T("Could not save the category. Click Refresh and try again."));
     }
 
+    /// <summary>Deletes a category that has no expenses after the person confirmed it.</summary>
     public async Task DeleteAsync(
         Guid categoryId,
         Func<Task<bool>> confirmDeletion)
@@ -380,6 +448,7 @@ public sealed class CategoriesViewModel : ObservableObject
         }
     }
 
+    /// <summary>Moves the expenses of the category to another one, then deletes it.</summary>
     public async Task MoveAndDeleteAsync(
         Guid categoryId,
         Guid targetCategoryId,
@@ -432,6 +501,7 @@ public sealed class CategoriesViewModel : ObservableObject
         }, () => Loc.T("Could not move and delete the category. Nothing was changed. Try Refresh."));
     }
 
+    /// <summary>Deletes the category together with its expenses after the person confirmed it.</summary>
     public async Task DeleteWithDataAsync(
         Guid categoryId,
         Func<Task<bool>> confirmDeletion)
@@ -536,7 +606,10 @@ public sealed class CategoriesViewModel : ObservableObject
         try
         {
             if (categoryId is { } id && Items.FirstOrDefault(x => x.Id == id) is { } old)
-                _settings.RenameCategoryColor(old.Name, name);
+                {
+                    _settings.RenameCategoryColor(old.Name, name);
+                    _settings.RenameCategoryIcon(old.Name, name);
+                }
 
             if (SelectedSlot < 0 && CustomColor is { } custom)
                 _settings.SetCategoryCustomColor(name, ToHex(custom));
@@ -570,7 +643,8 @@ public sealed class CategoriesViewModel : ObservableObject
                     CategoryPalette.ColorFor(c.Name),
                     _limits.TryGetValue(c.Id, out var limit) ? limit : null,
                     _ruleCounts.GetValueOrDefault(c.Id),
-                    c.Id == _selectedId);
+                    c.Id == _selectedId,
+                    CategoryIcons.PathFor(c.Name));
             })
             .ToArray();
 
@@ -588,17 +662,32 @@ public sealed class CategoriesViewModel : ObservableObject
             ? -2
             : CategoryPalette.CustomColorOf(Selected.Name) is null ? CategoryPalette.SlotOf(Selected.Name) : -1;
 
-        Swatches =
-        [
-            .. Enumerable.Range(0, CategoryPalette.Count)
-                .Select(slot => new SwatchItem(slot, CategoryPalette.ColorOfSlot(slot), slot == current)),
-            new SwatchItem(
+        var currentIcon = Selected is null ? "" : CategoryIcons.KeyOf(Selected.Name);
+
+        var iconQuery = IconSearch.Trim();
+        var choices = new List<IconChoice>();
+
+        // An icon the person imported has no place in the catalog, so it leads the list.
+        if (currentIcon.StartsWith(CategoryIcons.CustomPrefix, StringComparison.Ordinal))
+            choices.Add(new IconChoice(currentIcon, CategoryIcons.PathOf(currentIcon), true));
+
+        choices.AddRange(CategoryIcons.Catalog
+            .Where(x => iconQuery.Length == 0 || x.Key.Contains(iconQuery.Replace(' ', '-'), StringComparison.OrdinalIgnoreCase))
+            .Select(x => new IconChoice(x.Key, x.Path, x.Key == currentIcon)));
+
+        IconRows = choices.Chunk(IconsPerRow).Select(x => (IReadOnlyList<IconChoice>)x).ToArray();
+
+        SwatchRows = Enumerable.Range(0, CategoryPalette.Count)
+            .Select(slot => new SwatchItem(slot, CategoryPalette.ColorOfSlot(slot), slot == current))
+            .Append(new SwatchItem(
                 -1,
                 Selected is null ? Colors.Gray : CategoryPalette.CustomColorOf(Selected.Name) ?? Colors.Gray,
                 current == -1,
                 IsCustom: true,
-                ShowPlus: current != -1)
-        ];
+                ShowPlus: current != -1))
+            .Chunk(SwatchesPerRow)
+            .Select(x => (IReadOnlyList<SwatchItem>)x)
+            .ToArray();
     }
 
     private async Task RunAsync(
@@ -675,6 +764,8 @@ public sealed class CategoriesViewModel : ObservableObject
         OnPropertyChanged(nameof(IsEmpty));
         OnPropertyChanged(nameof(Selected));
         OnPropertyChanged(nameof(HasSelection));
-        OnPropertyChanged(nameof(Swatches));
+        OnPropertyChanged(nameof(SwatchRows));
+        OnPropertyChanged(nameof(IconRows));
+        OnPropertyChanged(nameof(NoIconsFound));
     }
 }

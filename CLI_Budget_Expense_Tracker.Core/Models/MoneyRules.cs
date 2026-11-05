@@ -3,6 +3,7 @@ namespace CLI_Budget_Expense_Tracker.Core.Models;
 /// <summary>Rules shared by amounts stored as integer cents.</summary>
 internal static class MoneyRules
 {
+    /// <summary>Throws when the amount is negative, zero (unless allowed), or too large to keep in cents.</summary>
     public static void Validate(decimal amount, string parameterName, bool allowZero)
     {
         if (amount < 0 || (!allowZero && amount == 0) || amount > long.MaxValue / 100m)

@@ -19,6 +19,7 @@ public sealed class RecurringExpense
 
     public bool IsActive { get; private set; }
 
+    /// <summary>Creates an active schedule whose first due date is its start date.</summary>
     public RecurringExpense(
         Guid id,
         decimal amount,

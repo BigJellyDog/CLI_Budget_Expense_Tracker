@@ -9,6 +9,7 @@ using Core.Models;
 /// </summary>
 public sealed class GenericStatementClassifier : IBankStatementClassifier
 {
+    /// <summary>Sorts entries by the sign of the amount: outgoing are expense candidates, incoming and zero are not, and another currency needs review.</summary>
     public IReadOnlyList<ClassifiedBankEntry> Classify(
         IReadOnlyList<BankStatementEntry> entries,
         string currency)

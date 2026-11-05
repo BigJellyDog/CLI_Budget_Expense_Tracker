@@ -19,6 +19,7 @@ public sealed record ExpenseListQuery(
     decimal? MaxAmount = null,
     ExpenseSort Sort = ExpenseSort.DateNewestFirst)
 {
+    /// <summary>Keeps the expenses that match the description text and amount range, in the chosen order.</summary>
     public IReadOnlyList<Expense> Apply(IEnumerable<Expense> expenses)
     {
         ArgumentNullException.ThrowIfNull(expenses);

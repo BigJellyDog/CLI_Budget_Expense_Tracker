@@ -11,6 +11,7 @@ public sealed class ExpenseService(
     public DateOnly Today =>
         DateOnly.FromDateTime(timeProvider.GetLocalNow().DateTime);
 
+    /// <summary>The expense with the id, or null.</summary>
     public Task<Expense?> GetByIdAsync(
         Guid id,
         CancellationToken cancellationToken = default) =>
@@ -68,6 +69,7 @@ public sealed class ExpenseService(
             cancellationToken);
     }
 
+    /// <summary>Adds an expense to an existing category.</summary>
     public async Task<Expense> AddAsync(
         decimal amount,
         Guid categoryId,
@@ -101,6 +103,7 @@ public sealed class ExpenseService(
         return expense;
     }
 
+    /// <summary>Lists the expenses of a period or category with their total.</summary>
     public async Task<ExpenseReport> GetReportAsync(
         DateOnly? start = null,
         DateOnly? end = null,
@@ -132,6 +135,7 @@ public sealed class ExpenseService(
                     group => group.Sum(x => x.Amount)));
     }
 
+    /// <summary>Deletes an expense; false when it does not exist.</summary>
     public Task<bool> DeleteAsync(
         Guid id,
         CancellationToken cancellationToken = default) =>

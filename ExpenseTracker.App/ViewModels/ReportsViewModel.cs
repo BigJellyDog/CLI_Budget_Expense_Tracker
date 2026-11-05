@@ -20,6 +20,7 @@ public sealed class ReportsViewModel : ObservableObject
     private DateOnly _month;
     private bool _loaded;
 
+    /// <summary>Creates the view model of the reports page.</summary>
     public ReportsViewModel(
         IServiceScopeFactory scopeFactory,
         AppInitializer initializer,
@@ -85,6 +86,7 @@ public sealed class ReportsViewModel : ObservableObject
 
     public bool ShowAmount => !ShowShare;
 
+    /// <summary>Switches the category list between amounts and shares.</summary>
     public void SetShowShare(bool share)
     {
         if (ShowShare == share) return;
@@ -116,6 +118,7 @@ public sealed class ReportsViewModel : ObservableObject
 
     public bool HasData => ShowResults && Categories.Count > 0;
 
+    /// <summary>Shows the month chosen in the picker.</summary>
     public async Task SetMonthAsync(DateTime month)
     {
         if (IsBusy) return;
@@ -124,6 +127,7 @@ public sealed class ReportsViewModel : ObservableObject
         await LoadAsync();
     }
 
+    /// <summary>Moves the shown month one step back (-1) or forward (+1).</summary>
     public async Task MoveMonthAsync(int offset)
     {
         if (offset != -1 && offset != 1)
@@ -139,6 +143,7 @@ public sealed class ReportsViewModel : ObservableObject
         await LoadAsync();
     }
 
+    /// <summary>Loads the report of the shown month and the one before it.</summary>
     public async Task LoadAsync()
     {
         if (IsBusy) return;

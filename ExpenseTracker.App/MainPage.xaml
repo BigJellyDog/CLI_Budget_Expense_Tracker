@@ -373,13 +373,13 @@
                                                 StrokeThickness="0"
                                                 StrokeShape="RoundRectangle 11"
                                                 BackgroundColor="{Binding Tint}">
-                                                <BoxView
-                                                    WidthRequest="10"
-                                                    HeightRequest="10"
-                                                    CornerRadius="5"
+                                                <controls:IconView
+                                                    Data="{Binding CategoryIcon}"
+                                                    Color="{Binding CategoryColor}"
+                                                    WidthRequest="18"
+                                                    HeightRequest="18"
                                                     HorizontalOptions="Center"
-                                                    VerticalOptions="Center"
-                                                    Color="{Binding CategoryColor}" />
+                                                    VerticalOptions="Center" />
                                             </Border>
 
                                             <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">

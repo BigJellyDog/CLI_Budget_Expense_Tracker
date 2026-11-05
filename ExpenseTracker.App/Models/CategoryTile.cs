@@ -13,7 +13,8 @@ public sealed record CategoryTile(
     Color Color,
     decimal? Limit = null,
     int RuleCount = 0,
-    bool IsSelected = false)
+    bool IsSelected = false,
+    string Icon = "")
 {
     public string Name => Category.Name;
 
@@ -39,6 +40,9 @@ public sealed record CategoryTile(
         ? Loc.F("{0} rules assign entries to {1}", RuleCount, Name)
         : Loc.F("No rules assign entries to {0}", Name);
 }
+
+/// <summary>One icon of the picker in the detail card.</summary>
+public sealed record IconChoice(string Key, string Path, bool IsSelected);
 
 /// <summary>One color of the palette in the detail card.</summary>
 public sealed record SwatchItem(int Slot, Color Color, bool IsSelected, bool IsCustom = false, bool ShowPlus = false);

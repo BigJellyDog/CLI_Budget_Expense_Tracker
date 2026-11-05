@@ -15,6 +15,7 @@ public sealed class ClearDataService(
     StandardCategories standardCategories,
     AppSettings settings)
 {
+    /// <summary>Backs up the database, deletes all data and brings back the standard categories.</summary>
     public async Task ClearAsync(CancellationToken cancellationToken = default)
     {
         await initializer.InitializeAsync();

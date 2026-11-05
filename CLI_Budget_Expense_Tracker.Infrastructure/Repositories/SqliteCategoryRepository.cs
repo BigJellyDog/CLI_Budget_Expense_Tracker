@@ -8,27 +8,33 @@ using Microsoft.EntityFrameworkCore;
 
 public sealed class SqliteCategoryRepository(ExpenseTrackerDbContext context) : ICategoryRepository
 {
+    /// <summary>The category with the id, or null.</summary>
     public Task<Category?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
         context.Categories.SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
 
+    /// <summary>The category with the normalized name, or null.</summary>
     public Task<Category?> GetByNormalizedNameAsync(string name, CancellationToken cancellationToken = default) =>
         context.Categories.AsNoTracking().SingleOrDefaultAsync(x => x.NormalizedName == name, cancellationToken);
 
+    /// <summary>All categories, ordered by name.</summary>
     public async Task<IReadOnlyList<Category>> GetAllAsync(CancellationToken cancellationToken = default) =>
         await context.Categories.AsNoTracking().OrderBy(x => x.NormalizedName).ToListAsync(cancellationToken);
 
+    /// <summary>Saves a new category.</summary>
     public async Task AddAsync(Category category, CancellationToken cancellationToken = default)
     {
         context.Categories.Add(category);
         await SaveCategoryAsync(category, cancellationToken);
     }
 
+    /// <summary>Saves the changes of a category.</summary>
     public async Task UpdateAsync(Category category, CancellationToken cancellationToken = default)
     {
         context.Categories.Update(category);
         await SaveCategoryAsync(category, cancellationToken);
     }
 
+    /// <summary>Deletes a category; false when it does not exist.</summary>
     public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var category = await GetByIdAsync(id, cancellationToken);
@@ -52,6 +58,7 @@ public sealed class SqliteCategoryRepository(ExpenseTrackerDbContext context) : 
         }
     }
 
+    /// <summary>Counts the expenses (active and deleted), schedules and budget limits of a category.</summary>
     public async Task<CategoryUsage> GetUsageAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var expenses = context.Expenses.IgnoreQueryFilters().Where(x => x.CategoryId == id);
@@ -63,6 +70,7 @@ public sealed class SqliteCategoryRepository(ExpenseTrackerDbContext context) : 
             await context.BudgetLimits.CountAsync(x => x.CategoryId == id, cancellationToken));
     }
 
+    /// <summary>Moves expenses, schedules and rules to another category, drops the limits and deletes the first, in one transaction.</summary>
     public async Task<CategoryUsage> MoveAndDeleteAsync(Guid id, Guid targetId, CancellationToken cancellationToken = default)
     {
         await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
@@ -96,6 +104,7 @@ public sealed class SqliteCategoryRepository(ExpenseTrackerDbContext context) : 
         return usage;
     }
 
+    /// <summary>Deletes a category with its expenses, schedules, rules and limits, in one transaction.</summary>
     public async Task<CategoryUsage> DeleteWithDataAsync(Guid id, CancellationToken cancellationToken = default)
     {
         await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);

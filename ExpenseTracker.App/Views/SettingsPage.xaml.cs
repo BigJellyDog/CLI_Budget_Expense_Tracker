@@ -7,6 +7,7 @@ public partial class SettingsPage : ContentPage
 {
     private readonly SettingsViewModel _viewModel;
 
+    /// <summary>Creates the settings page.</summary>
     public SettingsPage(SettingsViewModel viewModel)
     {
         InitializeComponent();
@@ -15,12 +16,14 @@ public partial class SettingsPage : ContentPage
         BindingContext = viewModel;
     }
 
+    /// <summary>Loads the data each time the page is shown, so it is current after returning from another page.</summary>
     protected override void OnAppearing()
     {
         base.OnAppearing();
         _viewModel.Reload();
     }
 
+    /// <summary>Applies the theme and accent right away.</summary>
     private void OnAppearanceChanged(object? sender, EventArgs e)
     {
         // Read the pickers directly: the bindings may not have copied the new item yet.
@@ -35,6 +38,7 @@ public partial class SettingsPage : ContentPage
         _viewModel.ApplyAppearance();
     }
 
+    /// <summary>Switches the language of the screens.</summary>
     private async void OnLanguageChanged(object? sender, EventArgs e)
     {
         if (LanguagePicker.SelectedItem is not LanguageOption language)
@@ -59,6 +63,7 @@ public partial class SettingsPage : ContentPage
         });
     }
 
+    /// <summary>Adds the demo data after a confirmation.</summary>
     private async void OnLoadDemoClicked(object? sender, EventArgs e)
     {
         if (!_viewModel.CanLoadDemo) return;
@@ -73,6 +78,7 @@ public partial class SettingsPage : ContentPage
             await _viewModel.LoadDemoDataAsync();
     }
 
+    /// <summary>Deletes all data after a confirmation.</summary>
     private async void OnClearClicked(object? sender, EventArgs e)
     {
         if (!_viewModel.CanClear) return;
@@ -87,6 +93,7 @@ public partial class SettingsPage : ContentPage
             await _viewModel.ClearAllDataAsync();
     }
 
+    /// <summary>Saves the form.</summary>
     private void OnSaveClicked(object? sender, EventArgs e) =>
         _viewModel.Save();
 }

@@ -14,6 +14,7 @@ public sealed class AppInitializer(
     private readonly SemaphoreSlim _gate = new(1, 1);
     private bool _initialized;
 
+    /// <summary>Creates or migrates the database once; later calls wait for the first one and return.</summary>
     public async Task InitializeAsync()
     {
         await _gate.WaitAsync();
@@ -53,5 +54,6 @@ public sealed class AppInitializer(
         }
     }
 
+    /// <summary>Releases the gate that serializes the initialization.</summary>
     public void Dispose() => _gate.Dispose();
 }

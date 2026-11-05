@@ -12,6 +12,7 @@ using Views;
 
 public static class MauiProgram
 {
+    /// <summary>Builds the app: fonts, settings, database, services, view models, pages and logging.</summary>
     public static MauiApp CreateMauiApp()
     {
         var builder = MauiApp.CreateBuilder();
@@ -44,6 +45,7 @@ public static class MauiProgram
 
         Loc.SetLanguage(appSettings.Language);
         Controls.CategoryPalette.Use(appSettings);
+        Controls.CategoryIcons.Use(appSettings);
 
         builder.Services.AddSingleton(appSettings);
 

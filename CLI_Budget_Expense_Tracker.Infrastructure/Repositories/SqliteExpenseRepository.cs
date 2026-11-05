@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 public sealed class SqliteExpenseRepository(ExpenseTrackerDbContext context) : IExpenseRepository
 {
     
+    /// <summary>The expense with the id, or null.</summary>
     public Task<Expense?> GetByIdAsync(
         Guid id,
         CancellationToken cancellationToken = default) =>
@@ -17,6 +18,7 @@ public sealed class SqliteExpenseRepository(ExpenseTrackerDbContext context) : I
                 x => x.Id == id,
                 cancellationToken);
 
+    /// <summary>Replaces an expense with its changed copy; false when it was changed or deleted meanwhile.</summary>
     public async Task<bool> UpdateAsync(
         Expense original,
         Expense updated,
@@ -54,6 +56,7 @@ public sealed class SqliteExpenseRepository(ExpenseTrackerDbContext context) : I
         return affected == 1;
     }
     
+    /// <summary>The expenses of a period and category.</summary>
     public async Task<IReadOnlyList<Expense>> GetAsync(
         DateOnly? start = null, DateOnly? end = null, Guid? categoryId = null,
         CancellationToken cancellationToken = default)
@@ -65,12 +68,14 @@ public sealed class SqliteExpenseRepository(ExpenseTrackerDbContext context) : I
         return await query.OrderByDescending(x => x.Date).ThenBy(x => x.Id).ToListAsync(cancellationToken);
     }
 
+    /// <summary>Saves a new expense.</summary>
     public async Task AddAsync(Expense expense, CancellationToken cancellationToken = default)
     {
         context.Expenses.Add(expense);
         await context.SaveChangesAsync(cancellationToken);
     }
 
+    /// <summary>Saves several new expenses in one step.</summary>
     public async Task AddRangeAsync(
         IReadOnlyCollection<Expense> expenses,
         CancellationToken cancellationToken = default)
@@ -79,6 +84,7 @@ public sealed class SqliteExpenseRepository(ExpenseTrackerDbContext context) : I
         await context.SaveChangesAsync(cancellationToken);
     }
 
+    /// <summary>Which of the import hashes belong to expenses that already exist.</summary>
     public async Task<IReadOnlySet<string>> GetExistingImportHashesAsync(
         IReadOnlyCollection<string> hashes,
         CancellationToken cancellationToken = default)
@@ -98,6 +104,7 @@ public sealed class SqliteExpenseRepository(ExpenseTrackerDbContext context) : I
         return found;
     }
 
+    /// <summary>Deletes an expense; false when it does not exist.</summary>
     public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var expense = await context.Expenses.SingleOrDefaultAsync(x => x.Id == id, cancellationToken);

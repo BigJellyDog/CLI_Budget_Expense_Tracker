@@ -12,6 +12,7 @@ public static class GlobalErrorHandler
     private static string _logDirectory = "";
     private static int _alertOpen;
 
+    /// <summary>Logs and reports exceptions that nothing else caught, so the app does not close silently.</summary>
     public static void Register(IServiceProvider services)
     {
         _logger = services.GetRequiredService<ILoggerFactory>().CreateLogger("Unhandled");

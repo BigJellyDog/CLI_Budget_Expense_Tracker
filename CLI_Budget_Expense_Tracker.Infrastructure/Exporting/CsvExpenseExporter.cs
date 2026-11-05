@@ -7,6 +7,7 @@ using System.Text;
 /// <summary>Exports selected active expenses with category names and exact decimal amounts.</summary>
 public sealed class CsvExpenseExporter
 {
+    /// <summary>Writes the expenses to a CSV file, creating the folder if needed.</summary>
     public void Export(IReadOnlyList<Expense> expenses, IReadOnlyDictionary<Guid, string> categoryNames, string filePath)
     {
         var fullPath = Path.GetFullPath(filePath);

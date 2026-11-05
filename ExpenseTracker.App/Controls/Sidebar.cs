@@ -9,6 +9,7 @@ public sealed class Sidebar : ContentView
 {
     private readonly Dictionary<string, NavItem> _items = new();
 
+    /// <summary>Creates the side navigation with an entry for each page.</summary>
     public Sidebar()
     {
         var items = new VerticalStackLayout { Spacing = 4 };

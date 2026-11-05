@@ -31,6 +31,7 @@ public sealed class ExpensesViewModel : ObservableObject
     private decimal _donutTotal;
     private readonly TimeProvider _timeProvider;
 
+    /// <summary>Creates the view model of the expenses page.</summary>
     public ExpensesViewModel(
         IServiceScopeFactory scopeFactory,
         AppInitializer initializer,
@@ -207,6 +208,7 @@ public sealed class ExpensesViewModel : ObservableObject
 
     public string ActiveFilterCountText => ActiveFilterCount.ToString();
 
+    /// <summary>Opens or closes the filter panel.</summary>
     public void ToggleFilters()
     {
         IsFilterOpen = !IsFilterOpen;
@@ -308,6 +310,7 @@ public sealed class ExpensesViewModel : ObservableObject
 
     public IAsyncRelayCommand NextMonthCommand { get; }
 
+    /// <summary>Reloads the list, the totals and the charts with the current filters.</summary>
     public async Task RefreshAsync()
     {
         if (IsBusy) return;
@@ -431,7 +434,7 @@ public sealed class ExpensesViewModel : ObservableObject
                 .Where(x => x.CategoryId is not null)
                 .Select(x => x.Name));
             Items = result.Rows
-                .Select(x => x with { CategoryColor = CategoryPalette.ColorFor(x.CategoryName) })
+                .Select(x => x with { CategoryColor = CategoryPalette.ColorFor(x.CategoryName), CategoryIcon = CategoryIcons.PathFor(x.CategoryName) })
                 .ToArray();
             _total = result.Total;
             _previousTotal = result.PreviousTotal;
@@ -640,6 +643,7 @@ public sealed class ExpensesViewModel : ObservableObject
         OnPropertyChanged(nameof(HasFilterError));
     }
 
+    /// <summary>Deletes an expense and reloads the list.</summary>
     public async Task DeleteAsync(Guid id)
     {
         if (IsBusy || Items.All(x => x.Id != id)) return;
@@ -677,6 +681,21 @@ public sealed class ExpensesViewModel : ObservableObject
         {
             IsBusy = false;
             NotifyState();
+        }
+    }
+
+    /// <summary>Opens the folder the exported files are written to.</summary>
+    public bool OpenExportFolder()
+    {
+        try
+        {
+            _exportLocation.Open();
+            return true;
+        }
+        catch (Exception exception)
+        {
+            _logger.LogWarning(exception, "Could not open the export folder.");
+            return false;
         }
     }
 
@@ -779,6 +798,7 @@ public sealed class ExpensesViewModel : ObservableObject
         }
     }
 
+    /// <summary>Lists the backups that can be restored, newest first.</summary>
     public IReadOnlyList<BackupInfo> GetBackups() => _backups.List();
 
     /// <summary>Replaces the database with a backup and reloads the list.</summary>

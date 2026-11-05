@@ -14,6 +14,7 @@ public sealed class SqliteRecurringExpenseGenerator(
     IRecurringExpenseRepository recurringExpenses,
     TimeProvider timeProvider) : IRecurringExpenseGenerator
 {
+    /// <summary>Creates the expenses of all schedules that are due up to the date (not after today) and advances the schedules.</summary>
     public async Task<int> GenerateAsync(
         DateOnly? throughDate = null,
         CancellationToken cancellationToken = default)

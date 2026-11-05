@@ -17,6 +17,7 @@ public sealed class RevolutCsvReader : IBankStatementReader
         "Beschreibung", "Betrag", "Gebühr", "Währung", "Status", "Kontostand"
     ];
 
+    /// <summary>Reads statement entries from a Revolut CSV file or stream.</summary>
     public IReadOnlyList<BankStatementEntry> Read(string filePath)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
@@ -25,6 +26,7 @@ public sealed class RevolutCsvReader : IBankStatementReader
         return Read(stream);
     }
     
+    /// <summary>Reads statement entries from a Revolut CSV file or stream.</summary>
     public IReadOnlyList<BankStatementEntry> Read(Stream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);

@@ -38,6 +38,7 @@ public sealed class Chip : Border
 
     private readonly IconView _icon = new() { WidthRequest = 12, HeightRequest = 12, IsVisible = false };
 
+    /// <summary>Creates a small rounded label with an optional icon.</summary>
     public Chip()
     {
         StrokeThickness = 0;

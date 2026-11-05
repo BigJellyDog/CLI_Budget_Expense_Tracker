@@ -21,6 +21,7 @@ public sealed class IconButton : Border
     private readonly IconView _icon = new() { WidthRequest = 16, HeightRequest = 16 };
     private bool _hover;
 
+    /// <summary>Creates a round button that shows only an icon.</summary>
     public IconButton()
     {
         StrokeThickness = 0;

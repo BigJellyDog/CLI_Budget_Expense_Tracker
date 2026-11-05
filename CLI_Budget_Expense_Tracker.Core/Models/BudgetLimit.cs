@@ -15,6 +15,7 @@ public sealed class BudgetLimit
 
     public decimal MonthlyAmount { get; private set; }
 
+    /// <summary>Creates the limit of a category for a month; the month is stored as its first day.</summary>
     public BudgetLimit(
         Guid id,
         Guid categoryId,

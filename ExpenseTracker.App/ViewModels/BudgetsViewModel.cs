@@ -22,6 +22,7 @@ public sealed class BudgetsViewModel : ObservableObject
     private Category? _selectedCategory;
     private bool _loaded;
 
+    /// <summary>Creates the view model of the budgets page.</summary>
     public BudgetsViewModel(
         IServiceScopeFactory scopeFactory,
         AppInitializer initializer,
@@ -104,12 +105,14 @@ public sealed class BudgetsViewModel : ObservableObject
         }
     }
 
+    /// <summary>Loads the limits and the spending of the shown month.</summary>
     public Task LoadAsync() => RunAsync(
         ReloadAsync,
         () => Loc.T("Could not load budgets. Try Refresh."));
 
     public DateTime Month => _month.ToDateTime(TimeOnly.MinValue);
 
+    /// <summary>Shows the month chosen in the picker.</summary>
     public async Task SetMonthAsync(DateTime month)
     {
         if (IsBusy) return;
@@ -118,6 +121,7 @@ public sealed class BudgetsViewModel : ObservableObject
         await LoadAsync();
     }
 
+    /// <summary>Moves the shown month one step back (-1) or forward (+1).</summary>
     public async Task MoveMonthAsync(int offset)
     {
         if (offset != -1 && offset != 1)
@@ -133,6 +137,7 @@ public sealed class BudgetsViewModel : ObservableObject
         await LoadAsync();
     }
 
+    /// <summary>Puts the category and limit of a budget card into the form.</summary>
     public void SelectBudget(BudgetListItem item)
     {
         if (!CanEdit) return;
@@ -146,6 +151,7 @@ public sealed class BudgetsViewModel : ObservableObject
         NotifyState();
     }
 
+    /// <summary>Saves the limit of the chosen category for the shown month.</summary>
     public async Task SaveAsync()
     {
         if (!CanSave || SelectedCategory is not { } category)
@@ -194,6 +200,7 @@ public sealed class BudgetsViewModel : ObservableObject
             : Loc.T("Could not save the budget. Click Refresh and try again."));
     }
 
+    /// <summary>Removes the limit of a category after the person confirmed it.</summary>
     public async Task RemoveLimitAsync(
         Guid categoryId,
         Func<Task<bool>> confirmRemoval)

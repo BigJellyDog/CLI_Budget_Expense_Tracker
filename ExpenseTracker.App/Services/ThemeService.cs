@@ -86,6 +86,7 @@ public sealed class ThemeService(AppSettings settings)
         Apply();
     }
 
+    /// <summary>Applies the saved theme mode and accent to the application resources.</summary>
     public void Apply()
     {
         var application = _application;

@@ -36,6 +36,7 @@ public sealed class CustomCsvSettings : ObservableObject
     private string? _amountColumn;
     private string? _currencyColumn = NoColumn;
 
+    /// <summary>Creates the settings with the first option of each list selected.</summary>
     public CustomCsvSettings()
     {
         _selectedDelimiter = DelimiterOptions[0];
@@ -130,6 +131,7 @@ public sealed class CustomCsvSettings : ObservableObject
         set { if (value is not null) SetProperty(ref _currencyColumn, value); }
     }
 
+    /// <summary>Selects the delimiter option that matches the character.</summary>
     public void UseDelimiter(char delimiter) =>
         SelectedDelimiter = DelimiterOptions.FirstOrDefault(x => x.Value == delimiter)
                             ?? DelimiterOptions[0];
@@ -178,6 +180,7 @@ public sealed class CustomCsvSettings : ObservableObject
             SelectedCurrencyColumn = NoColumn;
     }
 
+    /// <summary>Builds the import profile from the form; returns false with a message when a value is wrong.</summary>
     public bool TryBuildProfile(out CsvImportProfile profile, out string error)
     {
         profile = null!;

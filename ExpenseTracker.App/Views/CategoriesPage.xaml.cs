@@ -18,6 +18,7 @@ public partial class CategoriesPage : ContentPage
 
     private readonly IServiceProvider _services;
 
+    /// <summary>Creates the categories page: the list and the card of the selected category.</summary>
     public CategoriesPage(CategoriesViewModel viewModel, IServiceProvider services)
     {
         InitializeComponent();
@@ -27,6 +28,7 @@ public partial class CategoriesPage : ContentPage
         BindingContext = viewModel;
     }
 
+    /// <summary>Opens the category rules.</summary>
     private async void OnRulesClicked(object? sender, EventArgs e)
     {
         if (!_viewModel.CanEdit) return;
@@ -34,30 +36,37 @@ public partial class CategoriesPage : ContentPage
         await Navigation.PushAsync(_services.GetRequiredService<RulesPage>());
     }
 
+    /// <summary>Loads the data each time the page is shown, so it is current after returning from another page.</summary>
     protected override async void OnAppearing()
     {
         base.OnAppearing();
         await _viewModel.LoadAsync();
     }
 
+    /// <summary>Ignores the back button while something is being saved or loaded.</summary>
     protected override bool OnBackButtonPressed() =>
         _viewModel.IsBusy || base.OnBackButtonPressed();
 
+    /// <summary>Shows the previous month.</summary>
     private async void OnPreviousClicked(object? sender, EventArgs e) =>
         await _viewModel.MoveMonthAsync(-1);
 
+    /// <summary>Shows the next month.</summary>
     private async void OnNextClicked(object? sender, EventArgs e) =>
         await _viewModel.MoveMonthAsync(1);
 
+    /// <summary>Shows the month chosen in the month picker.</summary>
     private async void OnMonthPicked(object? sender, DateTime month) =>
         await _viewModel.SetMonthAsync(month);
 
+    /// <summary>Selects the tapped category.</summary>
     private void OnRowTapped(object? sender, TappedEventArgs e)
     {
         if (sender is BindableObject { BindingContext: CategoryTile tile })
             _viewModel.Select(tile.Category.Id);
     }
 
+    /// <summary>Gives the selected category the tapped color, or opens the picker for a custom one.</summary>
     private void OnSwatchTapped(object? sender, TappedEventArgs e)
     {
         if (sender is not VisualElement { BindingContext: SwatchItem swatch } view)
@@ -73,6 +82,50 @@ public partial class CategoriesPage : ContentPage
         ColorPickerPopup.Show(view, _viewModel.Selected?.Color, _viewModel.SetSelectedCustomColor);
     }
 
+    /// <summary>Lets the person pick an SVG file and uses it as the icon of the selected category.</summary>
+    private async void OnImportIconClicked(object? sender, EventArgs e)
+    {
+        if (!_viewModel.CanEdit) return;
+
+        try
+        {
+            var file = await FilePicker.Default.PickAsync(new PickOptions
+            {
+                PickerTitle = Loc.T("Import SVG"),
+                FileTypes = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
+                {
+                    [DevicePlatform.WinUI] = [".svg"]
+                })
+            });
+
+            if (file is null) return;
+
+            await using var stream = await file.OpenReadAsync();
+            using var reader = new StreamReader(stream);
+            var svg = await reader.ReadToEndAsync();
+
+            if (!_viewModel.SetSelectedIconFromSvg(svg))
+            {
+                await DisplayAlertAsync(
+                    Loc.T("Import SVG"),
+                    Loc.T("This SVG cannot be used. Use a simple line icon on a 24 x 24 grid."),
+                    Loc.T("OK"));
+            }
+        }
+        catch (Exception)
+        {
+            await DisplayAlertAsync(Loc.T("Import SVG"), Loc.T("The file could not be read."), Loc.T("OK"));
+        }
+    }
+
+    /// <summary>A tapped icon of the picker becomes the icon of the selected category.</summary>
+    private void OnIconTapped(object? sender, TappedEventArgs e)
+    {
+        if (sender is BindableObject { BindingContext: IconChoice choice })
+            _viewModel.SetSelectedIcon(choice.Key);
+    }
+
+    /// <summary>Tints a category row while the pointer is over it (not the selected one).</summary>
     private static void ShowRowHover(object? sender, bool hovered)
     {
         if (sender is not Border { BindingContext: CategoryTile { IsSelected: false } } row) return;
@@ -83,10 +136,13 @@ public partial class CategoriesPage : ContentPage
             row.BackgroundColor = Colors.Transparent;
     }
 
+    /// <summary>Tints the row under the pointer.</summary>
     private void OnRowPointerEntered(object? sender, PointerEventArgs e) => ShowRowHover(sender, true);
 
+    /// <summary>Removes the tint of the row.</summary>
     private void OnRowPointerExited(object? sender, PointerEventArgs e) => ShowRowHover(sender, false);
 
+    /// <summary>Asks for a name and creates a category.</summary>
     private async void OnNewClicked(object? sender, EventArgs e)
     {
         if (!_viewModel.CanEdit) return;
@@ -106,6 +162,7 @@ public partial class CategoriesPage : ContentPage
         await _viewModel.SaveAsync();
     }
 
+    /// <summary>Asks for a new name and renames the selected category.</summary>
     private async void OnRenameClicked(object? sender, EventArgs e)
     {
         if (!_viewModel.CanEdit || _viewModel.Selected?.Category is not { } category) return;
@@ -131,6 +188,7 @@ public partial class CategoriesPage : ContentPage
         _viewModel.CancelEdit();
     }
 
+    /// <summary>Opens the expenses list filtered by the selected category and month.</summary>
     private async void OnShowEntriesClicked(object? sender, EventArgs e)
     {
         if (_viewModel.Selected?.Category is not { } category) return;
@@ -139,9 +197,11 @@ public partial class CategoriesPage : ContentPage
         await Shell.Current.GoToAsync("//expenses");
     }
 
+    /// <summary>Opens the budgets page.</summary>
     private async void OnBudgetClicked(object? sender, EventArgs e) =>
         await Shell.Current.GoToAsync("//budgets");
 
+    /// <summary>Deletes the selected category; if it has expenses, offers to move them or delete them too.</summary>
     private async void OnDeleteClicked(object? sender, EventArgs e)
     {
         if (_choosingDeleteAction
@@ -181,6 +241,7 @@ public partial class CategoriesPage : ContentPage
         }
     }
 
+    /// <summary>Asks where to move the expenses of the category, then deletes it.</summary>
     private async Task MoveAndDeleteAsync(Category category, CategoryUsage usage)
     {
         var targets = _viewModel.Items

@@ -7,7 +7,8 @@ public sealed record ExpenseListItem(
     string CategoryName,
     string Description,
     string Currency = "",
-    Color? CategoryColor = null)
+    Color? CategoryColor = null,
+    string CategoryIcon = "")
 {
     /// <summary>The category color, softened, as the background of the avatar.</summary>
     public Color? Tint => CategoryColor?.WithAlpha(0.16f);

@@ -16,6 +16,7 @@ public sealed class Expense
     /// <summary>Identifies the bank record this expense was imported from.</summary>
     public string? ImportHash { get; private set; }
 
+    /// <summary>Creates an expense with a valid amount, category and date; the description is trimmed.</summary>
     public Expense(
         Guid id,
         decimal amount,

@@ -165,6 +165,7 @@ public sealed class SettingsViewModel(
 
     public bool HasSuccess => SuccessMessage.Length > 0;
 
+    /// <summary>Copies the saved settings into the form.</summary>
     public void Reload()
     {
         CurrencyText = settings.Currency;
@@ -180,6 +181,7 @@ public sealed class SettingsViewModel(
         NotifyState();
     }
 
+    /// <summary>Validates the currency and saves the settings.</summary>
     public void Save()
     {
         var code = (CurrencyText ?? "").Trim().ToUpperInvariant();

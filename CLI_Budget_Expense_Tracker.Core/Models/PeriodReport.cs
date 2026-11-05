@@ -28,6 +28,7 @@ public sealed record PeriodReport(
 
     public decimal? ChangePercent => PercentChange(Total, PreviousTotal);
 
+    /// <summary>The change from the previous value in percent, or null when there is nothing to compare with.</summary>
     internal static decimal? PercentChange(decimal current, decimal previous) =>
         previous == 0
             ? null

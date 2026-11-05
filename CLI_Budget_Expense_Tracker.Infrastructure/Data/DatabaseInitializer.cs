@@ -11,6 +11,7 @@ public sealed class DatabaseInitializer(
     ExpenseTrackerDbContext context,
     DatabaseBackupService backups)
 {
+    /// <summary>Applies the pending migrations; a new database is created by the first one.</summary>
     public async Task InitializeAsync(
         CancellationToken cancellationToken = default)
     {

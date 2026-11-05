@@ -8,6 +8,7 @@ using Core.Models;
 /// </summary>
 public sealed class RevolutStatementClassifier : IBankStatementClassifier
 {
+    /// <summary>Sorts Revolut entries into expense candidates, incoming money, entries to review and ones to ignore; transfers between own accounts are recognized.</summary>
     public IReadOnlyList<ClassifiedBankEntry> Classify(
         IReadOnlyList<BankStatementEntry> entries,
         string currency)

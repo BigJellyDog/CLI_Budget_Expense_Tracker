@@ -10,6 +10,7 @@ public sealed class RecurringExpenseService(
     IRecurringExpenseRepository recurringExpenses,
     ICategoryRepository categories)
 {
+    /// <summary>All schedules, active and inactive.</summary>
     public Task<IReadOnlyList<RecurringExpense>> GetAllAsync(
         CancellationToken cancellationToken = default)
     {
